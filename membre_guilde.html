@@ -1,67 +1,247 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Membre de la Guilde BloodShadow</title>
+    <title>Membres de la Guilde BloodShadow</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <header>
-        <header>
-            <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo gauche">
-            <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo droite">
-            <h1>Membre de la Guilde BloodShadow</h1>
-            <nav>
-                <ul>
-                    <li><a href ="index.html">Accueil</a></li>
-                    <li><a href="planning.html">Planning de Raid</a></li>
-                    <li><a href="https://maxroll.gg/lost-ark/raids" target="_blank">Guide Raid</a></li>
-                    <li><a href="https://www.lostark.nexus" target="_blank">Build Personnages</a></li>
-                    <li><a href="https://www.playlostark.com/fr-fr/news" target="_blank">News Lost Ark</a></li>
-                    <li><a href="https://www.playlostark.com/fr-fr/support/server-status" target="_blank">Server Status</a></li>
-                </ul>
-            </nav>
-
+        <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo gauche">
+        <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo droite">
+        <h1>Membres de la Guilde BloodShadow</h1>
+        <nav>
+            <ul>
+                <li><a href="planning.html">Planning de Raid</a></li>
+                <li><a href="https://maxroll.gg/lost-ark/raids" target="_blank">Guide Raid</a></li>
+                <li><a href="https://www.lostark.nexus" target="_blank">Build Personnages</a></li>
+                <li><a href="https://www.playlostark.com/fr-fr/news" target="_blank">News Lost Ark</a></li>
+                <li><a href="https://www.playlostark.com/fr-fr/support/server-status" target="_blank">Server Status</a></li>
+            </ul>
+        </nav>
     </header>
 
     <main>
-        <main>
-            <section id="membre_guilde">
-                <h2>Gestion des membres</h2>
-                <div id="liste-joueurs">
-                    <!-- Les joueurs apparaîtront ici -->
-                </div>
-            </section>
-        
-            <!-- Pop-up d'ajout de joueur -->
-            <div id="popup-ajout-joueur" class="popup">
-                <div class="popup-content">
-                    <span class="popup-close-btn" id="close-popup-joueur">×</span>
-                    <h3>Entrez le nom du joueur :</h3>
-                    <input type="text" id="nouveau-joueur-nom" placeholder="Nom du joueur">
-                    <button id="valider-ajout-joueur">Ajouter</button>
-                </div>
+        <section id="membre_guilde">
+            <h2>Gestion des membres</h2>
+            <div id="liste-joueurs"></div>
+        </section>
+
+        <!-- Pop-up ajout perso -->
+        <div id="popup-ajout-personnage" class="popup">
+            <div class="popup-content">
+                <span class="popup-close-btn" id="close-popup-personnage">×</span>
+                <h3>Ajouter un personnage à <span id="joueur-selectionne"></span></h3>
+
+                <label for="archetype-personnage">Archétype :</label>
+                <select id="archetype-personnage">
+                    <option value="">Sélectionner un archétype</option>
+                </select>
+
+                <label for="classe-personnage">Classe :</label>
+                <select id="classe-personnage" disabled>
+                    <option value="">Sélectionner une classe</option>
+                </select>
+
+                <label for="nom-personnage">Nom du perso :</label>
+                <input type="text" id="nom-personnage">
+
+                <label for="ilvl-personnage">iLvl :</label>
+                <input type="number" id="ilvl-personnage">
+
+                <button id="valider-ajout-personnage">Ajouter</button>
+
+                <hr>
+
+                <!-- Sélecteur de personnage à mettre à jour ou supprimer -->
+                <h3>Modifier ou supprimer un personnage</h3>
+
+                <label for="select-character">Sélectionner un personnage :</label>
+                <select id="select-character">
+                    <option value="">-- Sélectionner un personnage --</option>
+                </select>
+
+                <label for="update-ilvl-personnage">Nouveau iLvl :</label>
+                <input type="number" id="update-ilvl-personnage" placeholder="Nouveau iLvl">
+
+                <button id="update-ilvl-btn">Mettre à jour l'iLvl</button>
+                <button id="delete-character-btn">Supprimer ce personnage</button>
             </div>
-        
-            <!-- Pop-up d'ajout de personnage -->
-            <div id="popup-ajout-personnage" class="popup">
-                <div class="popup-content">
-                    <span class="popup-close-btn" id="close-popup-personnage">×</span>
-                    <h3>Ajouter un personnage à <span id="joueur-selectionne"></span></h3>
-                    <label>Nom du perso :</label>
-                    <input type="text" id="nom-personnage">
-                    <label>Classe :</label>
-                    <input type="text" id="classe-personnage">
-                    <label>iLvl :</label>
-                    <input type="number" id="ilvl-personnage">
-                    <button id="valider-ajout-personnage">Ajouter</button>
-                </div>
-            </div>
-        </main>
+        </div>
     </main>
 
-    <script src="script.js"></script>
+    <script>
+        const archetypesClasses = {
+            "Guerrier": ["Berserker", "Paladin", "Destructeur", "Gunlancer"],
+            "Guerrière": ["Slayer", "Paladine"],
+            "Mage": ["Sorcière", "Arcaniste", "Barde", "Invocatrice"],
+            "Martialiste Femme": ["Elementiste", "Spirite", "Lancière", "Pugiliste"],
+            "Martialiste Homme": ["Striker", "Breaker"],
+            "Assassin": ["Sanguelame", "Démoniste", "Faucheuse", "Dévoreuse d'âme"],
+            "Gunner": ["Gunner", "Sagittaire", "Artilleur", "Machiniste"],
+            "Gunneuse": ["Gunneuse"],
+            "Spécialiste": ["Artiste", "Helètempète", "Ame sauvage"]
+        };
+
+        let joueurs = JSON.parse(localStorage.getItem('joueurs')) || [];
+
+        function sauvegarder() {
+            localStorage.setItem('joueurs', JSON.stringify(joueurs));
+        }
+
+        function afficherJoueurs() {
+            const listeJoueurs = document.getElementById("liste-joueurs");
+            listeJoueurs.innerHTML = "";
+            joueurs.forEach(joueur => {
+                const div = document.createElement("div");
+                div.innerHTML = `
+                    <h3>${joueur.nom}</h3>
+                    <button onclick="ouvrirAjoutPerso('${joueur.nom}')">Ajouter un personnage</button>
+                    <ul>
+                        ${joueur.personnages.map(p => `<li>${p.nom} (${p.classe}) - iLvl ${p.ilvl}</li>`).join('')}
+                    </ul>
+                    <hr>
+                `;
+                listeJoueurs.appendChild(div);
+            });
+        }
+
+        // Fonction d'ouverture de la pop-up
+        function ouvrirAjoutPerso(nomJoueur) {
+            document.getElementById("joueur-selectionne").textContent = nomJoueur;
+            document.getElementById("popup-ajout-personnage").style.display = "block";
+            
+            // Remplir la liste des archétypes
+            const archetypeSelect = document.getElementById("archetype-personnage");
+            archetypeSelect.innerHTML = '<option value="">Sélectionner un archétype</option>';
+            Object.keys(archetypesClasses).forEach(archetype => {
+                const option = document.createElement("option");
+                option.value = archetype;
+                option.textContent = archetype;
+                archetypeSelect.appendChild(option);
+            });
+
+            // Réinitialiser et désactiver la sélection de classe
+            const classeSelect = document.getElementById("classe-personnage");
+            classeSelect.innerHTML = '<option value="">Sélectionner une classe</option>';
+            classeSelect.disabled = true;
+
+            // Remplir la liste des personnages du joueur sélectionné
+            const joueur = joueurs.find(j => j.nom === nomJoueur);
+            const selectCharacter = document.getElementById("select-character");
+            selectCharacter.innerHTML = '<option value="">-- Sélectionner un personnage --</option>';
+
+            if (joueur) {
+                joueur.personnages.forEach(p => {
+                    const option = document.createElement("option");
+                    option.value = p.nom;
+                    option.textContent = `${p.nom} (${p.classe}) - iLvl ${p.ilvl}`;
+                    selectCharacter.appendChild(option);
+                });
+            }
+        }
+
+        // Mise à jour des classes en fonction de l'archétype sélectionné
+        document.getElementById("archetype-personnage").addEventListener('change', function() {
+            const selectedArchetype = this.value;
+            const classeSelect = document.getElementById("classe-personnage");
+
+            // Vider la liste des classes
+            classeSelect.innerHTML = '<option value="">Sélectionner une classe</option>';
+            classeSelect.disabled = true;
+
+            if (selectedArchetype && archetypesClasses[selectedArchetype]) {
+                // Activer et remplir la liste des classes en fonction de l'archétype
+                archetypesClasses[selectedArchetype].forEach(classe => {
+                    const option = document.createElement("option");
+                    option.value = classe;
+                    option.textContent = classe;
+                    classeSelect.appendChild(option);
+                });
+                classeSelect.disabled = false; // Activer la sélection de classe
+            }
+        });
+
+        // Valider l'ajout du personnage
+        document.getElementById("valider-ajout-personnage").addEventListener('click', function() {
+            const joueurNom = document.getElementById("joueur-selectionne").textContent;
+            const archetype = document.getElementById("archetype-personnage").value;
+            const classe = document.getElementById("classe-personnage").value;
+            const nomPerso = document.getElementById("nom-personnage").value;
+            const ilvl = document.getElementById("ilvl-personnage").value;
+
+            if (archetype && classe && nomPerso && ilvl) {
+                const joueur = joueurs.find(j => j.nom === joueurNom);
+                joueur.personnages.push({
+                    nom: nomPerso,
+                    archetype: archetype,
+                    classe: classe,
+                    ilvl: ilvl
+                });
+                sauvegarder();
+                afficherJoueurs();
+                document.getElementById("popup-ajout-personnage").style.display = "none"; // Fermer la fenêtre
+            }
+        });
+
+        // Mise à jour de l'iLvl du personnage sélectionné
+        document.getElementById("update-ilvl-btn").addEventListener('click', function() {
+            const joueurNom = document.getElementById("joueur-selectionne").textContent;
+            const personnageNom = document.getElementById("select-character").value;
+            const nouveauIlvl = document.getElementById("update-ilvl-personnage").value;
+
+            const joueur = joueurs.find(j => j.nom === joueurNom);
+            if (joueur) {
+                const personnage = joueur.personnages.find(p => p.nom === personnageNom);
+                if (personnage && nouveauIlvl) {
+                    personnage.ilvl = nouveauIlvl;
+                    sauvegarder();
+                    afficherJoueurs();
+                    alert("iLvl mis à jour !");
+                } else {
+                    alert("Personnage non trouvé ou iLvl invalide !");
+                }
+            }
+        });
+
+        // Suppression du personnage sélectionné
+        document.getElementById("delete-character-btn").addEventListener('click', function() {
+            const joueurNom = document.getElementById("joueur-selectionne").textContent;
+            const personnageNom = document.getElementById("select-character").value;
+
+            const joueur = joueurs.find(j => j.nom === joueurNom);
+            if (joueur) {
+                const personnageIndex = joueur.personnages.findIndex(p => p.nom === personnageNom);
+                if (personnageIndex !== -1) {
+                    joueur.personnages.splice(personnageIndex, 1); // Supprimer le personnage
+                    sauvegarder();
+                    afficherJoueurs();
+                    alert("Personnage supprimé !");
+                    document.getElementById("popup-ajout-personnage").style.display = "none"; // Fermer la fenêtre
+                } else {
+                    alert("Personnage non trouvé !");
+                }
+            }
+        });
+
+        // Fermer la fenêtre popup
+        document.getElementById("close-popup-personnage").addEventListener('click', function() {
+            document.getElementById("popup-ajout-personnage").style.display = "none";
+        });
+
+        // Fermer la pop-up si l'utilisateur clique en dehors
+        document.getElementById('popup-ajout-personnage').addEventListener('click', function(event) {
+            if (event.target === this) {
+                document.getElementById("popup-ajout-personnage").style.display = 'none';
+            }
+        });
+
+        afficherJoueurs();
+    </script>
 </body>
+
 </html>

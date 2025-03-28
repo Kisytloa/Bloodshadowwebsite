@@ -9,7 +9,6 @@ body {
     transition: background 0.3s ease; /* Douce transition lors du changement de fond */
 }
 
-
 /* ------ Header ------ */
 header {
     padding: 40px 20px;
@@ -145,15 +144,7 @@ input:focus, select:focus {
     box-shadow: 0px 0px 20px rgba(212, 175, 55, 0.5);
 }
 
-.popup-close-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    font-size: 28px;
-    color: #d4af37;
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
+
 
 .popup-close-btn:hover {
     color: #fff;
@@ -304,4 +295,138 @@ footer {
     transform: scale(1.05);
 }
 
+/* ------ Section Membres de Guilde ------ */
+#membre_guilde {
+    text-align: center;
+    margin-bottom: 60px;
+}
 
+#membre_guilde h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    color: #d4af37;
+    text-shadow: 2px 2px 8px rgba(212, 175, 55, 0.4);
+}
+
+/* Liste des membres */
+#liste-joueurs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Carte individuelle pour chaque membre */
+.membre-card {
+    background: rgba(20, 20, 20, 0.95);
+    border: 3px solid #d4af37;
+    border-radius: 15px;
+    padding: 25px;
+    width: 320px;
+    box-shadow: 0px 0px 15px rgba(212, 175, 55, 0.5);
+    text-align: center;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.membre-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 0px 20px rgba(212, 175, 55, 0.7);
+}
+
+/* Nom du membre */
+.membre-card h3 {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+    color: #d4af37;
+}
+
+/* Liste des personnages */
+.membre-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.membre-card li {
+    background: rgba(50, 50, 50, 0.8);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 5px solid #d4af37;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.3s ease-in-out;
+}
+
+.membre-card li:hover {
+    background: rgba(80, 80, 80, 0.9);
+}
+
+/* Icône de classe avant chaque personnage */
+.membre-card li:before {
+    content: "⚔️"; /* Peut être remplacé par une icône de classe si besoin */
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+/* Bouton "Ajouter un personnage" */
+.ajouter-personnage-btn {
+    background-color: #d4af37;
+    color: black;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    border: none;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.ajouter-personnage-btn:hover {
+    background-color: #fff;
+    color: #222;
+    transform: scale(1.05);
+}
+
+/* ------ Formulaire Mise à Jour iLvl ------ */
+#maj-ilvl {
+    text-align: center;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+#maj-ilvl label {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #e0c28b;
+    display: block;
+    margin-top: 15px;
+}
+
+#maj-ilvl button {
+    margin-top: 20px;
+    width: 100%;
+}
+
+/* Effet sur le champ de saisie iLvl */
+#new-ilvl {
+    text-align: center;
+    font-weight: bold;
+}
+
+/* ------ Bouton Supprimer Personnage ------ */
+.supprimer-personnage-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 7px 12px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.supprimer-personnage-btn:hover {
+    background-color: darkred;
+}

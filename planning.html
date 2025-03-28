@@ -5,17 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planning de Raid BS</title>
-
-    <!-- FullCalendar CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
-
-    <!-- Fichier CSS -->
     <link rel="stylesheet" href="style.css">
-
-    <!-- Firebase v8 -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 </head>
 
 <body>
@@ -25,10 +16,10 @@
         <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo droite">
         <nav>
             <ul>
-                <li><a href ="index.html">Accueil</a></li>
+                <li><a href="index.html">Accueil</a></li>
                 <li><a href="https://maxroll.gg/lost-ark/raids" target="_blank">Guide Raid</a></li>
                 <li><a href="https://www.lostark.nexus" target="_blank">Build Personnages</a></li>
-                <li><a href="membre_guilde.html">Membre de la Guilde</a></li>
+                <li><a href="membre_guilde.html">Membres de la Guilde</a></li>
                 <li><a href="https://www.playlostark.com/fr-fr/news" target="_blank">News Lost Ark</a></li>
                 <li><a href="https://www.playlostark.com/fr-fr/support/server-status" target="_blank">Server Status</a></li>
             </ul>
@@ -36,147 +27,343 @@
     </header>
 
     <main>
-        <div id="planning-container" style="display: flex; justify-content: space-between;">
-            <!-- Planning de raids -->
-            <section id="planning" style="flex-grow: 1;">
-                <h2>Planning de Raid</h2>
-                <div id="calendar"></div>
-            </section>
+        <section id="planning">
+            <h2>Planning de Raid</h2>
+            <div id="calendar"></div>
+        </section>
 
-            <!-- Récapitulatif des raids du jour -->
-            <section id="recap-raids" style="width: 300px; margin-left: 20px;">
-                <h2>Raids d'aujourd'hui</h2>
-                <ul id="raid-list-today">
-                    <li>Aucun raid prévu aujourd'hui.</li>
-                </ul>
-            </section>
-
-            <!-- Tableau des détails du raid -->
-            <section id="detail-raid" style="display: none;">
-                <h2>Détails du Raid</h2>
-                <table id="raid-details-table">
-                    <tr>
-                        <th>Nom du Raid</th>
-                        <td id="raid-name">-</td>
-                    </tr>
-                    <tr>
-                        <th>Date & Heure</th>
-                        <td id="raid-date-time">-</td>
-                    </tr>
-                    <tr>
-                        <th>Niveau d'objet</th>
-                        <td id="raid-ilvl">-</td>
-                    </tr>
-                    <tr>
-                        <th>Joueurs inscrits</th>
-                        <td id="raid-players">
-                            <ul id="raid-players-list">
-                                <li>Aucun inscrit</li>
-                            </ul>
-                        </td>
-                    </tr>
-                </table>
-            </section>
-        </div>
-
-        <!-- Pop-up de détails du Raid -->
-        <div id="raid-detail-popup" class="popup">
-            <div class="popup-content">
-                <span id="popup-close-btn" class="popup-close-btn">×</span>
-                <h2 id="raid-detail-title">Détails du Raid</h2>
-                <p><strong>Date:</strong> <span id="raid-detail-date"></span></p>
-                <p><strong>Heure:</strong> <span id="raid-detail-time"></span></p>
-                <p><strong>Inscriptions:</strong></p>
-                <div id="raid-detail-inscriptions-list-container"></div>
-                    <ul id="raid-detail-inscriptions-list"></ul>
-                </div>  
-            </div>
-        </div>
-
-        <!-- Ajout de Raids -->
         <section id="ajout-raid">
             <h2>Ajouter un Raid</h2>
             <label for="raid-select">Choisir un Raid :</label>
             <select id="raid-select">
-                <option value="Thaemine NM">Thaemine NM Raid à 8 Joueurs Ilvl : 1610</option>
-                <option value="Thaemine HM">Thaemine HM Raid à 8 Joueurs Ilvl : 1620</option>
-                <option value="Behemoth">Behemoth Raid à 16 Joueurs Ilvl : 1620</option>
-                <option value="Echidna NM">Echidna NM Raid à 8 Joueurs Ilvl : 1620</option>
-                <option value="Echidna HM">Echidna HM Raid à 8 Joueurs Ilvl : 1630</option>
-                <option value="Aegir NM">Aegir NM Raid à 8 Joueurs Ilvl : 1660</option>
-                <option value="Aegir HM">Aegir HM Raid à 8 Joueurs Ilvl : 1680</option>
-                <option value="Brelshaza NM">Brelshaza NM Raid à 8 Joueurs Ilvl : 1670</option>
-                <option value="Brelshaza HM">Brelshaza HM Raid à 8 Joueurs Ilvl : 1690</option>
-                <option value="Thaemine NM Rematch">Thaemine NM Rematch Raid à 8 Joueurs Ilvl : 1680</option>
-                <option value="Thaemine HM Rematch ">Thaemine HM Rematch Raid à 8 Joueurs Ilvl : 1700</option>
+                <option value="Thaemine NM">Thaemine NM - iLvl 1610</option>
+                <option value="Thaemine HM">Thaemine HM - iLvl 1620</option>
+                <option value="Behemoth">Behemoth - iLvl 1620</option>
+                <option value="Echidna NM">Echidna NM - iLvl 1620</option>
+                <option value="Echidna HM">Echidna HM - iLvl 1630</option>
+                <option value="Aegir NM">Aegir NM - iLvl 1660</option>
+                <option value="Aegir HM">Aegir HM - iLvl 1680</option>
+                <option value="Brelshaza NM">Brelshaza NM - iLvl 1670</option>
+                <option value="Brelshaza HM">Brelshaza HM - iLvl 1690</option>
+                <option value="Thaemine NM Rematch">Thaemine NM Rematch - iLvl 1680</option>
+                <option value="Thaemine HM Rematch">Thaemine HM Rematch - iLvl 1700</option>
             </select>
-            <label for="raid-date">Date du Raid :</label>
+            <label for="raid-date">Date :</label>
             <input type="date" id="raid-date">
-
-            <label for="raid-time">Heure du Raid :</label>
+            <label for="raid-time">Heure :</label>
             <input type="time" id="raid-time">
-
             <button id="add-raid-btn">Ajouter le Raid</button>
         </section>
 
-        <!-- Retirer un Raid -->
-        <section id="retirer-raid">
+        <section id="retrait-raid">
             <h2>Retirer un Raid</h2>
-            <label for="raid-select-remove">Sélectionner un Raid à Retirer :</label>
-            <br>
-            <select id="raid-select-remove">
-                <option value="">-- Sélectionner un Raid --</option>
+            <label for="raid-remove-select">Sélectionner un Raid :</label>
+            <select id="raid-remove-select">
+                <option value="">-- Sélectionner un raid --</option>
             </select>
-            <br>
-            <button id="remove-raid-btn">Retirer un Raid</button>
+            <button id="remove-raid-btn">Retirer le Raid</button>
         </section>
 
-        <!-- Section Inscription -->
         <section id="inscription">
             <h2>Inscription aux Raids</h2>
-
-            <!-- Sélection de l'archétype -->
-            <label for="player-archtype">Choisir un Archétype</label>
-            <select id="player-archtype" required>
-                <option value="">-- Sélectionner un Archétype --</option>
-                <option value="Guerrier">Guerrier</option>
-                <option value="Guerrière">Guerrière</option>
-                <option value="Mage">Mage</option>
-                <option value="Martialiste Femme">Martialiste Femme</option>
-                <option value="Martialiste Homme">Martialiste Homme</option>
-                <option value="Assassin">Assassin</option>
-                <option value="Gunner">Gunner</option>
-                <option value="Gunneuse">Gunneuse</option>
-                <option value="Spécialiste">Spécialiste</option>
+            <label for="member-select">Membre :</label>
+            <select id="member-select">
+                <option value="">-- Sélectionner un membre --</option>
             </select>
-
-            <!-- Sélection de la classe du personnage -->
-            <label for="player-class">Classe du personnage</label>
-            <select id="player-class" required>
-                <option value="">-- Sélectionner une classe --</option>
-                <!-- Les options de classes seront insérées dynamiquement en fonction de l'archétype choisi -->
+            <label for="character-select">Personnage :</label>
+            <select id="character-select">
+                <option value="">-- Sélectionner un personnage --</option>
             </select>
-
-            <label for="raid-select-inscription">Choisir un Raid :</label>
-            <br>
+            <label for="raid-select-inscription">Raid :</label>
             <select id="raid-select-inscription">
-                <option value="" disabled selected>-- Sélectionnez un Raid --</option>
+                <option value="">-- Sélectionner un raid --</option>
             </select>
-            <br>
-            <label for="player-name">Votre Pseudo :</label>
-            <input type="text" id="player-name" placeholder="Ex : Kïsst" required>
             <button id="inscription-btn">S'inscrire</button>
         </section>
 
+        <!-- Pop-up pour afficher les détails du raid -->
+        <div id="raid-popup" class="popup">
+            <div class="popup-content">
+                <span id="close-popup" class="close">&times;</span>
+                <h2 id="raid-name"></h2>
+                <p id="raid-date-time"></p>
+                <ul id="raid-players-list"></ul>
+            </div>
+        </div>
+
     </main>
 
-    <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script>
+        // Membres et persos provenant du localStorage
+        let joueurs = JSON.parse(localStorage.getItem('joueurs')) || [];
+        let raids = JSON.parse(localStorage.getItem('raids')) || [];
 
-    <!-- Fichier JS -->
-    <script src="script.js"></script>
-    <script type="module" src="membres.js"></script>
+        const calendarEl = document.getElementById('calendar');
+        const raidSelectRemove = document.getElementById('raid-select-inscription');
+        const raidListToday = document.getElementById('raid-list-today');
+        const memberSelect = document.getElementById('member-select');
+        const characterSelect = document.getElementById('character-select');
 
+        let calendar;
+
+        // Sauvegarder les données dans localStorage
+        function sauvegarder() {
+            localStorage.setItem('raids', JSON.stringify(raids));  // Sauvegarde des raids dans localStorage
+            localStorage.setItem('joueurs', JSON.stringify(joueurs));  // Sauvegarde des joueurs dans localStorage
+        }
+
+
+        // Initialisation du calendrier
+        function initialiserCalendrier() {
+            // Créer le calendrier avec FullCalendar
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: raids.map(r => ({
+                    id: r.id,
+                    title: `${r.nom} - ${r.time}`,  // Affichage du nom du raid et de l'heure dans le titre
+                    start: `${r.date}T${r.time}:00`,  // Format date et heure pour FullCalendar
+                    description: r.inscriptions || []  // Description des inscriptions (si présentes)
+                })),
+                eventClick: function (info) {
+                    afficherDetailsRaid(info.event.id);  // Affiche les détails du raid lorsqu'on clique sur un événement
+                }
+            });
+
+            calendar.render();
+            majRaidSelect();  // Mettre à jour le sélecteur de raid pour l'inscription
+            majRaidRemoveSelect();  // Mettre à jour le sélecteur de raid à retirer
+            majRaidToday();  // Mettre à jour la liste des raids pour aujourd'hui
+        }
+
+
+        function ajouterRaid() {
+            const nom = document.getElementById('raid-select').value;
+            const date = document.getElementById('raid-date').value;
+            const time = document.getElementById('raid-time').value;
+            if (!nom || !date || !time) return alert("Remplissez tous les champs");
+
+            const id = Date.now().toString();
+            const raid = { id, nom, date, time, inscriptions: [] };
+            raids.push(raid);  // Ajouter le raid dans le tableau
+
+            // Sauvegarder dans localStorage
+            sauvegarder();  // Appel à la fonction de sauvegarde
+
+            // Ajout de l'événement dans le calendrier
+            calendar.addEvent({
+                id,
+                title: `${nom} - ${time}`,  // Affichage du nom du raid et de l'heure dans le titre
+                start: `${date}T${time}:00`,  // Format date et heure pour FullCalendar
+                description: raid.inscriptions || []  // Description des inscriptions (si présentes)
+            });
+
+            majRaidSelect();
+            majRaidRemoveSelect();  // Appel à majRaidRemoveSelect après l'ajout
+            majRaidToday();
+        }
+
+
+
+
+        // Afficher les détails du raid sélectionné
+        function afficherDetailsRaid(id) {
+            const raid = raids.find(r => r.id === id);
+            if (!raid) return;
+
+            // Mettre à jour les informations de la pop-up
+            document.getElementById('raid-name').textContent = raid.nom;
+            document.getElementById('raid-date-time').textContent = `Date: ${raid.date} à ${raid.time}`;  // Affichage de la date et de l'heure
+
+            const list = document.getElementById('raid-players-list');
+            list.innerHTML = "";
+            if (raid.inscriptions.length === 0) {
+                list.innerHTML = "<li>Aucun inscrit</li>";
+            } else {
+                raid.inscriptions.forEach(p => {
+                    const li = document.createElement('li');
+                    li.textContent = `${p.membre} - ${p.personnage} (${p.classe} - iLvl ${p.ilvl})`;
+                    list.appendChild(li);
+                });
+            }
+
+            // Afficher la pop-up
+            const popup = document.getElementById('raid-popup');
+            popup.style.display = 'block';
+
+            // Fermer la pop-up si l'utilisateur clique en dehors de la pop-up
+            popup.addEventListener('click', function(event) {
+                if (event.target === popup) {
+                    popup.style.display = 'none';
+                }
+            });
+        }
+
+
+
+        function majRaidSelect() {
+            const raidSelect = document.getElementById('raid-select-inscription');
+            raidSelect.innerHTML = '<option value="">-- Sélectionner un raid --</option>';
+            
+            raids.forEach(r => {
+                const opt = document.createElement('option');
+                // Afficher le nom du raid avec la date et l'heure
+                opt.value = r.id;
+                opt.textContent = `${r.nom} - ${r.date} à ${r.time}`;  // Inclure l'heure dans l'affichage
+                raidSelect.appendChild(opt);
+            });
+        }
+
+
+        
+        function majRaidRemoveSelect() {
+            const raidRemoveSelect = document.getElementById('raid-remove-select');
+            raidRemoveSelect.innerHTML = '<option value="">-- Sélectionner un raid --</option>';
+
+            if (raids.length === 0) return;
+
+            raids.forEach(r => {
+                const opt = document.createElement('option');
+                // Afficher le nom du raid avec la date et l'heure
+                opt.value = r.id;
+                opt.textContent = `${r.nom} - ${r.date} à ${r.time}`;  // Inclure l'heure dans l'affichage
+                raidRemoveSelect.appendChild(opt);
+            });
+        }
+
+
+        // Retirer un raid
+        function retirerRaid() {
+            const raidId = document.getElementById('raid-remove-select').value;
+            if (!raidId) return alert("Sélectionnez un raid à retirer.");
+
+            if (!confirm("Êtes-vous sûr de vouloir supprimer ce raid ?")) return;
+
+            // Supprimer du tableau raids
+            raids = raids.filter(r => r.id !== raidId);
+
+            // Supprimer de l'affichage du calendrier
+            const event = calendar.getEventById(raidId);
+            if (event) event.remove();
+
+            sauvegarder();
+            majRaidSelect();
+            majRaidRemoveSelect(); // Mettre à jour le sélecteur de retrait après suppression
+            majRaidToday();
+        }
+
+        // Mettre à jour la liste des raids pour aujourd'hui
+        function majRaidToday() {
+            raidListToday.innerHTML = "";
+            const today = new Date().toISOString().split('T')[0];
+            const todayRaids = raids.filter(r => r.date === today);
+            if (todayRaids.length === 0) {
+                raidListToday.innerHTML = "<li>Aucun raid prévu aujourd'hui.</li>";
+            } else {
+                todayRaids.forEach(r => {
+                    const li = document.createElement('li');
+                    li.textContent = `${r.nom} à ${r.time}`;
+                    raidListToday.appendChild(li);
+                });
+            }
+        }
+
+        // Afficher les détails du raid sélectionné
+        // Afficher les détails du raid sélectionné
+        function afficherDetailsRaid(id) {
+            const raid = raids.find(r => r.id === id);
+            if (!raid) return;
+
+            // Mettre à jour les informations de la pop-up
+            document.getElementById('raid-name').textContent = raid.nom;
+            document.getElementById('raid-date-time').textContent = `Date: ${raid.date} à ${raid.time}`;  // Affichage de la date et de l'heure
+
+            const list = document.getElementById('raid-players-list');
+            list.innerHTML = "";
+            if (raid.inscriptions.length === 0) {
+                list.innerHTML = "<li>Aucun inscrit</li>";
+            } else {
+                raid.inscriptions.forEach(p => {
+                    const li = document.createElement('li');
+                    li.textContent = `${p.membre} - ${p.personnage} (${p.classe} - iLvl ${p.ilvl})`;
+                    list.appendChild(li);
+                });
+            }
+
+            // Afficher la pop-up
+            const popup = document.getElementById('raid-popup');
+            popup.style.display = 'block';
+
+            // Fermer la pop-up si l'utilisateur clique en dehors de la pop-up
+            popup.addEventListener('click', function(event) {
+                if (event.target === popup) {
+                    popup.style.display = 'none';
+                }
+            });
+        }
+
+
+
+        // Mettre à jour le sélecteur de membres
+        function majMembres() {
+            memberSelect.innerHTML = '<option value="">-- Sélectionner un membre --</option>';
+
+            joueurs.forEach(j => {
+                const opt = document.createElement('option');
+                opt.value = j.nom;
+                opt.textContent = j.nom;
+                memberSelect.appendChild(opt);
+            });
+        }
+
+        // Quand un membre est sélectionné, mettre à jour les personnages
+        memberSelect.addEventListener('change', () => {
+            characterSelect.innerHTML = '<option value="">-- Sélectionner un personnage --</option>';
+            const membre = joueurs.find(j => j.nom === memberSelect.value);
+            if (membre) {
+                membre.personnages.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.nom;
+                    opt.textContent = `${p.nom} (${p.classe} - iLvl ${p.ilvl})`;
+                    characterSelect.appendChild(opt);
+                });
+            }
+        });
+
+        // Inscrire un personnage à un raid
+        function inscrireRaid() {
+            const raidId = document.getElementById('raid-select-inscription').value;  // Utilisez le bon sélecteur ici
+            const membre = document.getElementById('member-select').value;
+            const persoNom = document.getElementById('character-select').value;
+            if (!raidId || !membre || !persoNom) return alert("Remplissez tous les champs");
+
+            const raid = raids.find(r => r.id === raidId);
+            const joueur = joueurs.find(j => j.nom === membre);
+            const perso = joueur.personnages.find(p => p.nom === persoNom);
+
+            raid.inscriptions.push({
+                membre,
+                personnage: persoNom,
+                classe: perso.classe,
+                ilvl: perso.ilvl
+            });
+
+            sauvegarder();
+            afficherDetailsRaid(raidId);
+            majRaidToday();
+        }
+
+        // Écouteurs d'événements
+        document.getElementById('add-raid-btn').addEventListener('click', ajouterRaid);
+        document.getElementById('remove-raid-btn').addEventListener('click', retirerRaid);
+        document.getElementById('inscription-btn').addEventListener('click', inscrireRaid);
+
+        majMembres();
+        initialiserCalendrier();
+        majRaidSelect();
+        majRaidToday();
+        majRaidRemoveSelect();
+    </script>
 </body>
 
 </html>
