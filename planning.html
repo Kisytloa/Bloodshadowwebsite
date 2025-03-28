@@ -126,6 +126,7 @@
         let raids = []; // Déclarer raids globalement ici
 
         // Fonction pour charger les données (membres et personnages)
+        // Fonction pour charger les données (membres et personnages)
         async function loadData() {
             try {
                 // Récupérer tous les documents dans la collection 'joueurs'
@@ -140,9 +141,13 @@
                         nom: raid.nom,
                         date: raid.date,
                         time: raid.time,
+                        date_ajout: raid.date_ajout, // Récupérer la date d'ajout
                         inscriptions: raid.inscriptions || []
                     });
                 });
+
+                // Trier les raids par date d'ajout (du plus récent au plus ancien)
+                raids.sort((a, b) => new Date(b.date_ajout) - new Date(a.date_ajout));
 
                 // Mettre à jour la liste des raids dans le sélecteur d'inscription
                 raidSelectInscription.innerHTML = '<option value="">-- Sélectionner un raid --</option>'; // Réinitialiser la liste
@@ -152,6 +157,9 @@
                     option.textContent = `${raid.nom} - ${raid.date} à ${raid.time}`;
                     raidSelectInscription.appendChild(option);
                 });
+
+                // Mettre à jour la liste des raids dans le menu de retrait
+                mettreAJourListeRaids(raids);
 
                 // Parcourir les membres et afficher leurs personnages
                 joueursSnapshot.forEach(doc => {
@@ -172,6 +180,7 @@
                 console.error("Erreur lors de la récupération des membres et personnages : ", error);
             }
         }
+
 
         // Fonction pour mettre à jour la liste des personnages du membre sélectionné
         function updateCharacterList(joueursSnapshot) {
@@ -209,6 +218,23 @@
             });
             calendar.render();
         }
+        // Fonction pour formater la date au format "Jour Mois Année Heure"
+        function formatDate(isoDate) {
+            const date = new Date(isoDate);
+
+            // Options de formatage pour la date et l'heure
+            const options = {
+                weekday: 'long', // Jour de la semaine
+                year: 'numeric', // Année
+                month: 'long',   // Mois
+                day: 'numeric',  // Jour
+                hour: '2-digit', // Heure
+                minute: '2-digit' // Minute
+            };
+
+            // Formater la date selon les options définies
+            return date.toLocaleString('fr-FR', options);
+        }
 
         // Affichage des détails du raid dans le popup
         function afficherDetailsRaid(raidId) {
@@ -224,7 +250,10 @@
             const raidPlayersList = document.getElementById("raid-players-list");
 
             raidName.textContent = raidDetails.nom;
-            raidDateTime.textContent = `${raidDetails.date} à ${raidDetails.time}`;
+
+            // Formater la date et l'heure du raid
+            const formattedDate = formatDate(raidDetails.date + "T" + raidDetails.time + ":00");
+            raidDateTime.textContent = formattedDate;
 
             raidPlayersList.innerHTML = ""; // Réinitialiser la liste des joueurs
             raidDetails.inscriptions.forEach(player => {
@@ -235,6 +264,7 @@
 
             document.getElementById("raid-popup").style.display = "block";
         }
+
 
         // Fermer le popup
         document.getElementById("close-popup").addEventListener("click", () => {
@@ -255,7 +285,16 @@
             const time = document.getElementById('raid-time').value;
             if (!nom || !date || !time) return alert("Remplissez tous les champs");
 
-            const raid = { nom, date, time, inscriptions: [] };
+            // Date d'ajout
+            const dateAjout = new Date().toISOString(); // Date actuelle en format ISO 8601
+
+            const raid = { 
+                nom, 
+                date, 
+                time, 
+                date_ajout: dateAjout, // Ajouter la date d'ajout
+                inscriptions: [] 
+            };
             await addDoc(collection(db, 'raids'), raid);  // Sauvegarde dans Firestore
 
             loadData().then(({ raids }) => {
@@ -263,6 +302,7 @@
                 mettreAJourListeRaids(raids);  // Mettre à jour la liste des raids pour retirer un raid
             });
         }
+
 
         // Retirer un raid
         async function retirerRaid() {
@@ -277,14 +317,39 @@
             });
         }
 
-        // Mettre à jour la liste des raids dans le menu de retrait
+        // Mettre à jour la liste des raids dans le menu de retrait et l'inscription
         function mettreAJourListeRaids(raids) {
+            // Trier les raids par date croissante
+            raids.sort((a, b) => {
+                const dateA = new Date(a.date + "T" + a.time + ":00"); // Création de l'objet Date pour le raid A
+                const dateB = new Date(b.date + "T" + b.time + ":00"); // Création de l'objet Date pour le raid B
+                return dateA - dateB; // Comparer les deux dates
+            });
+
+            // Pour retirer un raid
             raidRemoveSelect.innerHTML = '<option value="">-- Sélectionner un raid --</option>'; // Réinitialiser la liste
             raids.forEach(raid => {
                 const option = document.createElement('option');
                 option.value = raid.id;
-                option.textContent = `${raid.nom} - ${raid.date} à ${raid.time}`;
+
+                // Formater la date du raid
+                const formattedDate = formatDate(raid.date + "T" + raid.time + ":00");
+                option.textContent = `${raid.nom} - ${formattedDate}`;
+                
                 raidRemoveSelect.appendChild(option);
+            });
+
+            // Pour inscription aux raids
+            raidSelectInscription.innerHTML = '<option value="">-- Sélectionner un raid --</option>'; // Réinitialiser la liste
+            raids.forEach(raid => {
+                const option = document.createElement('option');
+                option.value = raid.id;
+
+                // Formater la date du raid
+                const formattedDate = formatDate(raid.date + "T" + raid.time + ":00");
+                option.textContent = `${raid.nom} - ${formattedDate}`;
+
+                raidSelectInscription.appendChild(option);
             });
         }
 
