@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accueil</title>
 
-    <!-- FullCalendar CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
-
     <!-- Fichier CSS -->
     <link rel="stylesheet" href="style.css">
 
@@ -17,10 +14,10 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 </head>
 <body>
-        <header>
-            <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo gauche">
-            <h1>Accueil</h1>
-            <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo droite">
+    <header>
+        <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo gauche">
+        <h1>Accueil</h1>
+        <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo droite">
         <nav>
             <ul>
                 <li><a href="planning.html">Planning de Raid</a></li>
@@ -32,6 +29,132 @@
             </ul>
         </nav>
     </header>
-    
+
+    <main>
+        <section id="introduction">
+            <h2>Bienvenue sur le site de la Guilde Blood Shadow</h2>
+            <p>Bienvenue sur le site officiel de la Guilde Blood Shadow ! Nous sommes une guilde de joueurs passionnés par Lost Ark, et nous organisons régulièrement des raids et des événements. Sur ce site, vous pouvez consulter le planning des raids, obtenir des guides pour optimiser vos personnages, et suivre les dernières nouvelles du jeu.</p>
+        </section>
+
+        <section id="raids-aujourdhui">
+            <h2>Raids d'Aujourd'hui</h2>
+            <p>Voici les raids prévus pour aujourd'hui. Inscrivez-vous pour ne pas les manquer !</p>
+            <ul id="raids-list">
+                <!-- Les raids seront affichés ici -->
+            </ul>
+            <p id="date-ajd"></p> <!-- Ici sera affichée la date actuelle -->
+        </section>
+
+        <section id="news-lostark">
+            <h2>Dernières Nouvelles de Lost Ark</h2>
+            <p>Restez informé des dernières mises à jour de Lost Ark et des événements spéciaux en consultant les nouvelles officielles.</p>
+            <a href="https://www.playlostark.com/fr-fr/news" target="_blank" class="button">Voir les News</a>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Guilde Blood Shadow - Tous droits réservés.</p>
+    </footer>
+
+    <script>
+        // Initialisation de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBfJubhqQFQNo8fxVLKh1DKlfisJhZYwGI",
+            authDomain: "bloodshadowsite-d35ce.firebaseapp.com",
+            projectId: "bloodshadowsite-d35ce",
+            storageBucket: "bloodshadowsite-d35ce.firebasestorage.app",
+            messagingSenderId: "368188025874",
+            appId: "1:368188025874:web:cfdd31f87651f1a3737ccb",
+            measurementId: "G-1PJ7HXSP6J"
+        };
+
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Récupérer la base de données Firestore
+        const db = firebase.firestore();
+
+        // Fonction pour charger les raids d'aujourd'hui
+        function loadRaidsAujourdHui() {
+            const raidsList = document.querySelector("#raids-list");
+            raidsList.innerHTML = ""; // Effacer les raids existants
+
+            // Récupérer la date d'aujourd'hui (en format YYYY-MM-DD)
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+
+            console.log("Date d'aujourd'hui : ", todayString);  // Debug
+
+            // Afficher la date du jour sous la section des raids
+            const dateAjdElement = document.querySelector("#date-ajd");
+            const formattedDate = today.toLocaleDateString("fr-FR", {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            dateAjdElement.textContent = `Date actuelle : ${formattedDate}`;
+
+            // Récupérer les raids depuis Firestore
+            db.collection("raids").get().then((querySnapshot) => {
+                let raidsFound = false;  // Vérifier s'il y a des raids aujourd'hui
+                let raids = [];  // Tableau pour stocker les raids récupérés
+
+                querySnapshot.forEach((doc) => {
+                    const raid = doc.data(); // Données du raid
+                    console.log("Raid trouvé : ", raid);  // Debug
+
+                    // Vérifier que la date du raid est une chaîne et la convertir en Date
+                    let raidDate = raid.date;
+                    if (raidDate && typeof raidDate === 'string') {
+                        raidDate = new Date(raidDate); // Convertir la chaîne en Date
+                    }
+
+                    // Vérifier que la date du raid est un objet Date valide
+                    if (raidDate instanceof Date && !isNaN(raidDate)) {
+                        const raidDateString = raidDate.toISOString().split('T')[0];
+
+                        console.log("Date du raid : ", raidDateString);  // Debug
+
+                        // Si la date du raid est aujourd'hui, l'ajouter au tableau
+                        if (raidDateString === todayString) {
+                            raids.push({
+                                nom: raid.nom || "Nom non défini",
+                                ilvl: raid.ilvl || "iLvl non défini",
+                                time: raid.time || "Heure non définie",
+                                date: raidDate
+                            });
+                            raidsFound = true;
+                        }
+                    }
+                });
+
+                // Si des raids ont été trouvés, les trier par heure
+                if (raidsFound) {
+                    raids.sort((a, b) => {
+                        // Comparer les heures des raids
+                        const timeA = new Date(`1970-01-01T${a.time}:00`);
+                        const timeB = new Date(`1970-01-01T${b.time}:00`);
+                        return timeA - timeB;
+                    });
+
+                    // Afficher les raids triés
+                    raids.forEach((raid) => {
+                        const li = document.createElement("li");
+                        li.textContent = `${raid.nom}  - ${raid.date.toLocaleDateString()} à ${raid.time}`;
+                        raidsList.appendChild(li);
+                    });
+                } else {
+                    raidsList.innerHTML = "<li>Aucun raid prévu pour aujourd'hui.</li>";
+                }
+
+            }).catch((error) => {
+                console.error("Erreur de récupération des raids: ", error);
+            });
+        }
+
+        // Charger les raids d'aujourd'hui lorsque la page est chargée
+        window.onload = loadRaidsAujourdHui;
+    </script>
 </body>
 </html>
