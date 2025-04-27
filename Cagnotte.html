@@ -246,17 +246,20 @@
           callbackFinished: (indicatedSegment) => {
             document.getElementById("recompense").textContent = indicatedSegment.text;
             document.getElementById("win-sound").play();
-            winner = gagnants[Math.floor(Math.random() * gagnants.length)];
+    
+            // Attribuer un gagnant basé sur le segment choisi (s'assurer que le gagnant soit un membre de la liste)
+            const index = Math.floor(Math.random() * gagnants.length);
+            winner = gagnants[index]; // Choisir un gagnant aléatoire dans la liste
             document.getElementById("voir-gagnant-btn").style.display = 'block';
-
+    
             // Changer la bulle du Mokoko
             document.getElementById("mokoko-texte").textContent = "Voyons voir qui a gagné... 👀";
-            }
-
+          }
         }
       });
       return roue;
     }
+
 
     // Fonction pour afficher une roue et le bouton pour la lancer
     function displayWheel(palier) {
