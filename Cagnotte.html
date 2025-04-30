@@ -172,6 +172,9 @@
           </div>
       
           <button id="voir-gagnant-btn" style="display: none;">Voir le Gagnant</button>
+
+          <button id="relancer-btn" style="display: none;">Relancer (Gagnant absent)</button>
+
       
           <div id="mokoko-container">
             <img src="mokoko_content.gif" alt="Mokoko" id="mokoko-img" />
@@ -246,20 +249,17 @@
           callbackFinished: (indicatedSegment) => {
             document.getElementById("recompense").textContent = indicatedSegment.text;
             document.getElementById("win-sound").play();
-    
-            // Attribuer un gagnant basé sur le segment choisi (s'assurer que le gagnant soit un membre de la liste)
-            const index = Math.floor(Math.random() * gagnants.length);
-            winner = gagnants[index]; // Choisir un gagnant aléatoire dans la liste
+            winner = gagnants[Math.floor(Math.random() * gagnants.length)];
             document.getElementById("voir-gagnant-btn").style.display = 'block';
-    
+
             // Changer la bulle du Mokoko
             document.getElementById("mokoko-texte").textContent = "Voyons voir qui a gagné... 👀";
-          }
+            }
+
         }
       });
       return roue;
     }
-
 
     // Fonction pour afficher une roue et le bouton pour la lancer
     function displayWheel(palier) {
@@ -319,10 +319,26 @@
 });
 
 
-    // Afficher le gagnant lorsque le bouton est cliqué
+    // Activer le bouton relancer si besoin
     document.getElementById("voir-gagnant-btn").addEventListener("click", () => {
         document.getElementById("gagnant").textContent = `Gagnant : ${winner}`;
         document.getElementById("mokoko-texte").textContent = `C'est ${winner} qui l'emporte ! 🎉`;
+
+        // Afficher le bouton de relance si le gagnant est absent
+        document.getElementById("relancer-btn").style.display = 'block';
+    });
+    // Gestion du bouton Relancer
+    document.getElementById("relancer-btn").addEventListener("click", () => {
+      let nouveauxGagnants = gagnants.filter(g => g !== winner);
+      if (nouveauxGagnants.length === 0) {
+        document.getElementById("mokoko-texte").textContent = "Plus aucun candidat disponible ! 😢";
+        return;
+      }
+      const nouveauIndex = Math.floor(Math.random() * nouveauxGagnants.length);
+      winner = nouveauxGagnants[nouveauIndex];
+
+      document.getElementById("gagnant").textContent = `Nouveau Gagnant : ${winner}`;
+      document.getElementById("mokoko-texte").textContent = `Nouveau tirage ! ${winner}, à toi la fortune ! 🍀`;
     });
 
 
