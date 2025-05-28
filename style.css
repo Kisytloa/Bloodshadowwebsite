@@ -513,19 +513,20 @@ footer {
 
 .planning-container {
     display: flex;
-    gap: 20px;
-    align-items: flex-start;
+    justify-content: space-between; /* Répartit les éléments sur la ligne */
+    align-items: flex-start; /* Aligne les éléments en haut */
+    gap: 20px; /* Espacement entre les sections */
+}
+
+#planning {
+    flex: 2; /* Donne plus d'espace au calendrier */
 }
 
 .raid-actions {
+    flex: 1; /* Donne un peu moins d'espace aux actions */
     display: flex;
     flex-direction: column;
     gap: 15px;
-    width: 300px; /* Ajuste la largeur selon tes besoins */
+    width: 350px; /* Ajuste la largeur selon le rendu */
 }
 
-section {
-    background-color: rgba(0, 0, 0, 0.8); /* Ajuste la couleur si besoin */
-    padding: 15px;
-    border-radius: 8px;
-}
