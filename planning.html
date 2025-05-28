@@ -33,15 +33,17 @@
     </header>
 
     <main>
+    <div class="planning-container">
         <section id="planning">
             <h2>Planning de Raid</h2>
             <div id="calendar"></div>
         </section>
 
-        <section id="ajout-raid">
-            <h2>Ajouter un Raid</h2>
-            <label for="raid-select">Choisir un Raid :</label>
-            <select id="raid-select">
+        <div class="raid-actions">
+            <section id="ajout-raid">
+                <h2>Ajouter un Raid</h2>
+                <label for="raid-select">Choisir un Raid :</label>
+                <select id="raid-select">
                 <option value="Thaemine NM">Thaemine NM - iLvl 1610</option>
                 <option value="Thaemine HM">Thaemine HM - iLvl 1620</option>
                 <option value="Behemoth">Behemoth - iLvl 1620</option>
@@ -54,42 +56,38 @@
                 <option value="Thaemine NM Rematch">Thaemine NM Rematch - iLvl 1680</option>
                 <option value="Thaemine HM Rematch">Thaemine HM Rematch - iLvl 1700</option>
             </select>
-            <label for="raid-date">Date :</label>
-            <input type="date" id="raid-date">
-            <label for="raid-time">Heure :</label>
-            <input type="time" id="raid-time">
-            <button id="add-raid-btn">Ajouter le Raid</button>
-        </section>
+                <label for="raid-date">Date :</label>
+                <input type="date" id="raid-date">
+                <label for="raid-time">Heure :</label>
+                <input type="time" id="raid-time">
+                <button id="add-raid-btn">Ajouter le Raid</button>
+            </section>
 
-        <section id="retrait-raid">
-            <h2>Retirer un Raid</h2>
-            <label for="raid-remove-select">Sélectionner un Raid :</label>
-            <select id="raid-remove-select">
-                <option value="">-- Sélectionner un raid --</option>
-            </select>
-            <button id="remove-raid-btn">Retirer le Raid</button>
-        </section>
+            <section id="retrait-raid">
+                <h2>Retirer un Raid</h2>
+                <label for="raid-remove-select">Sélectionner un Raid :</label>
+                <select id="raid-remove-select">
+                    <option value="">-- Sélectionner un raid --</option>
+                </select>
+                <button id="remove-raid-btn">Retirer le Raid</button>
+            </section>
 
-        <section id="inscription">
-            <h2>Inscription aux Raids</h2>
-            <label for="member-select">Membre :</label>
-            <select id="member-select">
-                <option value="">-- Sélectionner un membre --</option>
-            </select>
-            <label for="character-select">Personnage :</label>
-            <select id="character-select">
-                <option value="">-- Sélectionner un personnage --</option>
-            </select>
-            <label for="raid-select-inscription">Raid :</label>
-            <select id="raid-select-inscription">
-                <option value="">-- Sélectionner un raid --</option>
-            </select>
-            <button id="inscrire-btn">S'inscrire</button>
-        </section>
-        
-        
-        
-
+            <section id="inscription">
+                <h2>Inscription aux Raids</h2>
+                <label for="member-select">Membre :</label>
+                <select id="member-select">
+                    <option value="">-- Sélectionner un membre --</option>
+                </select>
+                <label for="character-select">Personnage :</label>
+                <select id="character-select">
+                    <option value="">-- Sélectionner un personnage --</option>
+                </select>
+                <label for="raid-select-inscription">Raid :</label>
+                <select id="raid-select-inscription">
+                    <option value="">-- Sélectionner un raid --</option>
+                </select>
+                <button id="inscrire-btn">S'inscrire</button>
+            </section>
         <!-- Pop-up pour afficher les détails du raid -->
         <div id="raid-popup" class="popup">
             <div class="popup-content">
