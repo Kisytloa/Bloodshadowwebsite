@@ -509,3 +509,23 @@ footer {
     text-align: center;
     font-weight: bold;
 }
+
+
+.planning-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.raid-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 300px; /* Ajuste la largeur selon tes besoins */
+}
+
+section {
+    background-color: rgba(0, 0, 0, 0.8); /* Ajuste la couleur si besoin */
+    padding: 15px;
+    border-radius: 8px;
+}
