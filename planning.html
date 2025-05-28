@@ -289,10 +289,11 @@
         function initialiserCalendrier(raids) {
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
+                firstDay: 3, // <--- AJOUTEZ OU MODIFIEZ CETTE LIGNE
                 events: raids.map(r => ({
                     id: r.id,
                     title: `${r.nom} - ${r.time}`,
-                    start: `${r.date}T${r.time}:00`,
+                    start: `<span class="math-inline">\{r\.date\}T</span>{r.time}:00`,
                     description: r.inscriptions || [],
                 })),
                 eventClick: function(info) {
