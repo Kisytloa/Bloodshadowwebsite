@@ -511,7 +511,7 @@ footer {
 }
 
 
-/* Conteneur général du planning */
+/* Conteneur principal pour organiser le planning et les actions */
 .planning-container {
     display: flex;
     justify-content: space-between;
@@ -520,12 +520,12 @@ footer {
     min-height: 100vh; /* Remplit toute la hauteur de l'écran */
 }
 
-/* Gestion du planning */
+/* Section Planning */
 #planning {
     flex: 2; /* Prend plus d'espace */
 }
 
-/* Sections d'actions à droite du planning */
+/* Sections "Ajouter Raid" et "Retirer Raid" à droite */
 .raid-actions {
     flex: 1;
     display: flex;
@@ -534,12 +534,19 @@ footer {
     width: 350px; /* Ajuste la largeur */
 }
 
-/* Ajustement du calendrier */
+/* Ajustement du calendrier pour éviter l'espace vide */
 #calendar {
-    min-height: 800px; /* Augmente la taille pour éviter le vide */
+    min-height: 800px; /* Augmente la taille pour occuper plus d'espace */
 }
 
-/* Footer pour combler le bas de page */
+/* Étendre la section "Inscription aux Raids" pour combler le vide */
+#inscription {
+    width: 100%; /* Occupe toute la largeur sous le planning */
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.8); /* Uniformise le fond */
+}
+
+/* Ajout d’un footer pour la mise en page */
 footer {
     background-color: rgba(0, 0, 0, 0.9);
     text-align: center;
@@ -549,6 +556,7 @@ footer {
     position: absolute;
     bottom: 0;
 }
+
 
 
 
