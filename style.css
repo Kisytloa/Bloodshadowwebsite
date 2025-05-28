@@ -513,20 +513,37 @@ footer {
 
 .planning-container {
     display: flex;
-    justify-content: space-between; /* Répartit les éléments sur la ligne */
-    align-items: flex-start; /* Aligne les éléments en haut */
-    gap: 20px; /* Espacement entre les sections */
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    min-height: 700px; /* Évite les espaces vides */
 }
 
 #planning {
-    flex: 2; /* Donne plus d'espace au calendrier */
+    flex: 2;
 }
 
 .raid-actions {
-    flex: 1; /* Donne un peu moins d'espace aux actions */
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 15px;
-    width: 350px; /* Ajuste la largeur selon le rendu */
+    width: 350px;
 }
+
+/* Remplissage du bas de la page */
+#calendar {
+    min-height: 600px;
+}
+
+/* Ajoute un footer avec fond pour combler l’espace */
+footer {
+    background-color: rgba(0, 0, 0, 0.8);
+    text-align: center;
+    padding: 20px;
+    color: white;
+    width: 100%;
+    position: relative;
+}
+
 
