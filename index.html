@@ -3,8 +3,8 @@
 <head>
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-firestore.js";
     const firebaseConfig = {
         apiKey: "AIzaSyBfJubhqQFQNo8fxVLKh1DKlfisJhZYwGI",
         authDomain: "bloodshadowsite-d35ce.firebaseapp.com",
@@ -17,7 +17,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-firestore.js";
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             window.location.href = 'connexion.html';
@@ -38,6 +37,14 @@
             userInfoSpan.textContent = displayName || "Invité";
         }
     });
+    // Ajout du listener pour le bouton déconnexion
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async function() {
+            await signOut(auth);
+            window.location.href = 'connexion.html';
+        });
+    }
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -97,6 +104,5 @@
     </footer>
 
     <button id="logout-btn" style="background:#d32f2f;color:#fff;border:none;padding:18px 32px;font-size:1.3rem;font-weight:bold;border-radius:12px;position:fixed;bottom:24px;right:32px;z-index:9999;box-shadow:0 4px 16px #0004;cursor:pointer;transition:transform 0.2s;">Déconnexion</button>
-    </script>
 </body>
 </html>
