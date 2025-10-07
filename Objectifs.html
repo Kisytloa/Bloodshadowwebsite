@@ -1,6 +1,26 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-auth.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyBfJubhqQFQNo8fxVLKh1DKlfisJhZYwGI",
+    authDomain: "bloodshadowsite-d35ce.firebaseapp.com",
+    projectId: "bloodshadowsite-d35ce",
+    storageBucket: "bloodshadowsite-d35ce.firebasestorage.app",
+    messagingSenderId: "368188025874",
+    appId: "1:368188025874:web:cfdd31f87651f1a3737ccb",
+    measurementId: "G-1PJ7HXSP6J"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = 'connexion.html';
+    }
+  });
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Objectifs de Guilde</title>
@@ -33,6 +53,7 @@
   
 </head>
 <body>
+  <div id="user-info" style="position:fixed;top:0;left:0;width:100%;background:#222;color:#fff;padding:8px 0;text-align:center;z-index:1000;font-weight:bold;">Vous êtes connecté en tant que : <span id="user-name">Invité</span></div>
   <header>
     <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo gauche" />
     <h1>Objectifs de la Guilde</h1>
@@ -49,14 +70,13 @@
         <li><a href="https://www.playlostark.com/fr-fr/support/server-status" target="_blank">Server Status</a></li>
       </ul>
     </nav>
-  </header>
-
-  <main>
-  </main>
+  <header>
+    <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo gauche" style="height:80px;width:80px;object-fit:contain;background:#fff;border-radius:50%;box-shadow:0 2px 12px #0005;margin:0 18px;margin-top:32px;">
+  <!-- Titre supprimé pour éviter le doublon -->
+    <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo droite" style="height:80px;width:80px;object-fit:contain;background:#fff;border-radius:50%;box-shadow:0 2px 12px #0005;margin:0 18px;margin-top:32px;">
 
   <footer>
     <p>&copy; 2025 Guilde Blood Shadow - Tous droits réservés.</p>
   </footer>
 </body>
 </html>
-

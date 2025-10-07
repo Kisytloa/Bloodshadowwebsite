@@ -390,7 +390,7 @@ footer {
 .logo {
     width: 80px;
     position: absolute;
-    top: 42px;
+    top: 20px;
 }
 
 .logo.gauche {
@@ -538,4 +538,3 @@ footer {
     text-align: center;
     font-weight: bold;
 }
-

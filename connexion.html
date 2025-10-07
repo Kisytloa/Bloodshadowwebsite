@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion - Bloodshadow</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(120deg, #222 0%, #3a1c4a 100%);
+            display: flex;
+            flex-direction: column;
+        }
+        .login-container {
+            background: #23223a;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px #0008;
+            padding: 38px 32px 32px 32px;
+            max-width: 350px;
+            margin: 80px auto 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .login-container img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 12px #b6b6d6cc;
+            margin-bottom: 18px;
+        }
+        .login-container h2 {
+            margin-bottom: 18px;
+            color: #fff;
+            font-size: 2rem;
+        }
+        .login-container label {
+            font-weight: bold;
+            color: #b6b6d6;
+            margin-top: 10px;
+            margin-bottom: 4px;
+            align-self: flex-start;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            background: #181828;
+            color: #fff;
+        }
+        .login-container button[type="submit"] {
+            width: 100%;
+            background: linear-gradient(90deg,#6a8ed6 60%,#b18be6 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 1.15rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            box-shadow: 0 2px 8px #b6b6d6cc;
+            transition: background 0.2s;
+        }
+        .login-container button[type="submit"]:hover {
+            background: linear-gradient(90deg,#b18be6 0%,#6a8ed6 100%);
+        }
+        #login-message {
+            margin-top: 16px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-align: center;
+            min-height: 24px;
+            color: #fff;
+        }
+        #logout-btn {
+            background:linear-gradient(90deg,#6a8ed6 60%,#b18be6 100%);color:#fff;border:none;padding:18px 32px;font-size:1.1rem;font-weight:bold;border-radius:12px;position:fixed;bottom:24px;right:32px;z-index:9999;box-shadow:0 4px 16px #b6b6d6cc;cursor:pointer;transition:transform 0.2s;
+        }
+    </style>
+    <!-- Firebase SDK ES Modules -->
+    <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-auth.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBfJubhqQFQNo8fxVLKh1DKlfisJhZYwGI",
+    authDomain: "bloodshadowsite-d35ce.firebaseapp.com",
+    projectId: "bloodshadowsite-d35ce",
+    storageBucket: "bloodshadowsite-d35ce.firebasestorage.app",
+    messagingSenderId: "368188025874",
+    appId: "1:368188025874:web:cfdd31f87651f1a3737ccb",
+    measurementId: "G-1PJ7HXSP6J"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Connexion
+const form = document.getElementById('login-form');
+const messageDiv = document.getElementById('login-message');
+form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    messageDiv.textContent = '';
+    messageDiv.style.color = '';
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        // Récupérer le document Firestore du membre
+        const q = query(collection(db, 'joueurs'), where('uid', '==', user.uid));
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+            // Stocker l'UID pour les autres pages
+            localStorage.setItem('userUid', user.uid);
+            messageDiv.style.color = 'green';
+            messageDiv.textContent = 'Connexion réussie !';
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        } else {
+            messageDiv.style.color = 'red';
+            messageDiv.textContent = 'Aucun membre Firestore associé.';
+        }
+    } catch (err) {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = 'Identifiants incorrects ou erreur de connexion.';
+    }
+});
+
+// Déconnexion
+const logoutBtn = document.getElementById('logout-btn');
+logoutBtn.addEventListener('click', async function() {
+    await signOut(auth);
+    localStorage.removeItem('userUid');
+    document.getElementById('user-name').textContent = 'Invité';
+    window.location.href = 'connexion.html';
+});
+
+// Affichage du membre connecté
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        const q = query(collection(db, 'joueurs'), where('uid', '==', user.uid));
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+            const membre = snapshot.docs[0].data();
+            document.getElementById('user-name').textContent = membre.nom;
+        }
+    } else {
+        document.getElementById('user-name').textContent = 'Invité';
+    }
+});
+    </script>
+</head>
+<body>
+    <div class="login-container">
+        <img src="Logo guilde.jpg" alt="Logo Guilde">
+        <h2>Connexion</h2>
+        <form id="login-form">
+            <label for="username">Nom d'utilisateur :</label>
+            <input type="text" id="username" name="username" required autocomplete="username">
+            <label for="password">Mot de passe :</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password">
+            <button type="submit">Se connecter</button>
+        </form>
+        <div id="login-message"></div>
+    </div>
+</body>
+</html>

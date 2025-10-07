@@ -42,9 +42,9 @@
 
 <body>
     <header>
-        <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo gauche">
-        <h1>Planning de Raid BS</h1>
-        <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo droite">
+        <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo gauche" style="height:80px;width:80px;object-fit:contain;background:#fff;border-radius:50%;box-shadow:0 2px 12px #0005;margin:0 18px;margin-top:32px;">
+    <h1 style="margin-top:0;margin-bottom:18px;">Planning de Raid BS</h1>
+        <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo droite" style="height:80px;width:80px;object-fit:contain;background:#fff;border-radius:50%;box-shadow:0 2px 12px #0005;margin:0 18px;margin-top:32px;">
         <nav>
             <ul>
                 <li><a href="index.html">Accueil</a></li>
@@ -58,6 +58,8 @@
             </ul>
         </nav>
     </header>
+
+    <div id="user-info" style="position:fixed;top:0;left:0;width:100%;background:#222;color:#fff;padding:8px 0;text-align:center;z-index:1000;font-weight:bold;">Vous êtes connecté en tant que : <span id="user-name">Invité</span></div>
 
     <main>
     <div class="planning-container">
@@ -91,8 +93,6 @@
                         <option value="Brelshaza HM">Brelshaza HM - iLvl 1690</option>
                         <option value="Mordum NM">Mordum NM - iLvl 1680</option>
                         <option value="Mordum HM">Mordum HM - iLvl 1700</option>
-                        <option value="Strike Raid NM">Strike Raid NM - iLvl 1680</option>
-                        <option value="Strike Raid HM">Strike Raid HM - iLvl 1720</option>
                         <option value="Kazéros NM ">Kazéros NM - iLvl 1700</option>
                         <option value="Kazéros HM">Kazéros HM - iLvl 1720</option>
                         <option value="Final Day NM ">Final Day  NM - iLvl 1710</option>
@@ -127,10 +127,6 @@
                 <h3>Joueurs inscrits :</h3> <ul id="raid-players-list"></ul>
                     <div id="popup-inscription-section" style="margin-top: 20px;">
                         <h4>S'inscrire à ce raid :</h4>
-                        <label for="popup-member-select">Membre :</label>
-                        <select id="popup-member-select">
-                            <option value="">-- Sélectionner un membre --</option>
-                        </select>
                         <label for="popup-character-select">Personnage :</label>
                         <select id="popup-character-select">
                             <option value="">-- Sélectionner un personnage --</option>
@@ -141,8 +137,49 @@
         </div>
     </main>
 
+    <button id="logout-btn" style="background:#d32f2f;color:#fff;border:none;padding:18px 32px;font-size:1.3rem;font-weight:bold;border-radius:12px;position:fixed;bottom:24px;right:32px;z-index:9999;box-shadow:0 4px 16px #0004;cursor:pointer;transition:transform 0.2s;">Déconnexion</button>
+
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-auth.js";
+import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBfJubhqQFQNo8fxVLKh1DKlfisJhZYwGI",
+    authDomain: "bloodshadowsite-d35ce.firebaseapp.com",
+    projectId: "bloodshadowsite-d35ce",
+    storageBucket: "bloodshadowsite-d35ce.firebasestorage.app",
+    messagingSenderId: "368188025874",
+    appId: "1:368188025874:web:cfdd31f87651f1a3737ccb",
+    measurementId: "G-1PJ7HXSP6J"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Affichage du membre connecté
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        const q = query(collection(db, 'joueurs'), where('uid', '==', user.uid));
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+            const membre = snapshot.docs[0].data();
+            document.getElementById('user-name').textContent = membre.nom;
+        }
+    } else {
+        document.getElementById('user-name').textContent = 'Invité';
+    }
+});
+
+// Déconnexion
+const logoutBtn = document.getElementById('logout-btn');
+logoutBtn.addEventListener('click', async function() {
+    await signOut(auth);
+    document.getElementById('user-name').textContent = 'Invité';
+    window.location.href = 'connexion.html';
+});
+
         // Fonction pour afficher un message de confirmation
         function afficherMessage(msg) {
             let messageDiv = document.getElementById('confirmation-message');
@@ -259,36 +296,13 @@
                 });
             }
         });
-        // Importation de Firebase et Firestore avec la syntaxe ES Module
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-firestore.js";
-
-        // Configuration de Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBfJubhqQFQNo8fxVLKh1DKlfisJhZYwGI",
-            authDomain: "bloodshadowsite-d35ce.firebaseapp.com",
-            projectId: "bloodshadowsite-d35ce",
-            storageBucket: "bloodshadowsite-d35ce.firebasestorage.app",
-            messagingSenderId: "368188025874",
-            appId: "1:368188025874:web:cfdd31f87651f1a3737ccb",
-            measurementId: "G-1PJ7HXSP6J"
-        };
-
-        // Initialiser Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Variables globales
-    const calendarEl = document.getElementById('calendar');
-    const raidRemoveSelect = document.getElementById('raid-remove-select');
+        // ...existing code...
+        const calendarEl = document.getElementById('calendar');
+        const raidRemoveSelect = document.getElementById('raid-remove-select');
         let calendar;
-        let raids = []; // Déclarer raids globalement ici
-        // NOUVEAU : Variables pour la désinscription dans la pop-up
-        const memberSelectUnsubscribe = document.getElementById('member-select-unsubscribe');
-        const characterSelectUnsubscribe = document.getElementById('character-select-unsubscribe');
-        const unsubscribeBtn = document.getElementById('unsubscribe-btn');
-
-        let currentRaidId = null; // Pour stocker l'ID du raid actuellement affiché dans la pop-up
+        let raids = [];
+        let currentRaidId = null;
+        // ...existing code...
         
         // NOUVELLE FONCTION : Désinscrire un membre d'un raid
         async function desinscrireMembre() {
@@ -561,51 +575,42 @@
             // Charger les joueurs et les personnages pour l'inscription pop-up
             const joueursSnapshot = await getDocs(collection(db, 'joueurs'));
 
-            // Inscription pop-up
-            const popupMemberSelect = document.getElementById('popup-member-select');
+            // Inscription pop-up (affiche uniquement les personnages du membre connecté)
             const popupCharacterSelect = document.getElementById('popup-character-select');
-            popupMemberSelect.innerHTML = '<option value="">-- Sélectionner un membre --</option>';
             popupCharacterSelect.innerHTML = '<option value="">-- Sélectionner un personnage --</option>';
-            joueursSnapshot.forEach(doc => {
-                const joueur = doc.data();
-                const memberOption = document.createElement('option');
-                memberOption.value = joueur.nom;
-                memberOption.textContent = joueur.nom;
-                popupMemberSelect.appendChild(memberOption);
-            });
-            popupMemberSelect.onchange = () => {
-                popupCharacterSelect.innerHTML = '<option value="">-- Sélectionner un personnage --</option>';
-                const selectedMember = popupMemberSelect.value;
-                joueursSnapshot.forEach(doc => {
-                    const joueur = doc.data();
-                    if (joueur.nom === selectedMember) {
-                        joueur.personnages.forEach(personnage => {
-                            const characterOption = document.createElement('option');
-                            characterOption.value = personnage.nom;
-                            characterOption.textContent = `${personnage.nom} - ${personnage.classe} (${personnage.ilvl})`;
-                            popupCharacterSelect.appendChild(characterOption);
-                        });
-                    }
+            // Récupérer l'utilisateur connecté
+            let membreConnecte = null;
+            const user = auth.currentUser;
+            if (user) {
+                const q = query(collection(db, 'joueurs'), where('uid', '==', user.uid));
+                const snapshot = await getDocs(q);
+                if (!snapshot.empty) {
+                    membreConnecte = snapshot.docs[0].data();
+                }
+            }
+            if (membreConnecte) {
+                membreConnecte.personnages.forEach(personnage => {
+                    const characterOption = document.createElement('option');
+                    characterOption.value = personnage.nom;
+                    characterOption.textContent = `${personnage.nom} - ${personnage.classe} (${personnage.ilvl})`;
+                    popupCharacterSelect.appendChild(characterOption);
                 });
-            };
+            }
 
             // Ajout de l'écouteur d'inscription pop-up (une seule fois)
             if (!window._popupInscriptionListenerAdded) {
                 document.getElementById('popup-inscrire-btn').addEventListener('click', async function() {
-                    const membreNom = popupMemberSelect.value;
+                    if (!membreConnecte) {
+                        alert('Aucun membre connecté.');
+                        return;
+                    }
+                    const membreNom = membreConnecte.nom;
                     const personnageNom = popupCharacterSelect.value;
-                    if (!membreNom || !personnageNom) {
-                        alert('Veuillez sélectionner un membre et un personnage.');
+                    if (!personnageNom) {
+                        alert('Veuillez sélectionner un personnage.');
                         return;
                     }
-                    // Trouver le joueur et le personnage
-                    const joueursDocs = joueursSnapshot.docs.map(doc => doc.data());
-                    const selectedJoueur = joueursDocs.find(joueur => joueur.nom === membreNom);
-                    if (!selectedJoueur) {
-                        alert('Joueur introuvable.');
-                        return;
-                    }
-                    const personnage = selectedJoueur.personnages.find(p => p.nom === personnageNom);
+                    const personnage = membreConnecte.personnages.find(p => p.nom === personnageNom);
                     if (!personnage) {
                         alert('Personnage introuvable.');
                         return;
@@ -777,20 +782,12 @@
 
         // Charger les données et gérer l'événement pour le membre sélectionné
         loadData().then(({ raids, joueursSnapshot }) => {
-            initialiserCalendrier(raids);  // Initialiser le calendrier avec les raids
-            mettreAJourListeRaids(raids);  // Mettre à jour la liste des raids pour retirer un raid
-            updateCharacterList(joueursSnapshot);  // Mettre à jour la liste des personnages au chargement initial
-
-            // Ajouter les écouteurs d'événements une fois les données chargées
-            document.getElementById('add-raid-btn').addEventListener('click', ajouterRaid);
-            document.getElementById('remove-raid-btn').addEventListener('click', retirerRaid);
-            document.getElementById('inscrire-btn').addEventListener('click', () => inscrireMembre(joueursSnapshot)); // Passer joueursSnapshot
-            memberSelect.addEventListener('change', () => {
-                updateCharacterList(joueursSnapshot);
-            });
-            // NOUVEAU : Écouteur d'événement pour le bouton de désinscription dans la pop-up
-            unsubscribeBtn.addEventListener('click', desinscrireMembre);
+            initialiserCalendrier(raids);
+            mettreAJourListeRaids(raids);
+            updateCharacterList(joueursSnapshot);
+            // ...existing code...
         });
+        // ...existing code...
     </script>
 
 
@@ -798,5 +795,4 @@
 </body>
 
 </html>
-
 

@@ -1,6 +1,26 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-auth.js";
+    const firebaseConfig = {
+        apiKey: "AIzaSyBfJubhqQFQNo8fxVLKh1DKlfisJhZYwGI",
+        authDomain: "bloodshadowsite-d35ce.firebaseapp.com",
+        projectId: "bloodshadowsite-d35ce",
+        storageBucket: "bloodshadowsite-d35ce.firebasestorage.app",
+        messagingSenderId: "368188025874",
+        appId: "1:368188025874:web:cfdd31f87651f1a3737ccb",
+        measurementId: "G-1PJ7HXSP6J"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            window.location.href = 'connexion.html';
+        }
+    });
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accueil</title>
@@ -14,6 +34,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 </head>
 <body>
+    <div id="user-info" style="position:fixed;top:0;left:0;width:100%;background:#222;color:#fff;padding:8px 0;text-align:center;z-index:1000;font-weight:bold;">Vous êtes connecté en tant que : <span id="user-name">Invité</span></div>
     <header>
         <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo gauche">
         <h1>Accueil</h1>
@@ -29,8 +50,10 @@
                 <li><a href="https://www.playlostark.com/fr-fr/support/server-status" target="_blank">Server Status</a></li>
             </ul>
         </nav>
-    </header>
-
+    <header>
+        <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo gauche" style="height:80px;width:80px;object-fit:contain;background:#fff;border-radius:50%;box-shadow:0 2px 12px #0005;margin:0 18px;margin-top:32px;">
+    <!-- Titre supprimé pour éviter le doublon -->
+        <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo droite" style="height:80px;width:80px;object-fit:contain;background:#fff;border-radius:50%;box-shadow:0 2px 12px #0005;margin:0 18px;margin-top:32px;">
     <main>
         <section id="introduction">
             <h2>Bienvenue sur le site de la Guilde Blood Shadow</h2>
@@ -57,31 +80,9 @@
         <p>&copy; 2025 Guilde Blood Shadow - Tous droits réservés.</p>
     </footer>
 
-    <script>
-        // Initialisation de Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBfJubhqQFQNo8fxVLKh1DKlfisJhZYwGI",
-            authDomain: "bloodshadowsite-d35ce.firebaseapp.com",
-            projectId: "bloodshadowsite-d35ce",
-            storageBucket: "bloodshadowsite-d35ce.firebasestorage.app",
-            messagingSenderId: "368188025874",
-            appId: "1:368188025874:web:cfdd31f87651f1a3737ccb",
-            measurementId: "G-1PJ7HXSP6J"
-        };
+    <button id="logout-btn" style="background:#d32f2f;color:#fff;border:none;padding:8px 16px;border-radius:6px;position:fixed;top:16px;right:16px;z-index:999;cursor:pointer;">Déconnexion</button>
 
-        // Initialiser Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        // Récupérer la base de données Firestore
-        const db = firebase.firestore();
-
-        // Fonction pour charger les raids d'aujourd'hui
-        function loadRaidsAujourdHui() {
-            const raidsList = document.querySelector("#raids-list");
-            raidsList.innerHTML = ""; // Effacer les raids existants
-
-            // Récupérer la date d'aujourd'hui (en format YYYY-MM-DD)
-            const today = new Date();
+    // ...existing code...
             const todayString = today.toISOString().split('T')[0];
 
             console.log("Date d'aujourd'hui : ", todayString);  // Debug
@@ -156,6 +157,11 @@
 
         // Charger les raids d'aujourd'hui lorsque la page est chargée
         window.onload = loadRaidsAujourdHui;
+
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            localStorage.removeItem('user');
+            window.location.href = 'connexion.html';
+        });
     </script>
 </body>
 </html>
