@@ -105,24 +105,92 @@
                         </select>
                         <button id="popup-inscrire-btn">S'inscrire</button>
                     </div>
-                <div id="unsubscribe-section" style="margin-top: 20px;">
-                    <h4>Se désinscrire :</h4>
-                    <label for="member-select-unsubscribe">Membre :</label>
-                    <select id="member-select-unsubscribe">
-                        <option value="">-- Sélectionner un membre --</option>
-                    </select>
-                    <label for="character-select-unsubscribe">Personnage :</label>
-                    <select id="character-select-unsubscribe">
-                        <option value="">-- Sélectionner un personnage --</option>
-                    </select>
-                    <button id="unsubscribe-btn">Se désinscrire</button>
-                </div>
             </div>
         </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script type="module">
+        // Fonction pour afficher un message de confirmation
+        function afficherMessage(msg) {
+            let messageDiv = document.getElementById('confirmation-message');
+            if (!messageDiv) {
+                messageDiv = document.createElement('div');
+                messageDiv.id = 'confirmation-message';
+                messageDiv.style.position = 'fixed';
+                messageDiv.style.top = '20px';
+                messageDiv.style.left = '50%';
+                messageDiv.style.transform = 'translateX(-50%)';
+                messageDiv.style.background = '#222';
+                messageDiv.style.color = '#fff';
+                messageDiv.style.padding = '10px 20px';
+                messageDiv.style.borderRadius = '8px';
+                messageDiv.style.zIndex = '9999';
+                document.body.appendChild(messageDiv);
+            }
+            messageDiv.textContent = msg;
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 2000);
+        }
+        // Fusion des listeners et ajout des messages de confirmation
+        document.addEventListener('DOMContentLoaded', () => {
+            // Bouton Ajouter le Raid
+            const addRaidBtn = document.getElementById('add-raid-btn');
+            const addRaidPopup = document.getElementById('add-raid-popup');
+            if (addRaidBtn && addRaidPopup) {
+                addRaidBtn.addEventListener('click', async () => {
+                    await ajouterRaid();
+                    addRaidPopup.style.display = 'none';
+                    afficherMessage('Le raid a bien été ajouté !');
+                });
+            }
+
+            // Bouton Retirer le Raid
+            const removeRaidBtn = document.getElementById('remove-raid-btn');
+            const removeRaidPopup = document.getElementById('remove-raid-popup');
+            if (removeRaidBtn && removeRaidPopup) {
+                removeRaidBtn.addEventListener('click', async () => {
+                    await retirerRaid();
+                    removeRaidPopup.style.display = 'none';
+                    afficherMessage('Le raid a bien été supprimé !');
+                });
+            }
+
+            // Gestion des boutons + et - pour ouvrir les popups
+            const showAddRaidBtn = document.getElementById('show-add-raid-popup');
+            const closeAddRaidPopup = document.getElementById('close-add-raid-popup');
+            if (showAddRaidBtn && addRaidPopup && closeAddRaidPopup) {
+                showAddRaidBtn.addEventListener('click', () => {
+                    addRaidPopup.style.display = 'block';
+                });
+                closeAddRaidPopup.addEventListener('click', () => {
+                    addRaidPopup.style.display = 'none';
+                });
+                window.addEventListener('click', (event) => {
+                    if (event.target === addRaidPopup) {
+                        addRaidPopup.style.display = 'none';
+                    }
+                });
+            }
+
+            const showRemoveRaidBtn = document.getElementById('show-remove-raid-popup');
+            const closeRemoveRaidPopup = document.getElementById('close-remove-raid-popup');
+            if (showRemoveRaidBtn && removeRaidPopup && closeRemoveRaidPopup) {
+                showRemoveRaidBtn.addEventListener('click', () => {
+                    removeRaidPopup.style.display = 'block';
+                });
+                closeRemoveRaidPopup.addEventListener('click', () => {
+                    removeRaidPopup.style.display = 'none';
+                });
+                window.addEventListener('click', (event) => {
+                    if (event.target === removeRaidPopup) {
+                        removeRaidPopup.style.display = 'none';
+                    }
+                });
+            }
+        });
         // Gestion des boutons + et - pour ouvrir les popups
         document.addEventListener('DOMContentLoaded', () => {
             const showAddRaidBtn = document.getElementById('show-add-raid-popup');
@@ -369,11 +437,39 @@
             raidDateTime.textContent = formattedDate;
 
             raidPlayersList.innerHTML = ""; // Réinitialiser la liste des joueurs
-            // NOUVEAU : Gérer le cas où il n'y a pas d'inscriptions
             if (raidDetails.inscriptions && raidDetails.inscriptions.length > 0) {
-                raidDetails.inscriptions.forEach(player => {
+                raidDetails.inscriptions.forEach((player, idx) => {
                     const li = document.createElement("li");
-                    li.textContent = player; // Afficher le nom, la classe et l'ilvl du joueur inscrit
+                    li.style.display = "flex";
+                    li.style.alignItems = "center";
+                    // Texte du joueur
+                    const spanPlayer = document.createElement("span");
+                    spanPlayer.textContent = player;
+                    li.appendChild(spanPlayer);
+                    // Croix rouge pour désinscription
+                    const removeBtn = document.createElement("span");
+                    removeBtn.textContent = "✖";
+                    removeBtn.title = "Se désinscrire";
+                    removeBtn.style.color = "#FF5252";
+                    removeBtn.style.fontWeight = "bold";
+                    removeBtn.style.cursor = "pointer";
+                    removeBtn.style.marginLeft = "10px";
+                    removeBtn.onclick = async function() {
+                        if (confirm("Êtes-vous sûr de vouloir vous désinscrire de ce raid ?")) {
+                            // On retire l'inscription
+                            const nouvellesInscriptions = raidDetails.inscriptions.filter((_, i) => i !== idx);
+                            await updateDoc(doc(db, 'raids', raidDetails.id), {
+                                inscriptions: nouvellesInscriptions
+                            });
+                            afficherMessage('Vous avez été désinscrit du raid.');
+                            // Rafraîchir la popup
+                            loadData().then(({ raids }) => {
+                                initialiserCalendrier(raids);
+                                afficherDetailsRaid(raidDetails.id);
+                            });
+                        }
+                    };
+                    li.appendChild(removeBtn);
                     raidPlayersList.appendChild(li);
                 });
             } else {
@@ -383,23 +479,8 @@
             }
 
             // --- NOUVEAU : Logique pour la désinscription dans la pop-up ---
-
-            // Charger les joueurs et les personnages pour les sélecteurs de désinscription ET inscription pop-up
+            // Charger les joueurs et les personnages pour l'inscription pop-up
             const joueursSnapshot = await getDocs(collection(db, 'joueurs'));
-
-            // Désinscription (inchangé)
-            memberSelectUnsubscribe.innerHTML = '<option value="">-- Sélectionner un membre --</option>';
-            joueursSnapshot.forEach(doc => {
-                const joueur = doc.data();
-                const memberOption = document.createElement('option');
-                memberOption.value = joueur.nom;
-                memberOption.textContent = joueur.nom;
-                memberSelectUnsubscribe.appendChild(memberOption);
-            });
-            characterSelectUnsubscribe.innerHTML = '<option value="">-- Sélectionner un personnage --</option>';
-            memberSelectUnsubscribe.onchange = () => {
-                updateCharacterListUnsubscribe(joueursSnapshot);
-            };
 
             // Inscription pop-up
             const popupMemberSelect = document.getElementById('popup-member-select');
@@ -475,22 +556,7 @@
             document.getElementById("raid-popup").style.display = "block";
         }
         // NOUVELLE FONCTION : Pour mettre à jour la liste des personnages dans le sélecteur de désinscription
-        function updateCharacterListUnsubscribe(joueursSnapshot) {
-            const selectedMember = memberSelectUnsubscribe.value;
-            characterSelectUnsubscribe.innerHTML = '<option value="">-- Sélectionner un personnage --</option>';
-
-            joueursSnapshot.forEach(doc => {
-                const joueur = doc.data();
-                if (joueur.nom === selectedMember) {
-                    joueur.personnages.forEach(personnage => {
-                        const characterOption = document.createElement('option');
-                        characterOption.value = personnage.nom;
-                        characterOption.textContent = `${personnage.nom} - ${personnage.classe} (${personnage.ilvl})`;
-                        characterSelectUnsubscribe.appendChild(characterOption);
-                    });
-                }
-            });
-        }
+        // La fonction updateCharacterListUnsubscribe n'est plus utile car la désinscription se fait via la croix rouge
 
         // Fermer le popup
         document.getElementById("close-popup").addEventListener("click", () => {
