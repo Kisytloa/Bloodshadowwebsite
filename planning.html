@@ -2,11 +2,41 @@
 <html lang="fr">
 
 <head>
+    <style>
+        .raid-badge {
+            display: inline-block;
+            font-size: 0.95em;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 8px;
+            margin-left: 6px;
+            color: #fff;
+        }
+        .raid-badge.hm { background: #d32f2f; }
+        .raid-badge.nm { background: #388e3c; }
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planning de Raid BS</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Agrandir la hauteur des cases du calendrier FullCalendar */
+        .fc-daygrid-day-frame {
+            min-height: 70px !important;
+            height: 70px !important;
+        }
+        .fc-event-title, .fc-event-time {
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            max-width: 100%;
+            display: block;
+        }
+        .fc-event {
+            min-width: 0;
+        }
+    </style>
     <!-- Ajoutez Firebase SDK -->
 </head>
 
@@ -55,16 +85,16 @@
                         <option value="Behemoth">Behemoth - iLvl 1620</option>
                         <option value="Prélude Echidna NM">Prélude Echidna NM - iLvl 1620</option>
                         <option value="Prélude Echidna HM">Prélude Echidna HM - iLvl 1630</option>
-                        <option value="Act 1 Aegir NM">Act 1 Aegir NM - iLvl 1660</option>
-                        <option value="Act 1 Aegir HM">Act 1 Aegir HM - iLvl 1680</option>
-                        <option value="Act 2 Brelshaza NM">Act 2 Brelshaza NM - iLvl 1670</option>
-                        <option value="Act 2 Brelshaza HM">Act 2 Brelshaza HM - iLvl 1690</option>
-                        <option value="Act 3 Mordum NM">Act 3 Mordum NM - iLvl 1680</option>
-                        <option value="Act 3 Mordum HM">Act 3 Mordum HM - iLvl 1700</option>
-                        <option value="Act 4 Kazéros 1st Part NM ">Act 4 Kazéros 1st Part NM - iLvl 1700</option>
-                        <option value="Act 4 Kazéros 1st Part HM">Act 4 Kazéros 1st Part HM - iLvl 1720</option>
-                        <option value="Act 4 Kazéros 2nd Part NM ">Act 4 Kazéros 2nd Part NM - iLvl 1710</option>
-                        <option value="Act 4 Kazéros 2nd Part HM">Act 4 Kazéros 2nd Part HM - iLvl 1730</option>
+                        <option value="Aegir NM">Aegir NM - iLvl 1660</option>
+                        <option value="Aegir HM">Aegir HM - iLvl 1680</option>
+                        <option value="Brelshaza NM">Brelshaza NM - iLvl 1670</option>
+                        <option value="Brelshaza HM">Brelshaza HM - iLvl 1690</option>
+                        <option value="Mordum NM">Mordum NM - iLvl 1680</option>
+                        <option value="Mordum HM">Mordum HM - iLvl 1700</option>
+                        <option value="Kazéros NM ">Kazéros NM - iLvl 1700</option>
+                        <option value="Kazéros HM">Kazéros HM - iLvl 1720</option>
+                        <option value="Final Day NM ">Final Day  NM - iLvl 1710</option>
+                        <option value="Final DayHM">Final Day HM - iLvl 1730</option>
                     </select>
                     <label for="raid-date">Date :</label>
                     <input type="date" id="raid-date">
@@ -384,12 +414,55 @@
                 firstDay: 3, // 0 = Dimanche, 1 = Lundi, ..., 3 = Mercredi
                 fixedWeekCount: false, // Permet au calendrier d'afficher moins de 6 semaines si le mois le permet
         
-                events: raids.map(r => ({
-                    id: r.id,
-                    title: `${r.nom} - ${r.time}`,
-                    start: `${r.date}T${r.time}:00`,
-                    description: r.inscriptions || [],
-                })),
+                events: raids
+                    .map(r => {
+                        let heure = r.time;
+                        // Si l'heure est au format 7:18p ou 7:18am, convertir en HH:mm 24h
+                        const ampmMatch = /^([0-9]{1,2}):([0-9]{2})([ap]m)?$/i.exec(heure);
+                        if (ampmMatch) {
+                            let h = parseInt(ampmMatch[1], 10);
+                            const m = ampmMatch[2];
+                            const ampm = ampmMatch[3];
+                            if (ampm) {
+                                if (ampm.toLowerCase() === 'pm' && h < 12) h += 12;
+                                if (ampm.toLowerCase() === 'am' && h === 12) h = 0;
+                            }
+                            heure = (h < 10 ? '0' : '') + h + ':' + m;
+                        }
+                        // Si l'heure est au format H:mm, compléter
+                        else if (/^\d{1,2}:\d{2}$/.test(heure)) {
+                            const [h, m] = heure.split(":");
+                            heure = (h.length === 1 ? "0" : "") + h + ":" + m;
+                        }
+                        // Supprimer tout préfixe AM/PM style "9p:", "9a:", "9pm:", "9am:" dans le nom du raid
+                        let nomRaid = r.nom.replace(/^\s*\d{1,2}\s*(a|p|am|pm)\s*:*/i, "");
+                        // Supprimer les points de suspension à la fin de l'intitulé du raid
+                        nomRaid = nomRaid.replace(/\.\.\.$/, "");
+                        // Détection HM/NM
+                        let badge = '';
+                        if (/\bHM\b/i.test(nomRaid)) {
+                            badge = '<span class="raid-badge hm">HM</span>';
+                        } else if (/\bNM\b/i.test(nomRaid)) {
+                            badge = '<span class="raid-badge nm">NM</span>';
+                        }
+                        return {
+                            id: r.id,
+                            title: `${heure} - ${nomRaid}`,
+                            start: `${r.date}T${heure}:00`,
+                            description: r.inscriptions || [],
+                            display: 'auto',
+                            extendedProps: { badgeHtml: badge }
+                        };
+                    }),
+                eventDidMount: function(info) {
+                    // Ajoute le badge HM/NM en HTML dans l'événement
+                    if (info.event.extendedProps.badgeHtml) {
+                        const titleEl = info.el.querySelector('.fc-event-title');
+                        if (titleEl) {
+                            titleEl.innerHTML += ' ' + info.event.extendedProps.badgeHtml;
+                        }
+                    }
+                },
                 eventClick: function(info) {
                     afficherDetailsRaid(info.event.id); // Appeler afficherDetailsRaid avec l'id du raid
                 },
@@ -433,8 +506,12 @@
 
             raidName.textContent = raidDetails.nom;
 
-            const formattedDate = formatDate(raidDetails.date + "T" + raidDetails.time + ":00");
-            raidDateTime.textContent = formattedDate;
+            // Format personnalisé : date en français + heure 24h
+            const dateObj = new Date(raidDetails.date + "T" + raidDetails.time + ":00");
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateStr = dateObj.toLocaleDateString('fr-FR', options);
+            const heureStr = raidDetails.time;
+            raidDateTime.textContent = `${dateStr} à ${heureStr}`;
 
             raidPlayersList.innerHTML = ""; // Réinitialiser la liste des joueurs
             if (raidDetails.inscriptions && raidDetails.inscriptions.length > 0) {
@@ -574,8 +651,18 @@
         async function ajouterRaid() {
             const nom = document.getElementById('raid-select').value;
             const date = document.getElementById('raid-date').value;
-            const time = document.getElementById('raid-time').value;
+            let time = document.getElementById('raid-time').value;
             if (!nom || !date || !time) return alert("Remplissez tous les champs");
+
+            // Forcer le format HH:mm (24h)
+            if (/^\d{1,2}:\d{2}$/.test(time)) {
+                // Si l'heure est au format H:mm ou HH:mm, on complète si besoin
+                const [h, m] = time.split(":");
+                if (h.length === 1) time = "0" + h + ":" + m;
+            } else {
+                // Si le format est incorrect, on refuse
+                return alert("L'heure doit être au format 24h (ex: 20:30)");
+            }
 
             // Date d'ajout
             const dateAjout = new Date().toISOString(); // Date actuelle en format ISO 8601
