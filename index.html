@@ -4,6 +4,7 @@
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-firestore.js";
     const firebaseConfig = {
         apiKey: "AIzaSyBfJubhqQFQNo8fxVLKh1DKlfisJhZYwGI",
         authDomain: "bloodshadowsite-d35ce.firebaseapp.com",
@@ -15,9 +16,26 @@
     };
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    onAuthStateChanged(auth, (user) => {
+    const db = getFirestore(app);
+    import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-firestore.js";
+    onAuthStateChanged(auth, async (user) => {
         if (!user) {
             window.location.href = 'connexion.html';
+        } else {
+            // Récupérer le nom du membre depuis la collection 'joueurs'
+            const userInfoSpan = document.getElementById('user-name');
+            let displayName = user.displayName || "";
+            try {
+                const q = query(collection(db, 'joueurs'), where('uid', '==', user.uid));
+                const snapshot = await getDocs(q);
+                if (!snapshot.empty) {
+                    const membre = snapshot.docs[0].data();
+                    displayName = membre.nom || displayName || "Invité";
+                }
+            } catch (e) {
+                // Si erreur Firestore, garder displayName ou "Invité"
+            }
+            userInfoSpan.textContent = displayName || "Invité";
         }
     });
     </script>
@@ -80,7 +98,7 @@
         <p>&copy; 2025 Guilde Blood Shadow - Tous droits réservés.</p>
     </footer>
 
-    <button id="logout-btn" style="background:#d32f2f;color:#fff;border:none;padding:8px 16px;border-radius:6px;position:fixed;top:16px;right:16px;z-index:999;cursor:pointer;">Déconnexion</button>
+    <button id="logout-btn" style="background:#d32f2f;color:#fff;border:none;padding:18px 32px;font-size:1.3rem;font-weight:bold;border-radius:12px;position:fixed;bottom:24px;right:32px;z-index:9999;box-shadow:0 4px 16px #0004;cursor:pointer;transition:transform 0.2s;">Déconnexion</button>
 
     // ...existing code...
             const todayString = today.toISOString().split('T')[0];
