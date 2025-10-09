@@ -2,6 +2,19 @@
 <html lang="fr">
 
 <head>
+    <script>
+    // Ouvre la pop-up du raid ciblé si les paramètres sont présents
+    window.addEventListener('DOMContentLoaded', function() {
+        const params = new URLSearchParams(window.location.search);
+        const raidParam = params.get('raid');
+        const dateParam = params.get('date');
+        const timeParam = params.get('time');
+        if (raidParam && dateParam && timeParam) {
+            // Attendre que le calendrier soit prêt
+            window._openRaidPopupParams = { raid: raidParam, date: dateParam, time: timeParam };
+        }
+    });
+    </script>
     <style>
         .raid-badge {
             display: inline-block;
@@ -885,7 +898,24 @@ logoutBtn.addEventListener('click', async function() {
             initialiserCalendrier(raids);
             mettreAJourListeRaids(raids);
             updateCharacterList(joueursSnapshot);
-            // ...existing code...
+            // Ouvre la pop-up du raid ciblé après le rendu du calendrier
+                const params = new URLSearchParams(window.location.search);
+                const raidIdParam = params.get('raidId');
+                if (raidIdParam) {
+                    let attempts = 0;
+                    function tryOpenPopup() {
+                        const raidCible = raids.find(r => r.id === raidIdParam);
+                        if (raidCible) {
+                            afficherDetailsRaid(raidCible.id);
+                            return;
+                        }
+                        attempts++;
+                        if (attempts < 3) {
+                            setTimeout(tryOpenPopup, 400);
+                        }
+                    }
+                    setTimeout(tryOpenPopup, 800);
+                }
         });
         // ...existing code...
     </script>

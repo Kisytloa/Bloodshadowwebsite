@@ -35,6 +35,61 @@
                 // Si erreur Firestore, garder displayName ou "Invité"
             }
             userInfoSpan.textContent = displayName || "Invité";
+
+            // Afficher la date actuelle
+            const dateAjd = document.getElementById('date-ajd');
+            if (dateAjd) {
+                const today = new Date();
+                dateAjd.textContent = today.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            }
+
+            // Afficher les raids d'aujourd'hui
+            const raidsList = document.getElementById('raids-list');
+            if (raidsList) {
+                raidsList.innerHTML = '<li style="color:#888;text-align:center;">Chargement...</li>';
+                const raidsSnapshot = await getDocs(collection(db, 'raids'));
+                const today = new Date();
+                const todayStr = today.toISOString().slice(0, 10); // format YYYY-MM-DD
+                const raidsToday = [];
+                raidsSnapshot.forEach(doc => {
+                    const raid = doc.data();
+                    if (raid.date === todayStr) {
+                        raidsToday.push(raid);
+                    }
+                });
+                raidsList.innerHTML = '';
+                if (raidsToday.length === 0) {
+                    raidsList.innerHTML = '<li style="color:#888;text-align:center;">Aucun raid prévu aujourd\'hui.</li>';
+                } else {
+                    raidsToday.sort((a, b) => {
+                        // Trier par heure si possible
+                        return (a.time || '').localeCompare(b.time || '');
+                    });
+                    raidsToday.forEach(raid => {
+                        const li = document.createElement('li');
+                        li.style.padding = '8px 0';
+                        li.style.display = 'flex';
+                        li.style.alignItems = 'center';
+                        li.style.justifyContent = 'center';
+                        const raidId = raid.id || raid._id || '';
+                        const raidName = raid.nom || raid.title;
+                        const raidTime = raid.time || '';
+                        const inscritsLink = document.createElement('a');
+                        inscritsLink.href = `planning.html?raidId=${encodeURIComponent(raidId)}`;
+                        inscritsLink.textContent = `${raid.inscriptions ? raid.inscriptions.length : 0} inscrit(s)`;
+                        inscritsLink.style.fontSize = '0.95em';
+                        inscritsLink.style.color = '#fff';
+                        inscritsLink.style.marginLeft = '12px';
+                        inscritsLink.style.borderBottom = '2px solid #444';
+                        inscritsLink.style.paddingBottom = '2px';
+                        inscritsLink.style.cursor = 'pointer';
+                        inscritsLink.title = 'Voir le raid dans le planning';
+                        li.innerHTML = `<span><b>${raidName}</b> à ${raidTime}</span>`;
+                        li.appendChild(inscritsLink);
+                        raidsList.appendChild(li);
+                    });
+                }
+            }
         }
     });
     // Ajout du listener pour le bouton déconnexion
@@ -79,8 +134,8 @@
         <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo droite" style="height:80px;width:80px;object-fit:contain;background:#fff;border-radius:50%;box-shadow:0 2px 12px #0005;margin:0 18px;margin-top:32px;">
     <main>
         <section id="introduction">
-            <h2>Bienvenue sur le site de la Guilde Blood Shadow</h2>
-            <p>Bienvenue sur le site officiel de la Guilde Blood Shadow ! Nous sommes une guilde de joueurs passionnés par Lost Ark, et nous organisons régulièrement des raids et des événements. Sur ce site, vous pouvez consulter le planning des raids, obtenir des guides pour optimiser vos personnages, et suivre les dernières nouvelles du jeu.</p>
+            <h2>Bienvenue à la Guilde Crimson Reign</h2>
+            <p>Bienvenue sur le site officiel de la Guilde Crimson Reign ! Nous sommes une guilde de joueurs passionnés par Lost Ark, et nous organisons régulièrement des raids et des événements. Sur ce site, vous pouvez consulter le planning des raids, obtenir des guides pour optimiser vos personnages, et suivre les dernières nouvelles du jeu.</p>
         </section>
 
         <section id="raids-aujourdhui">
