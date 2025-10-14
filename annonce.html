@@ -33,9 +33,23 @@
 
     <main class="container annonce-container">
         <h1>Gérer l'annonce</h1>
-        <div class="annonce-help">Astuce: vous pouvez utiliser le Markdown (titres, listes, liens, gras, etc.).</div>
+    <div class="annonce-help">Astuce: vous pouvez utiliser le Markdown (titres, listes, liens, gras, etc.). L'annonce est maintenant partagée en temps réel entre tous les membres.</div>
         <form id="annonce-form">
+            <div class="md-toolbar" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+                <button type="button" class="md-btn" data-action="bold" title="Gras (Ctrl+B)" style="padding:6px 10px;">B</button>
+                <button type="button" class="md-btn" data-action="italic" title="Italique (Ctrl+I)" style="padding:6px 10px;font-style:italic;">I</button>
+                <button type="button" class="md-btn" data-action="title" title="Titre">H2</button>
+                <button type="button" class="md-btn" data-action="ul" title="Liste à puces">• Liste</button>
+                <button type="button" class="md-btn" data-action="ol" title="Liste numérotée">1. Liste</button>
+                <button type="button" class="md-btn" data-action="link" title="Lien">Lien</button>
+                <button type="button" class="md-btn" data-action="code" title="Code inline">Code</button>
+                <button type="button" class="md-btn" data-action="quote" title="Citation">"</button>
+                <button type="button" class="md-btn" data-action="hr" title="Séparateur">―</button>
+                <button type="button" class="md-btn" data-action="toggle-preview" title="Afficher/Masquer l'aperçu">Prévisualiser</button>
+            </div>
             <textarea id="annonce-content" rows="12" placeholder="Écrivez votre annonce ici (supporte le Markdown)"></textarea>
+            <div id="annonce-meta-editor" style="margin:6px 0 4px;font-size:0.8rem;color:#bbb;display:none;"></div>
+            <div id="annonce-draft" style="margin:0 0 8px;font-size:0.75rem;color:#ffb347;font-weight:bold;display:none;">Brouillon non sauvegardé…</div>
             <div class="buttons annonce-actions">
                 <button type="submit">Publier / Modifier l'annonce</button>
                 <button type="button" id="delete-button" class="btn-danger">Supprimer l'annonce</button>
@@ -64,6 +78,66 @@
         }
         textarea.addEventListener('input', updatePreview);
         document.addEventListener('DOMContentLoaded', updatePreview);
+
+        // Toolbar markdown
+        function surroundSelection(before, after = before) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const value = textarea.value;
+            const selected = value.slice(start, end);
+            const newText = value.slice(0, start) + before + selected + after + value.slice(end);
+            textarea.value = newText;
+            const cursor = start + before.length + selected.length + after.length;
+            textarea.focus();
+            textarea.setSelectionRange(cursor, cursor);
+            updatePreview();
+        }
+        function insertLinePrefix(prefix) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const value = textarea.value;
+            const before = value.slice(0, start);
+            const selected = value.slice(start, end) || '';
+            const after = value.slice(end);
+            const lines = selected.split('\n');
+            const modified = lines.map(l => l ? prefix + l : prefix).join('\n');
+            const replacement = modified || prefix;
+            textarea.value = before + replacement + after;
+            const cursor = before.length + replacement.length;
+            textarea.focus();
+            textarea.setSelectionRange(cursor, cursor);
+            updatePreview();
+        }
+        function togglePreview() {
+            if (preview.style.display === 'none' || !preview.innerHTML) {
+                updatePreview();
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+        document.querySelectorAll('.md-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                switch(action) {
+                    case 'bold': surroundSelection('**','**'); break;
+                    case 'italic': surroundSelection('*','*'); break;
+                    case 'title': insertLinePrefix('## '); break;
+                    case 'ul': insertLinePrefix('- '); break;
+                    case 'ol': insertLinePrefix('1. '); break;
+                    case 'link': surroundSelection('[','](https://)'); break;
+                    case 'code': surroundSelection('`','`'); break;
+                    case 'quote': insertLinePrefix('> '); break;
+                    case 'hr': surroundSelection('\n---\n',''); break;
+                    case 'toggle-preview': togglePreview(); break;
+                }
+            });
+        });
+        // Raccourcis clavier basiques
+        textarea.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key.toLowerCase() === 'b') { e.preventDefault(); surroundSelection('**','**'); }
+            if (e.ctrlKey && e.key.toLowerCase() === 'i') { e.preventDefault(); surroundSelection('*','*'); }
+        });
         // Affichage conditionnel du lien "Annonce" sur cette page
         document.addEventListener('DOMContentLoaded', function() {
             const role = (localStorage.getItem('userRole') || '').trim();
