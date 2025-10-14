@@ -1,3 +1,153 @@
+.raid-guide-card {
+    background:#232026;
+    border-radius:16px;
+    box-shadow:0 2px 12px #0005;
+    padding:24px;
+    width:370px;
+    max-width:100%;
+}
+.raid-guide-card {
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    width:370px;
+    max-width:100%;
+}
+.raid-type-selector {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    margin: 32px 0 24px 0;
+}
+.raid-type-selector button {
+    background: #232026;
+    color: #ffd700;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 8px #0003;
+    transition: background 0.2s, color 0.2s;
+}
+.raid-type-selector button:hover {
+    background: #ffd700;
+    color: #232026;
+}
+.argos-simple-flex {
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    align-items: flex-start;
+    width: 100%;
+    flex-wrap: wrap;
+}
+.argos-main-video {
+    flex: 2 1 480px;
+    min-width: 320px;
+    max-width: 700px;
+}
+.argos-main-info {
+    flex: 1 1 320px;
+    min-width: 260px;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+}
+.argos-main-info img {
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 8px;
+}
+.argos-other-videos {
+    width: 100%;
+    gap: 32px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+@media (max-width: 900px) {
+    .argos-simple-flex {
+        flex-direction: column;
+        gap: 24px;
+    }
+    .argos-main-info {
+        max-width: 100%;
+        align-items: center;
+        text-align: center;
+    }
+    .argos-other-videos {
+        flex-direction: column;
+        gap: 24px;
+        align-items: center;
+    }
+}
+.argos-flex {
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    align-items: flex-start;
+    width: 100%;
+    flex-wrap: wrap;
+}
+.argos-videos {
+    flex: 2 1 480px;
+    min-width: 320px;
+    max-width: 700px;
+}
+.argos-info {
+    flex: 1 1 320px;
+    min-width: 260px;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+}
+.argos-info img {
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 8px;
+}
+@media (max-width: 900px) {
+    .argos-flex {
+        flex-direction: column;
+        gap: 24px;
+    }
+    .argos-info {
+        max-width: 100%;
+        align-items: center;
+        text-align: center;
+    }
+}
+.argos-full {
+    width: 100% !important;
+    max-width: 1200px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+/* Vidéos YouTube responsives */
+.video-responsive {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* Ratio 16:9 */
+    height: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px #0003;
+}
+.video-responsive iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
 /* Boutons + et - du planning */
 #show-add-raid-popup {
     border: 3px solid #FFD600 !important;
