@@ -167,6 +167,21 @@ nav ul li a:hover::after {
     width: 100%;
 }
 
+/* Gear link inside nav replacing Annonce */
+.nav-gear-link:hover {
+    background:#2c262e !important;
+}
+.nav-gear-link:hover svg {
+    fill:#fff4b3 !important;
+    transform: rotate(140deg);
+}
+
+/* Dropdown menu from nav gear */
+#nav-gear-toggle:hover svg { transform: rotate(140deg); fill:#fff4b3; }
+#nav-gear-toggle { position:relative; }
+#nav-gear-menu a:hover { background:#272229 !important; }
+#nav-gear-menu a + a { border-top:1px solid rgba(255,255,255,0.06); }
+
 
 /* ------ Main ------ */
 main {
@@ -798,4 +813,25 @@ footer {
 #new-ilvl {
     text-align: center;
     font-weight: bold;
+}
+
+/* Accentuer la section raids (après suppression des news) */
+#raids-aujourdhui {
+    padding: 2.8rem 2.2rem;
+    position: relative;
+}
+
+#raids-aujourdhui::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 15px;
+    background: radial-gradient(circle at 50% 0%, rgba(179,0,27,0.12), transparent 70%);
+    pointer-events: none;
+}
+
+#raids-list li {
+    max-width: 620px;
+    margin-left: auto;
+    margin-right: auto;
 }
