@@ -10,13 +10,13 @@ const firebaseConfig = {
 };
 const archtypeClasses = {
     "Guerrier": ["Berserker", "Paladin", "Destructeur", "Gunlancer"],
-    "Guerrière": ["Slayer", "Paladine"],
+    "Guerrière": ["Slayer", "Paladine","Guardian Knight"],
     "Mage": ["Sorcière", "Arcaniste", "Barde", "Invocatrice"],
     "Martialiste Femme": ["Elementiste", "Spirite", "Lancière","Pugiliste"],
     "Martialiste Homme": ["Striker", "Breaker"],
     "Assassin": ["Sanguelame", "Démoniste", "Faucheuse", "Dévoreuse d'âme"],
     "Gunner": ["Gunner", "Sagittaire", "Artilleur", "Machiniste"],
-    "Gunneuse": ["Gunneuse"],
+    "Gunneuse": ["Fusilière"],
     "Spécialiste": ["Artiste", "Helètempète", "Ame sauvage",]
 };
 
@@ -609,3 +609,4 @@ document.getElementById('popup-close-btn').addEventListener('click', closePopup)
                 });
         });
     }
+
