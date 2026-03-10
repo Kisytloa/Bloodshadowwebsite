@@ -578,16 +578,17 @@
 
     async function sendToDiscord(){
       const url=document.getElementById('webhook-url').value.trim();
-      if(!url||!url.startsWith('https://discord.com/api/webhooks/')){toast('URL de webhook invalide !',true);return;}
+      if(!url||(!url.startsWith('https://discord.com/api/webhooks/')&&!url.startsWith('https://discordapp.com/api/webhooks/'))){toast('URL de webhook invalide !',true);return;}
       if(document.getElementById('webhook-save').checked)localStorage.setItem('bs_webhook',url);
       const{title,body,footer}=buildDiscordContent();
       const payload={username:'Bloodshadow Bot',embeds:[{color:0xb3001b,title,description:body,footer:{text:footer},thumbnail:{url:'https://bloodshadowwebsite.vercel.app/Logo%20guilde.jpg'}}]};
       const btn=document.getElementById('btn-send-discord');
       btn.disabled=true;btn.textContent='⏳ Envoi…';
       try{
-        const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-        if(res.ok||res.status===204){toast('Message envoyé sur Discord ! 🎉');closeP('popup-discord');}
-        else{const err=await res.text();toast('Erreur Discord : '+err,true);}
+        const res=await fetch('/api/discord-webhook',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({webhookUrl:url,payload})});
+        const data=await res.json();
+        if(data.success){toast('Message envoyé sur Discord ! 🎉');closeP('popup-discord');}
+        else{toast('Erreur Discord : '+(data.error||'inconnue'),true);}
       }catch(e){toast('Erreur réseau : '+e.message,true);}
       btn.disabled=false;btn.textContent='📨 Envoyer';
     }
