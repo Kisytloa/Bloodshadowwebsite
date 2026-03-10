@@ -1,189 +1,498 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-auth.js";
-  const firebaseConfig = {
-    apiKey: "AIzaSyBfJubhqQFQNo8fxVLKh1DKlfisJhZYwGI",
-    authDomain: "bloodshadowsite-d35ce.firebaseapp.com",
-    projectId: "bloodshadowsite-d35ce",
-    storageBucket: "bloodshadowsite-d35ce.firebasestorage.app",
-    messagingSenderId: "368188025874",
-    appId: "1:368188025874:web:cfdd31f87651f1a3737ccb",
-    measurementId: "G-1PJ7HXSP6J"
-  };
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = 'connexion.html';
-    }
-  });
-  </script>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Objectifs de Guilde</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Objectifs — Crimson Reign</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
-  #objectif-thaemine {
-    background-color: #000000;
-    border: 2px dashed #333;
-    border-radius: 10px;
-    padding: 20px;
-    margin-top: 20px;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
-  }
-  
-  #objectif-thaemine ul {
-    list-style-type: "🛡️ ";
-    padding-left: 20px;
-  }
-  
-  #objectif-thaemine li {
-    margin: 8px 0;
-    font-size: 18px;
-  }
-  
-  #objectif-thaemine h4 {
-    margin-top: 15px;
-    color: #333;
-  }
+    /* ── Objectifs spécifique ──────────────────────────── */
+    .objectifs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.4rem;
+      margin-top: 1.5rem;
+    }
+
+    .objectif-card {
+      background: linear-gradient(160deg, rgba(22,10,30,0.97), rgba(16,6,22,0.97));
+      border: 1px solid rgba(179,0,27,0.32);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+      box-shadow: 0 5px 22px rgba(0,0,0,0.5);
+    }
+
+    .objectif-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(201,146,42,0.45);
+      box-shadow: 0 14px 38px rgba(0,0,0,0.65), 0 0 18px rgba(201,146,42,0.07);
+    }
+
+    .objectif-card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid rgba(179,0,27,0.2);
+      background: linear-gradient(90deg, rgba(179,0,27,0.08), transparent);
+    }
+
+    .objectif-icon {
+      font-size: 1.8rem;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(179,0,27,0.12);
+      border: 1px solid rgba(179,0,27,0.25);
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    .objectif-card-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--gold-light);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .objectif-card-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.5px;
+    }
+
+    .objectif-card-body {
+      padding: 14px 20px 18px;
+    }
+
+    .objectif-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .objectif-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      background: rgba(10,3,16,0.5);
+      border-radius: 8px;
+      border-left: 2px solid rgba(179,0,27,0.35);
+      font-size: 0.92rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .objectif-list li:hover {
+      background: rgba(179,0,27,0.06);
+      border-color: rgba(201,146,42,0.4);
+    }
+
+    .objectif-list li.done {
+      border-color: rgba(46,125,50,0.5);
+      opacity: 0.65;
+    }
+
+    .objectif-list li.done::before {
+      content: '✓';
+      color: #81c784;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .objectif-list li:not(.done)::before {
+      content: '◆';
+      color: var(--red);
+      font-size: 0.6rem;
+      flex-shrink: 0;
+    }
+
+    /* Badge iLvl requis */
+    .ilvl-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: rgba(201,146,42,0.14);
+      color: var(--gold);
+      border: 1px solid rgba(201,146,42,0.3);
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    /* Barre progression */
+    .progress-wrap {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: rgba(10,3,16,0.5);
+      border-radius: 8px;
+      border: 1px solid rgba(179,0,27,0.18);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .progress-label span { color: var(--gold); font-weight: 700; }
+
+    .progress-bar {
+      height: 8px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--red), var(--gold));
+      border-radius: 8px;
+      transition: width 1.2s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+
+    /* Section règlement */
+    .reglement-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 1.2rem;
+    }
+
+    .reglement-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      background: rgba(10,3,16,0.55);
+      border-radius: 10px;
+      border: 1px solid rgba(179,0,27,0.18);
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .reglement-item:hover {
+      border-color: rgba(201,146,42,0.35);
+      background: rgba(179,0,27,0.05);
+    }
+
+    .reglement-num {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--red);
+      opacity: 0.7;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .reglement-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .reglement-text strong {
+      display: block;
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      color: var(--text);
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
   </style>
-  
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBfJubhqQFQNo8fxVLKh1DKlfisJhZYwGI",
+      authDomain: "bloodshadowsite-d35ce.firebaseapp.com",
+      projectId: "bloodshadowsite-d35ce",
+      storageBucket: "bloodshadowsite-d35ce.firebasestorage.app",
+      messagingSenderId: "368188025874",
+      appId: "1:368188025874:web:cfdd31f87651f1a3737ccb",
+      measurementId: "G-1PJ7HXSP6J"
+    };
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'connexion.html'; return; }
+      const q    = query(collection(db, 'joueurs'), where('uid', '==', user.uid));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const m    = snap.docs[0].data();
+        const role = (m.role || '').trim();
+        document.getElementById('user-name').textContent = m.nom || 'Invité';
+        localStorage.setItem('userRole', role);
+        const navLi = document.querySelector('li.nav-annonce');
+        if (navLi) {
+          navLi.style.display = (role === 'Administrateur' || role === 'Modérateur') ? 'list-item' : 'none';
+          const adminLink = document.querySelector('#nav-gear-menu a[data-role="admin"]');
+          if (adminLink) adminLink.style.display = (role === 'Administrateur') ? 'flex' : 'none';
+        }
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'connexion.html';
+    });
+  </script>
 </head>
 <body>
-<script>
-document.addEventListener('DOMContentLoaded',()=>{const t=document.getElementById('nav-gestion-toggle');const m=document.getElementById('nav-gestion-menu');if(!t||!m)return;const close=()=>{m.style.display='none';t.setAttribute('aria-expanded','false');};const open=()=>{m.style.display='block';t.setAttribute('aria-expanded','true');};t.addEventListener('click',e=>{e.preventDefault();(m.style.display==='block'?close():open());});document.addEventListener('click',e=>{if(!m.contains(e.target)&& e.target!==t && !t.contains(e.target)) close();});document.addEventListener('keydown',e=>{if(e.key==='Escape') close();});m.querySelectorAll('a').forEach(a=>{a.addEventListener('mouseenter',()=>a.style.background='#272229');a.addEventListener('mouseleave',()=>a.style.background='transparent');});});
-</script>
-</html>
+
+  <div id="user-info">Connecté en tant que : <span id="user-name">…</span></div>
+
   <header>
-    <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo gauche" />
-    <h1>Objectifs de la Guilde</h1>
-    <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo droite" />
+    <img src="Logo guilde.jpg" alt="Logo Bloodshadow" class="logo gauche" />
+    <h1>Objectifs</h1>
+    <p style="font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase;margin-top:4px;">Guilde Bloodshadow</p>
+    <img src="Logo guilde.jpg" alt="Logo Bloodshadow" class="logo droite" />
+
     <nav>
       <ul>
-  <li><a href="index.html" aria-label="Accueil" title="Accueil" style="width:46px;height:46px;font-size:24px;line-height:1;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.15);border-radius:10px;background:#221d23;color:#eee;text-decoration:none;transition:background .25s ease, transform .25s ease;">🏠</a></li>
-    <li class="nav-raid" style="position:relative;">
-      <button id="nav-raid-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Menu Raid" style="display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border:1px solid rgba(255,255,255,0.15);border-radius:10px;background:#221d23;color:#eee;font-size:.95rem;cursor:pointer;transition:background .25s ease, transform .25s ease;">
-        <span style="font-size:18px;">🗡️</span> <span>Raid</span>
-        <span style="font-size:12px;opacity:.7;transform:translateY(1px);">▼</span>
-      </button>
-      <div id="nav-raid-menu" style="display:none;position:absolute;top:52px;left:50%;transform:translateX(-50%);background:#1d191f;border:1px solid rgba(255,255,255,0.12);border-radius:10px;min-width:220px;box-shadow:0 8px 24px rgba(0,0,0,0.6);padding:6px 0;z-index:3000;backdrop-filter:blur(4px);">
-        <a href="planning.html" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:#eee;font-size:.95rem;text-decoration:none;">
-          <span style="display:inline-flex;width:22px;justify-content:center;">📅</span> <span>Planning de Raid</span>
-        </a>
-        <a href="excel_raid.html" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:#eee;font-size:.95rem;text-decoration:none;">
-          <span style="display:inline-flex;width:22px;justify-content:center;">📊</span> <span>Excel Raid</span>
-        </a>
-      </div>
-    </li>
-    <li class="nav-gestion" style="position:relative;">
-      <button id="nav-gestion-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Menu Gestion" style="display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border:1px solid rgba(255,255,255,0.15);border-radius:10px;background:#221d23;color:#eee;font-size:.95rem;cursor:pointer;transition:background .25s ease, transform .25s ease;">
-        <span style="font-size:18px;">🧩</span> <span>Gestion</span>
-        <span style="font-size:12px;opacity:.7;transform:translateY(1px);">▼</span>
-      </button>
-      <div id="nav-gestion-menu" style="display:none;position:absolute;top:52px;left:50%;transform:translateX(-50%);background:#1d191f;border:1px solid rgba(255,255,255,0.12);border-radius:10px;min-width:220px;box-shadow:0 8px 24px rgba(0,0,0,0.6);padding:6px 0;z-index:3000;backdrop-filter:blur(4px);">
-        <a href="membre_guilde.html" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:#eee;font-size:.95rem;text-decoration:none;">
-          <span style="display:inline-flex;width:22px;justify-content:center;">👥</span> <span>Membres de la Guilde</span>
-        </a>
-      </div>
-    </li>
-    <li class="nav-annonce" style="position:relative;">
-      <button id="nav-gear-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Menu Annonce / Administration" title="Annonce / Administration" style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border:1px solid rgba(255,255,255,0.15);border-radius:10px;background:#221d23;cursor:pointer;transition:background .25s ease, transform .25s ease;position:relative;font-size:24px;">📢</button>
-      <div id="nav-gear-menu" style="display:none;position:absolute;top:52px;left:50%;transform:translateX(-50%);background:#1d191f;border:1px solid rgba(255,255,255,0.12);border-radius:10px;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.6);padding:6px 0;z-index:3000;backdrop-filter:blur(4px);">
-        <a href="annonce.html" data-role="mod" style="display:flex;align-items:center;gap:8px;padding:10px 14px;color:#eee;font-size:.95rem;text-decoration:none;transition:background .25s ease;">
-          <span style="display:inline-flex;width:20px;justify-content:center;">📝</span> <span>Annonce</span>
-        </a>
-        <a href="admin.html" data-role="admin" style="display:flex;align-items:center;gap:8px;padding:10px 14px;color:#eee;font-size:.95rem;text-decoration:none;transition:background .25s ease;">
-          <span style="display:inline-flex;width:20px;justify-content:center;">⚙️</span> <span>Administration</span>
-        </a>
-      </div>
-    </li>
-    <li class="nav-ressources" style="position:relative;">
-      <button id="nav-ressources-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Menu Ressources" style="display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border:1px solid rgba(255,255,255,0.15);border-radius:10px;background:#221d23;color:#eee;font-size:.95rem;cursor:pointer;transition:background .25s ease, transform .25s ease;">
-        <span style="font-size:18px;">📚</span> <span>Ressources</span>
-        <span style="font-size:12px;opacity:.7;transform:translateY(1px);">▼</span>
-      </button>
-  <div id="nav-ressources-menu" style="display:none;position:absolute;top:52px;left:50%;transform:translateX(-50%);background:#1d191f;border:1px solid rgba(255,255,255,0.12);border-radius:10px;min-width:220px;box-shadow:0 8px 24px rgba(0,0,0,0.6);padding:6px 0;z-index:3000;backdrop-filter:blur(4px);">
-        <a href="https://www.playlostark.com/fr-fr/news" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:#eee;font-size:.95rem;text-decoration:none;">
-          <span style="display:inline-flex;width:22px;justify-content:center;">📰</span> <span>News Lost Ark</span>
-        </a>
-        <a href="https://www.playlostark.com/fr-fr/support/server-status" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:#eee;font-size:.95rem;text-decoration:none;">
-          <span style="display:inline-flex;width:22px;justify-content:center;">🖥️</span> <span>Server Status</span>
-        </a>
-        <a href="https://www.lostark.nexus" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:#eee;font-size:.95rem;text-decoration:none;">
-          <span style="display:inline-flex;width:22px;justify-content:center;">🛠️</span> <span>Build Personnages</span>
-        </a>
-      </div>
-    </li>
+        <li><a href="index.html" aria-label="Accueil">🏠</a></li>
+
+        <li class="nav-raid" style="position:relative;">
+          <button id="nav-raid-toggle" aria-haspopup="true" aria-expanded="false">
+            <span>🗡️</span> Raid <span style="font-size:10px;opacity:.6;">▼</span>
+          </button>
+          <div id="nav-raid-menu">
+            <a href="planning.html"><span>📅</span> Planning de Raid</a>
+            <a href="excel_raid.html"><span>📊</span> Excel Raid</a>
+          </div>
+        </li>
+
+        <li class="nav-gestion" style="position:relative;">
+          <button id="nav-gestion-toggle" aria-haspopup="true" aria-expanded="false">
+            <span>🧩</span> Gestion <span style="font-size:10px;opacity:.6;">▼</span>
+          </button>
+          <div id="nav-gestion-menu">
+            <a href="membre_guilde.html"><span>👥</span> Membres de la Guilde</a>
+          </div>
+        </li>
+
+        <li><a href="Objectifs.html">🎯 Objectifs</a></li>
+        <li><a href="Cagnotte.html">💰 Cagnotte</a></li>
+
+        <li class="nav-annonce" style="display:none;position:relative;">
+          <button id="nav-gear-toggle" aria-haspopup="true" aria-expanded="false">📢</button>
+          <div id="nav-gear-menu">
+            <a href="annonce.html" data-role="mod"><span>📝</span> Annonce</a>
+            <a href="admin.html"   data-role="admin"><span>⚙️</span> Administration</a>
+          </div>
+        </li>
+
+        <li class="nav-ressources" style="position:relative;">
+          <button id="nav-ressources-toggle" aria-haspopup="true" aria-expanded="false">
+            <span>📚</span> Ressources <span style="font-size:10px;opacity:.6;">▼</span>
+          </button>
+          <div id="nav-ressources-menu">
+            <a href="https://www.playlostark.com/fr-fr/news" target="_blank" rel="noopener"><span>📰</span> News Lost Ark</a>
+            <a href="https://www.playlostark.com/fr-fr/support/server-status" target="_blank" rel="noopener"><span>🖥️</span> Server Status</a>
+            <a href="https://www.lostark.nexus" target="_blank" rel="noopener"><span>🛠️</span> Build Personnages</a>
+          </div>
+        </li>
       </ul>
     </nav>
-  <header>
-    <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo gauche" style="height:80px;width:80px;object-fit:contain;background:#fff;border-radius:50%;box-shadow:0 2px 12px #0005;margin:0 18px;margin-top:32px;">
-  <!-- Titre supprimé pour éviter le doublon -->
-    <img src="Logo guilde.jpg" alt="Logo Guilde" class="logo droite" style="height:80px;width:80px;object-fit:contain;background:#fff;border-radius:50%;box-shadow:0 2px 12px #0005;margin:0 18px;margin-top:32px;">
+  </header>
+
+  <main>
+
+    <!-- Objectifs Raids -->
+    <section>
+      <h2>🗡️ Objectifs de Raids</h2>
+      <div class="objectifs-grid">
+
+        <div class="objectif-card">
+          <div class="objectif-card-header">
+            <div class="objectif-icon">⚡</div>
+            <div>
+              <div class="objectif-card-title">Raids Actuels</div>
+              <div class="objectif-card-sub">Saison en cours</div>
+            </div>
+          </div>
+          <div class="objectif-card-body">
+            <ul class="objectif-list">
+              <li>Behemoth <span class="ilvl-badge">1620</span></li>
+              <li>Prélude Echidna NM <span class="ilvl-badge">1620</span></li>
+              <li>Prélude Echidna HM <span class="ilvl-badge">1630</span></li>
+              <li>Aegir NM <span class="ilvl-badge">1660</span></li>
+              <li>Aegir HM <span class="ilvl-badge">1680</span></li>
+              <li>Brelshaza NM <span class="ilvl-badge">1670</span></li>
+              <li>Brelshaza HM <span class="ilvl-badge">1690</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="objectif-card">
+          <div class="objectif-card-header">
+            <div class="objectif-icon">🔥</div>
+            <div>
+              <div class="objectif-card-title">Raids Endgame</div>
+              <div class="objectif-card-sub">Objectifs haut niveau</div>
+            </div>
+          </div>
+          <div class="objectif-card-body">
+            <ul class="objectif-list">
+              <li>Mordum NM <span class="ilvl-badge">1680</span></li>
+              <li>Mordum HM <span class="ilvl-badge">1700</span></li>
+              <li>Mordum HM G3 <span class="ilvl-badge">1700</span></li>
+              <li>Armoche NM <span class="ilvl-badge">1700</span></li>
+              <li>Armoche HM <span class="ilvl-badge">1720</span></li>
+              <li>Final Day NM <span class="ilvl-badge">1710</span></li>
+              <li>Final Day HM <span class="ilvl-badge">1730</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="objectif-card">
+          <div class="objectif-card-header">
+            <div class="objectif-icon">📈</div>
+            <div>
+              <div class="objectif-card-title">Progression Guilde</div>
+              <div class="objectif-card-sub">Avancement collectif</div>
+            </div>
+          </div>
+          <div class="objectif-card-body">
+            <ul class="objectif-list">
+              <li class="done">Constituer un roster stable</li>
+              <li class="done">Clear Mordum NM</li>
+              <li class="done">Clear Mordum HM</li>
+              <li class="done">Clear Armoche HM</li>
+              <li class="done">Roster moyen 1710+</li>
+              <li>Clear Final Day HM</li>
+            </ul>
+            <div class="progress-wrap">
+              <div class="progress-label">
+                <span>Progression</span>
+                <span>5 / 6</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 85%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Règlement & Attentes -->
+    <section>
+      <h2>📋 Règlement de la Guilde</h2>
+      <div class="reglement-grid">
+        <div class="reglement-item">
+          <div class="reglement-num">01</div>
+          <div class="reglement-text">
+            <strong>Respect & Bienveillance</strong>
+            Respecter tous les membres de la guilde, quel que soit leur niveau.
+          </div>
+        </div>
+        <div class="reglement-item">
+          <div class="reglement-num">02</div>
+          <div class="reglement-text">
+            <strong>Présence aux raids</strong>
+            Prévenir en avance en cas d'absence à un raid inscrit.
+          </div>
+        </div>
+        <div class="reglement-item">
+          <div class="reglement-num">03</div>
+          <div class="reglement-text">
+            <strong>Préparation</strong>
+            Connaître les mécaniques du raid avant de s'inscrire.
+          </div>
+        </div>
+        <div class="reglement-item">
+          <div class="reglement-num">04</div>
+          <div class="reglement-text">
+            <strong>iLvl à jour</strong>
+            Maintenir son iLvl à jour sur la page membres du site.
+          </div>
+        </div>
+        <div class="reglement-item">
+          <div class="reglement-num">05</div>
+          <div class="reglement-text">
+            <strong>Discord actif</strong>
+            Être présent sur Discord pendant les raids pour la communication.
+          </div>
+        </div>
+        <div class="reglement-item">
+          <div class="reglement-num">06</div>
+          <div class="reglement-text">
+            <strong>Participation</strong>
+            Contribuer à la cagnotte de guilde selon ses moyens.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
 
   <footer>
-    <p>&copy; 2025 Guilde Blood Shadow - Tous droits réservés.</p>
+    <p>© 2026 Guilde Crimson Reign — Lost Ark</p>
   </footer>
+
+  <button id="logout-btn">🚪 Déconnexion</button>
+
   <script>
-  document.addEventListener('DOMContentLoaded',function(){
-    const role = (localStorage.getItem('userRole')||'').trim();
-    const gear = document.getElementById('admin-gear');
-    if (gear) gear.style.display = (role === 'Administrateur') ? 'flex' : 'none';
-  });
-  </script>
-  <script>
-  document.addEventListener('DOMContentLoaded',function(){
+  document.addEventListener('DOMContentLoaded', () => {
+    // Animate progress bars
+    setTimeout(() => {
+      document.querySelectorAll('.progress-fill').forEach(el => {
+        const w = el.style.width;
+        el.style.width = '0';
+        requestAnimationFrame(() => { el.style.width = w; });
+      });
+    }, 300);
+
+    // Dropdowns
+    function makeDropdown(toggleId, menuId) {
+      const toggle = document.getElementById(toggleId);
+      const menu   = document.getElementById(menuId);
+      if (!toggle || !menu) return;
+      const close = () => { menu.style.display='none'; toggle.setAttribute('aria-expanded','false'); };
+      const open  = () => { menu.style.display='block'; toggle.setAttribute('aria-expanded','true'); };
+      toggle.addEventListener('click', e => { e.preventDefault(); menu.style.display==='block' ? close() : open(); });
+      document.addEventListener('click', e => { if (!menu.contains(e.target) && e.target!==toggle && !toggle.contains(e.target)) close(); });
+      document.addEventListener('keydown', e => { if (e.key==='Escape') close(); });
+    }
+    makeDropdown('nav-raid-toggle',       'nav-raid-menu');
+    makeDropdown('nav-gestion-toggle',    'nav-gestion-menu');
+    makeDropdown('nav-gear-toggle',       'nav-gear-menu');
+    makeDropdown('nav-ressources-toggle', 'nav-ressources-menu');
+
     const role = (localStorage.getItem('userRole')||'').trim();
     const navLi = document.querySelector('li.nav-annonce');
     if (navLi) {
-        if (role === 'Administrateur' || role === 'Modérateur') {
-            navLi.style.display = 'list-item';
-            const adminLink = document.querySelector('#nav-gear-menu a[data-role="admin"]');
-            if (adminLink) adminLink.style.display = (role === 'Administrateur') ? 'flex' : 'none';
-        } else { navLi.style.display='none'; }
+      navLi.style.display = (role === 'Administrateur' || role === 'Modérateur') ? 'list-item' : 'none';
+      const adminLink = document.querySelector('#nav-gear-menu a[data-role="admin"]');
+      if (adminLink) adminLink.style.display = (role === 'Administrateur') ? 'flex' : 'none';
     }
-    const navGearSvg = document.getElementById('nav-gear-svg');
-    const navGearFallback = document.getElementById('nav-gear-fallback');
-    if (navGearSvg && navGearFallback) {
-        try { const box = navGearSvg.getBBox(); if(!box || box.width===0){ navGearSvg.style.display='none'; navGearFallback.style.display='flex'; } }
-        catch(e){ navGearSvg.style.display='none'; navGearFallback.style.display='flex'; }
-    }
-    const gearToggle = document.getElementById('nav-gear-toggle');
-    const gearMenu = document.getElementById('nav-gear-menu');
-    if (gearToggle && gearMenu) {
-        const closeMenu=()=>{ gearMenu.style.display='none'; gearToggle.setAttribute('aria-expanded','false'); };
-        const openMenu=()=>{ gearMenu.style.display='block'; gearToggle.setAttribute('aria-expanded','true'); };
-        gearToggle.addEventListener('click',e=>{ e.preventDefault(); if(gearMenu.style.display==='block'){closeMenu();} else {openMenu();} });
-        document.addEventListener('click',e=>{ if(!gearMenu.contains(e.target)&& e.target!==gearToggle && !gearToggle.contains(e.target)) closeMenu(); });
-        document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeMenu(); });
-        gearMenu.querySelectorAll('a').forEach(a=>{ a.addEventListener('mouseenter',()=>a.style.background='#272229'); a.addEventListener('mouseleave',()=>a.style.background='transparent'); });
-    }
-    const resToggle = document.getElementById('nav-ressources-toggle');
-    const resMenu = document.getElementById('nav-ressources-menu');
-    if (resToggle && resMenu) {
-        const closeRes=()=>{ resMenu.style.display='none'; resToggle.setAttribute('aria-expanded','false'); };
-        const openRes=()=>{ resMenu.style.display='block'; resToggle.setAttribute('aria-expanded','true'); };
-        resToggle.addEventListener('click',e=>{ e.preventDefault(); if(resMenu.style.display==='block'){closeRes();} else {openRes();} });
-        document.addEventListener('click',e=>{ if(!resMenu.contains(e.target)&& e.target!==resToggle && !resToggle.contains(e.target)) closeRes(); });
-        document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeRes(); });
-        resMenu.querySelectorAll('a').forEach(a=>{ a.addEventListener('mouseenter',()=>a.style.background='#272229'); a.addEventListener('mouseleave',()=>a.style.background='transparent'); });
-    }
-  // Raid dropdown
-  const raidToggle = document.getElementById('nav-raid-toggle');
-  const raidMenu = document.getElementById('nav-raid-menu');
-  if (raidToggle && raidMenu) {
-    const closeRaid=()=>{ raidMenu.style.display='none'; raidToggle.setAttribute('aria-expanded','false'); };
-    const openRaid=()=>{ raidMenu.style.display='block'; raidToggle.setAttribute('aria-expanded','true'); };
-    raidToggle.addEventListener('click',e=>{ e.preventDefault(); if(raidMenu.style.display==='block'){closeRaid();} else {openRaid();} });
-    document.addEventListener('click',e=>{ if(!raidMenu.contains(e.target)&& e.target!==raidToggle && !raidToggle.contains(e.target)) closeRaid(); });
-    document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeRaid(); });
-    raidMenu.querySelectorAll('a').forEach(a=>{ a.addEventListener('mouseenter',()=>a.style.background='#272229'); a.addEventListener('mouseleave',()=>a.style.background='transparent'); });
-  }
   });
   </script>
-  
+
 </body>
 </html>

@@ -3,20 +3,303 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Site officiel de la guilde Bloodshadow — Lost Ark" />
-  <title>Crimson Reign — Guilde Lost Ark</title>
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
-
-  <!-- CSS principal -->
+  <title>Accueil — Crimson Reign</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Hero bannière ─────────────────────────────────── */
+    .hero {
+      position: relative;
+      width: 100%;
+      min-height: 260px;
+      overflow: hidden;
+      border-radius: 16px;
+      margin-bottom: 0;
+      display: flex;
+      align-items: flex-end;
+    }
 
-  <!-- Firebase -->
+    .hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      filter: brightness(0.55) saturate(1.2);
+      transition: transform 8s ease;
+    }
+
+    .hero:hover .hero-img { transform: scale(1.04); }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(8,2,12,0.1) 0%,
+        rgba(8,2,12,0.3) 40%,
+        rgba(8,2,12,0.92) 100%
+      );
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 32px 36px;
+      width: 100%;
+    }
+
+    .hero-guild-name {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(1.8rem, 4vw, 3.2rem);
+      font-weight: 900;
+      color: transparent;
+      background: linear-gradient(130deg, #c9922a 0%, #f0c040 40%, #d4001f 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      line-height: 1.1;
+      filter: drop-shadow(0 2px 12px rgba(179,0,27,0.6));
+      animation: shimmer 5s ease-in-out infinite alternate;
+      margin-bottom: 8px;
+    }
+
+    .hero-tagline {
+      font-family: 'Cinzel', serif;
+      font-size: 0.82rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+    }
+
+    .hero-tagline span { color: var(--gold); }
+
+    /* ── Date du jour ──────────────────────────────────── */
+    .date-banner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(90deg, rgba(179,0,27,0.08), rgba(20,8,28,0.5), rgba(179,0,27,0.08));
+      border: 1px solid rgba(179,0,27,0.2);
+      border-radius: 30px;
+      padding: 8px 20px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 0 auto 1.5rem;
+      width: fit-content;
+    }
+
+    .date-banner .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    .date-banner #date-ajd { color: var(--gold-light); font-weight: 600; }
+
+    /* ── Section raids ─────────────────────────────────── */
+    #raids-aujourdhui { position: relative; }
+
+    #raids-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 1.2rem;
+    }
+
+    #raids-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 20px;
+      background: linear-gradient(90deg, rgba(179,0,27,0.1), rgba(20,8,28,0.6));
+      border: 1px solid rgba(179,0,27,0.28);
+      border-left: 3px solid var(--red);
+      border-radius: 10px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      transition: all 0.25s;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    #raids-list li:hover {
+      background: linear-gradient(90deg, rgba(179,0,27,0.16), rgba(28,10,36,0.75));
+      border-color: rgba(201,146,42,0.45);
+      transform: translateX(5px);
+    }
+
+    #raids-list li::before {
+      content: '⚔';
+      margin-right: 8px;
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+
+    #raids-list .raid-time {
+      font-size: 0.8rem;
+      color: var(--gold);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    #raids-list .raid-name { flex: 1; color: var(--text); }
+
+    #raids-list a {
+      color: var(--gold-light);
+      text-decoration: none;
+      font-size: 0.78rem;
+      border: 1px solid rgba(201,146,42,0.35);
+      border-radius: 6px;
+      padding: 4px 10px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    #raids-list a:hover {
+      background: rgba(201,146,42,0.12);
+      border-color: var(--gold);
+      color: #fff;
+    }
+
+    .no-raids {
+      text-align: center;
+      color: var(--text-dim);
+      font-style: italic;
+      font-size: 0.95rem;
+      padding: 1.5rem;
+    }
+
+    .no-raids::before { content: '🌙 '; }
+
+    /* ── Annonce ───────────────────────────────────────── */
+    #annonces {
+      border-color: rgba(201,146,42,0.4);
+      display: none;
+    }
+
+    #annonces h2 { color: var(--gold-light); }
+
+    #annonce-container {
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--text);
+    }
+
+    #annonce-container h1, #annonce-container h2, #annonce-container h3 {
+      font-family: 'Cinzel', serif;
+      color: var(--gold-light);
+      margin: 1.2rem 0 0.6rem;
+    }
+    #annonce-container h2::before, #annonce-container h2::after { display: none; }
+
+    #annonce-container strong { color: var(--gold-light); }
+    #annonce-container em     { color: var(--text-muted); }
+
+    #annonce-container ul {
+      list-style: none;
+      padding: 0;
+      margin: 0.8rem 0;
+    }
+
+    #annonce-container ul li {
+      padding: 6px 12px 6px 28px;
+      position: relative;
+      border-left: 2px solid rgba(179,0,27,0.3);
+      margin-bottom: 5px;
+      border-radius: 0 6px 6px 0;
+    }
+
+    #annonce-container ul li::before {
+      content: '✦';
+      position: absolute;
+      left: 8px;
+      color: var(--red);
+      font-size: 0.7rem;
+    }
+
+    #annonce-meta {
+      display: none;
+      margin-top: 14px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* ── Quick links ───────────────────────────────────── */
+    .quick-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      gap: 12px;
+      margin-top: 0;
+    }
+
+    .quick-link-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 22px 16px;
+      background: linear-gradient(145deg, rgba(22,10,30,0.95), rgba(16,6,22,0.95));
+      border: 1px solid rgba(179,0,27,0.28);
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--text-muted);
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quick-link-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--red), transparent);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .quick-link-card:hover {
+      border-color: rgba(201,146,42,0.5);
+      color: var(--gold-light);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.55), 0 0 16px rgba(179,0,27,0.08);
+    }
+
+    .quick-link-card:hover::before { opacity: 1; }
+
+    .quick-link-icon {
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+  </style>
+
+  <!-- Firebase + logique principale -->
   <script type="module">
-    import { initializeApp }    from "https://www.gstatic.com/firebasejs/9.17.0/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-auth.js";
     import { getFirestore, doc, collection, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-firestore.js";
 
@@ -34,76 +317,86 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
+    // ── Auth ──────────────────────────────────────────
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.href = 'connexion.html'; return; }
 
-      const userInfoSpan = document.getElementById('user-name');
-      let displayName = user.displayName || "";
-
       try {
-        const q = query(collection(db, 'joueurs'), where('uid', '==', user.uid));
-        const snapshot = await getDocs(q);
-        if (!snapshot.empty) {
-          const membre = snapshot.docs[0].data();
-          displayName = membre.nom || displayName || "Invité";
-          const userRole = membre.role || 'Membre de Guilde';
+        const q    = query(collection(db, 'joueurs'), where('uid', '==', user.uid));
+        const snap = await getDocs(q);
+        let displayName = user.displayName || 'Invité';
+        let userRole = 'Membre de Guilde';
+
+        if (!snap.empty) {
+          const membre = snap.docs[0].data();
+          displayName = membre.nom || displayName;
+          userRole    = membre.role || userRole;
           localStorage.setItem('userRole', userRole);
-        } else {
-          localStorage.setItem('userRole', 'Membre de Guilde');
         }
-      } catch (e) {
-        localStorage.setItem('userRole', 'Membre de Guilde');
-      }
 
-      userInfoSpan.textContent = displayName || "Invité";
+        document.getElementById('user-name').textContent = displayName;
 
-      // Visibilité nav admin/mod
-      const annonceLinkLi = document.querySelector('li.nav-annonce');
-      const userRole = localStorage.getItem('userRole');
-      if (annonceLinkLi) {
-        annonceLinkLi.style.display = (userRole === 'Administrateur' || userRole === 'Modérateur') ? 'list-item' : 'none';
-      }
+        // Nav annonce/admin
+        const navLi = document.querySelector('li.nav-annonce');
+        if (navLi) {
+          navLi.style.display = (userRole === 'Administrateur' || userRole === 'Modérateur') ? 'list-item' : 'none';
+          const adminLink = document.querySelector('#nav-gear-menu a[data-role="admin"]');
+          if (adminLink) adminLink.style.display = (userRole === 'Administrateur') ? 'flex' : 'none';
+        }
+      } catch(e) { console.error(e); }
 
-      // Date
-      const dateAjd = document.getElementById('date-ajd');
-      if (dateAjd) {
-        dateAjd.textContent = new Date().toLocaleDateString('fr-FR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-      }
+      // Date du jour
+      const dateEl = document.getElementById('date-ajd');
+      const raidTitre = document.getElementById('raids-titre');
+      const now = new Date();
+      const dateLongue = now.toLocaleDateString('fr-FR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+      const dateCap = dateLongue.charAt(0).toUpperCase() + dateLongue.slice(1);
+      if (dateEl)    dateEl.textContent = dateCap;
+      if (raidTitre) raidTitre.textContent = 'Raids du ' + dateCap;
 
       // Raids du jour
       const raidsList = document.getElementById('raids-list');
       if (raidsList) {
-        raidsList.innerHTML = '<li style="color:var(--text-muted);text-align:center;border:none;background:none;">Chargement...</li>';
-        const raidsSnapshot = await getDocs(collection(db, 'raids'));
-        const todayStr = new Date().toISOString().slice(0, 10);
-        const raidsToday = [];
-        raidsSnapshot.forEach(d => { const r = d.data(); if (r.date === todayStr) raidsToday.push(r); });
-        raidsList.innerHTML = '';
-        if (raidsToday.length === 0) {
-          raidsList.innerHTML = '<li style="color:var(--text-muted);text-align:center;border:none;background:none;padding:1rem;">Aucun raid prévu aujourd\'hui.</li>';
-        } else {
-          raidsToday.sort((a,b) => (a.time||'').localeCompare(b.time||''));
-          raidsToday.forEach(raid => {
-            const li = document.createElement('li');
-            const raidId   = raid.id || raid._id || '';
-            const raidName = raid.nom || raid.title;
-            const raidTime = raid.time || '';
-            const link = document.createElement('a');
-            link.href = `planning.html?raidId=${encodeURIComponent(raidId)}`;
-            link.textContent = `${raid.inscriptions ? raid.inscriptions.length : 0} inscrit(s)`;
-            link.title = 'Voir dans le planning';
-            li.innerHTML = `<span><strong>${raidName}</strong> à ${raidTime}</span>`;
-            li.appendChild(link);
-            raidsList.appendChild(li);
+        raidsList.innerHTML = '<li style="color:var(--text-dim);text-align:center;font-style:italic;">Chargement…</li>';
+        try {
+          const raidsSnap = await getDocs(collection(db, 'raids'));
+          const todayStr  = now.toISOString().slice(0, 10);
+          let raidsToday  = [];
+
+          raidsSnap.forEach(d => {
+            const raid = d.data();
+            if (raid.date === todayStr) raidsToday.push({ id: d.id, ...raid });
           });
+
+          raidsToday.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+          raidsList.innerHTML = '';
+
+          if (raidsToday.length === 0) {
+            raidsList.innerHTML = '<li class="no-raids">Aucun raid prévu aujourd\'hui.</li>';
+          } else {
+            raidsToday.forEach((raid, i) => {
+              const li = document.createElement('li');
+              li.style.animationDelay = (i * 0.08) + 's';
+              const inscrits = raid.inscriptions ? raid.inscriptions.length : 0;
+              li.innerHTML = `
+                <span class="raid-name"><b>${raid.nom || raid.title || '—'}</b></span>
+                <span class="raid-time">${raid.time || ''}</span>
+                <a href="planning.html?raidId=${encodeURIComponent(raid.id)}" title="Voir dans le planning">
+                  ${inscrits} inscrit${inscrits !== 1 ? 's' : ''} →
+                </a>
+              `;
+              raidsList.appendChild(li);
+            });
+          }
+        } catch(e) {
+          raidsList.innerHTML = '<li style="color:var(--text-dim);text-align:center;">Erreur de chargement.</li>';
         }
       }
 
-      // Annonce partagée
+      // Annonce Firestore temps réel
       const annoncesSection  = document.getElementById('annonces');
       const annonceContainer = document.getElementById('annonce-container');
       if (annoncesSection && annonceContainer) {
-        annoncesSection.style.display = 'none';
         const annonceRef = doc(db, 'site', 'annonce');
         onSnapshot(annonceRef, (snap) => {
           const data = snap.data();
@@ -116,10 +409,9 @@
               let dateTxt = '';
               if (data.updatedAt && data.updatedAt.toDate) {
                 const d = data.updatedAt.toDate();
-                dateTxt = d.toLocaleDateString('fr-FR', { weekday:'short', year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }).replace(',','');
+                dateTxt = d.toLocaleDateString('fr-FR', { weekday:'short', year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
               }
-              const author = data.authorName || 'Inconnu';
-              metaDiv.textContent = `Dernière mise à jour par ${author}${dateTxt ? ' le ' + dateTxt : ''}`;
+              metaDiv.textContent = `Mis à jour par ${data.authorName || '—'}${dateTxt ? ' · ' + dateTxt : ''}`;
               metaDiv.style.display = 'block';
             }
           } else {
@@ -130,161 +422,171 @@
     });
 
     // Déconnexion
-    document.addEventListener('DOMContentLoaded', () => {
-      const logoutBtn = document.getElementById('logout-btn');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-          await signOut(auth);
-          window.location.href = 'connexion.html';
-        });
-      }
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = 'connexion.html';
     });
   </script>
 </head>
 <body>
 
-  <!-- Barre utilisateur -->
-  <div id="user-info" role="status" aria-live="polite">
-    Connecté en tant que : <span id="user-name">…</span>
-  </div>
+  <div id="user-info">Connecté en tant que : <span id="user-name">…</span></div>
 
-  <!-- Header -->
-  <header role="banner">
+  <header>
     <img src="Logo guilde.jpg" alt="Logo Bloodshadow" class="logo gauche" />
     <h1>Crimson Reign</h1>
-    <p style="font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase;margin-top:4px;">Guilde · Lost Ark</p>
+    <p style="font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:3.5px;color:var(--text-muted);text-transform:uppercase;margin-top:5px;">Guilde Lost Ark</p>
     <img src="Logo guilde.jpg" alt="Logo Bloodshadow" class="logo droite" />
 
-    <nav role="navigation" aria-label="Navigation principale">
+    <nav>
       <ul>
-        <!-- Accueil -->
-        <li>
-          <a href="index.html" aria-label="Accueil" title="Accueil">🏠</a>
-        </li>
-
-        <!-- Raid -->
         <li class="nav-raid" style="position:relative;">
           <button id="nav-raid-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Menu Raid">
-            <span aria-hidden="true">🗡️</span> Raid <span aria-hidden="true" style="font-size:10px;opacity:.6;">▼</span>
+            <span>🗡️</span> Raid <span style="font-size:10px;opacity:.6;">▼</span>
           </button>
-          <div id="nav-raid-menu" role="menu" aria-label="Sous-menu Raid">
-            <a href="planning.html" role="menuitem"><span aria-hidden="true">📅</span> Planning de Raid</a>
-            <a href="excel_raid.html" role="menuitem"><span aria-hidden="true">📊</span> Excel Raid</a>
+          <div id="nav-raid-menu">
+            <a href="planning.html"><span>📅</span> Planning de Raid</a>
+            <a href="excel_raid.html"><span>📊</span> Excel Raid</a>
           </div>
         </li>
 
-        <!-- Gestion -->
         <li class="nav-gestion" style="position:relative;">
           <button id="nav-gestion-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Menu Gestion">
-            <span aria-hidden="true">🧩</span> Gestion <span aria-hidden="true" style="font-size:10px;opacity:.6;">▼</span>
+            <span>🧩</span> Gestion <span style="font-size:10px;opacity:.6;">▼</span>
           </button>
-          <div id="nav-gestion-menu" role="menu" aria-label="Sous-menu Gestion">
-            <a href="membre_guilde.html" role="menuitem"><span aria-hidden="true">👥</span> Membres de la Guilde</a>
+          <div id="nav-gestion-menu">
+            <a href="membre_guilde.html"><span>👥</span> Membres de la Guilde</a>
           </div>
         </li>
 
-        <!-- Objectifs -->
         <li><a href="Objectifs.html">🎯 Objectifs</a></li>
-
-        <!-- Cagnotte -->
         <li><a href="Cagnotte.html">💰 Cagnotte</a></li>
 
-        <!-- Annonce / Admin (masqué par défaut, JS gère) -->
         <li class="nav-annonce" style="display:none;position:relative;">
-          <button id="nav-gear-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Menu Annonce et Administration" title="Annonce / Administration">
-            <span aria-hidden="true">📢</span>
-          </button>
-          <div id="nav-gear-menu" role="menu" aria-label="Sous-menu Administration">
-            <a href="annonce.html" data-role="mod" role="menuitem"><span aria-hidden="true">📝</span> Annonce</a>
-            <a href="admin.html"   data-role="admin" role="menuitem"><span aria-hidden="true">⚙️</span> Administration</a>
+          <button id="nav-gear-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Annonce / Admin">📢</button>
+          <div id="nav-gear-menu">
+            <a href="annonce.html" data-role="mod"><span>📝</span> Annonce</a>
+            <a href="admin.html"   data-role="admin"><span>⚙️</span> Administration</a>
           </div>
         </li>
 
-        <!-- Ressources -->
         <li class="nav-ressources" style="position:relative;">
           <button id="nav-ressources-toggle" aria-haspopup="true" aria-expanded="false" aria-label="Menu Ressources">
-            <span aria-hidden="true">📚</span> Ressources <span aria-hidden="true" style="font-size:10px;opacity:.6;">▼</span>
+            <span>📚</span> Ressources <span style="font-size:10px;opacity:.6;">▼</span>
           </button>
-          <div id="nav-ressources-menu" role="menu" aria-label="Sous-menu Ressources">
-            <a href="https://www.playlostark.com/fr-fr/news" target="_blank" rel="noopener noreferrer" role="menuitem"><span aria-hidden="true">📰</span> News Lost Ark</a>
-            <a href="https://www.playlostark.com/fr-fr/support/server-status" target="_blank" rel="noopener noreferrer" role="menuitem"><span aria-hidden="true">🖥️</span> Server Status</a>
-            <a href="https://www.lostark.nexus" target="_blank" rel="noopener noreferrer" role="menuitem"><span aria-hidden="true">🛠️</span> Build Personnages</a>
+          <div id="nav-ressources-menu">
+            <a href="https://www.playlostark.com/fr-fr/news" target="_blank" rel="noopener"><span>📰</span> News Lost Ark</a>
+            <a href="https://www.playlostark.com/fr-fr/support/server-status" target="_blank" rel="noopener"><span>🖥️</span> Server Status</a>
+            <a href="https://www.lostark.nexus" target="_blank" rel="noopener"><span>🛠️</span> Build Personnages</a>
           </div>
         </li>
       </ul>
     </nav>
   </header>
 
-  <!-- Contenu principal -->
-  <main id="main-content" role="main">
+  <main>
 
-    <!-- Annonce -->
-    <section id="annonces" aria-labelledby="annonces-titre" style="display:none;">
-      <h2 id="annonces-titre">Annonce de la Guilde</h2>
-      <div id="annonce-container" aria-live="polite"></div>
-      <div id="annonce-meta" style="display:none;" aria-label="Métadonnées de l'annonce"></div>
+    <!-- Bannière héro -->
+    <section style="padding:0;border:none;background:none;box-shadow:none;overflow:visible;">
+      <div class="hero">
+        <img src="Bannière Lost ark.jpg" alt="Bannière Lost Ark" class="hero-img" />
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div class="hero-guild-name">Crimson Reign</div>
+          <div class="hero-tagline">Guilde Lost Ark · <span>Serveur EU</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Date -->
+    <div class="date-banner">
+      <div class="dot"></div>
+      <span id="date-ajd">…</span>
+    </div>
+
+    <!-- Annonce guilde (si présente) -->
+    <section id="annonces">
+      <h2>📢 Annonce de la Guilde</h2>
+      <div id="annonce-container"></div>
+      <div id="annonce-meta"></div>
     </section>
 
     <!-- Raids du jour -->
-    <section id="raids-aujourdhui" aria-labelledby="raids-titre">
-      <h2 id="raids-titre">Raids du <span id="date-ajd">…</span></h2>
-      <p>Voici les raids prévus pour aujourd'hui. Inscrivez-vous pour ne pas les manquer&nbsp;!</p>
-      <ul id="raids-list" aria-label="Liste des raids du jour" aria-live="polite">
-        <!-- injecté par JS -->
-      </ul>
+    <section id="raids-aujourdhui">
+      <h2 id="raids-titre">Raids du jour</h2>
+      <p style="color:var(--text-muted);font-size:0.9rem;text-align:center;margin-bottom:0.5rem;">
+        Clique sur un raid pour voir les inscrits dans le planning.
+      </p>
+      <ul id="raids-list"></ul>
+    </section>
+
+    <!-- Raccourcis -->
+    <section>
+      <h2>Accès rapides</h2>
+      <div class="quick-links">
+        <a href="planning.html" class="quick-link-card">
+          <span class="quick-link-icon">📅</span>
+          Planning
+        </a>
+        <a href="membre_guilde.html" class="quick-link-card">
+          <span class="quick-link-icon">👥</span>
+          Membres
+        </a>
+        <a href="Objectifs.html" class="quick-link-card">
+          <span class="quick-link-icon">🎯</span>
+          Objectifs
+        </a>
+        <a href="Cagnotte.html" class="quick-link-card">
+          <span class="quick-link-icon">💰</span>
+          Cagnotte
+        </a>
+        <a href="excel_raid.html" class="quick-link-card">
+          <span class="quick-link-icon">📊</span>
+          Excel Raid
+        </a>
+        <a href="https://www.lostark.nexus" target="_blank" rel="noopener" class="quick-link-card">
+          <span class="quick-link-icon">🛠️</span>
+          Builds
+        </a>
+      </div>
     </section>
 
   </main>
 
-  <!-- Footer -->
-  <footer role="contentinfo">
-    <p>&copy; 2026 Guilde Crimson Reign — Tous droits réservés.</p>
+  <footer>
+    <p>© 2026 Guilde Crimson Reign — Lost Ark</p>
   </footer>
 
-  <!-- Bouton déconnexion flottant -->
-  <button id="logout-btn" aria-label="Se déconnecter">🚪 Déconnexion</button>
+  <button id="logout-btn">🚪 Déconnexion</button>
 
-  <!-- Showdown (Markdown) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
 
-  <!-- Gestion dropdowns nav -->
+  <!-- Dropdowns nav -->
   <script>
-  document.addEventListener('DOMContentLoaded', function() {
-
-    // Rôle
-    const role = (localStorage.getItem('userRole') || '').trim();
-    const navLi = document.querySelector('li.nav-annonce');
-    if (navLi) {
-      if (role === 'Administrateur' || role === 'Modérateur') {
-        navLi.style.display = 'list-item';
-        const adminLink = document.querySelector('#nav-gear-menu a[data-role="admin"]');
-        if (adminLink) adminLink.style.display = (role === 'Administrateur') ? 'flex' : 'none';
-      }
-    }
-
-    // Titre raids
-    const raidsTitre = document.getElementById('raids-titre');
-    if (raidsTitre) {
-      const dateLongue = new Date().toLocaleDateString('fr-FR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-      raidsTitre.textContent = `Raids du ${dateLongue.charAt(0).toUpperCase() + dateLongue.slice(1)}`;
-    }
-
-    // Helper dropdown
+  document.addEventListener('DOMContentLoaded', () => {
     function makeDropdown(toggleId, menuId) {
       const toggle = document.getElementById(toggleId);
       const menu   = document.getElementById(menuId);
       if (!toggle || !menu) return;
-      const close = () => { menu.style.display = 'none'; toggle.setAttribute('aria-expanded', 'false'); };
-      const open  = () => { menu.style.display = 'block'; toggle.setAttribute('aria-expanded', 'true'); };
-      toggle.addEventListener('click', e => { e.preventDefault(); menu.style.display === 'block' ? close() : open(); });
-      document.addEventListener('click', e => { if (!menu.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) close(); });
-      document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+      const close = () => { menu.style.display='none'; toggle.setAttribute('aria-expanded','false'); };
+      const open  = () => { menu.style.display='block'; toggle.setAttribute('aria-expanded','true'); };
+      toggle.addEventListener('click', e => { e.preventDefault(); menu.style.display==='block' ? close() : open(); });
+      document.addEventListener('click', e => { if (!menu.contains(e.target) && e.target!==toggle && !toggle.contains(e.target)) close(); });
+      document.addEventListener('keydown', e => { if (e.key==='Escape') close(); });
     }
-
     makeDropdown('nav-raid-toggle',       'nav-raid-menu');
     makeDropdown('nav-gestion-toggle',    'nav-gestion-menu');
     makeDropdown('nav-gear-toggle',       'nav-gear-menu');
     makeDropdown('nav-ressources-toggle', 'nav-ressources-menu');
+
+    // Rôle nav (fallback localStorage)
+    const role = (localStorage.getItem('userRole')||'').trim();
+    const navLi = document.querySelector('li.nav-annonce');
+    if (navLi) {
+      navLi.style.display = (role === 'Administrateur' || role === 'Modérateur') ? 'list-item' : 'none';
+      const adminLink = document.querySelector('#nav-gear-menu a[data-role="admin"]');
+      if (adminLink) adminLink.style.display = (role === 'Administrateur') ? 'flex' : 'none';
+    }
   });
   </script>
 
