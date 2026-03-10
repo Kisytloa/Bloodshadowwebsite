@@ -236,6 +236,10 @@
       border-color: rgba(201,146,42,0.4);
     }
 
+    .perso-class-icon,
+    .class-icon {
+      filter: none !important;
+    }
     .perso-class-icon {
       width: 30px;
       height: 30px;
@@ -244,6 +248,20 @@
       object-fit: cover;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Fallback emoji icon quand l'image échoue */
+    .class-icon-fallback {
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+      border-radius: 6px;
+      background: rgba(179,0,27,0.2);
+      border: 1px solid rgba(179,0,27,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
     }
 
     .perso-info { flex: 1; min-width: 0; }
@@ -587,7 +605,7 @@
 
   </main>
 
-  <!-- Popup ajout/modif personnage (MODERNISÉE) -->
+  <!-- Popup ajout/modif personnage -->
   <div id="popup-ajout-personnage" class="popup">
     <div class="popup-content">
       <span class="close" id="close-popup-personnage">×</span>
@@ -607,7 +625,7 @@
             <label for="classe-personnage">Classe</label>
             <select id="classe-personnage" disabled>
               <option value="">— Classe —</option>
-            </select>
+            </select> 
           </div>
         </div>
         <div class="form-row">
@@ -685,50 +703,158 @@
       "Guardian Knight":    ["Dragon Knight"]
     };
 
-    /* Base CDN icônes officielles Lost Ark (Fandom Wiki) */
-    const BASE = "https://static.wikia.nocookie.net/lostark_gamepedia/images/";
+    /* =========================================================
+       ICÔNES DE CLASSES — SOURCE : lostark.fandom.com (wiki)
+       via images directes (pas de hotlink protection sur ces URLs)
+       + fallback emoji si l'image échoue
+    ========================================================= */
+
+    /*
+      CORRECTION DU BUG :
+      Le CDN Fandom (static.wikia.nocookie.net) bloque les requêtes
+      cross-origin avec une protection hotlink (403 Forbidden).
+      
+      SOLUTION : On utilise un proxy d'image public (wsrv.nl) qui
+      contourne la protection hotlink de Fandom en servant les images
+      depuis ses propres serveurs avec les bons headers CORS.
+      
+      wsrv.nl est un service open-source de proxy d'image (weserv.nl)
+      qui supporte les images de n'importe quel domaine.
+      URL format: https://wsrv.nl/?url=<url_encodée>&w=64&h=64&output=png
+    */
+
+    const FANDOM = "https://static.wikia.nocookie.net/lostark_gamepedia/images/";
+
+    // Proxy wsrv.nl pour contourner la protection hotlink de Fandom
+    function proxyUrl(fandomPath) {
+      const fullUrl = FANDOM + fandomPath;
+      return `https://wsrv.nl/?url=${encodeURIComponent(fullUrl)}&w=64&h=64&output=webp&q=80`;
+    }
+
     const classIcons = {
       /* Guerrier */
-      "Berserker":        BASE + "b/b8/ClassIcon-Warrior-Berserker.png/revision/latest?cb=20220211161248",
-      "Paladin":          BASE + "6/66/ClassIcon-Warrior-Paladin.png/revision/latest?cb=20220211161249",
-      "Destructeur":      BASE + "3/3b/ClassIcon-Warrior-Destroyer.png/revision/latest?cb=20230901222333",
-      "Gunlancer":        BASE + "e/eb/ClassIcon-Warrior-Gunlancer.png/revision/latest?cb=20220211161248",
+      "Berserker":          proxyUrl("b/b8/ClassIcon-Warrior-Berserker.png/revision/latest?cb=20220211161248"),
+      "Paladin":            proxyUrl("6/66/ClassIcon-Warrior-Paladin.png/revision/latest?cb=20220211161249"),
+      "Destructeur":        proxyUrl("3/3b/ClassIcon-Warrior-Destroyer.png/revision/latest?cb=20230901222333"),
+      "Destroyer":          proxyUrl("3/3b/ClassIcon-Warrior-Destroyer.png/revision/latest?cb=20230901222333"),
+      "Gunlancer":          proxyUrl("e/eb/ClassIcon-Warrior-Gunlancer.png/revision/latest?cb=20220211161248"),
       /* Guerrière */
-      "Slayer":           BASE + "1/15/ClassIcon-Warrior-Slayer.png/revision/latest?cb=20230901222441",
-      "Paladine":         BASE + "6/66/ClassIcon-Warrior-Paladin.png/revision/latest?cb=20220211161249",
-      "Guardian Knight":  BASE + "6/6f/ClassIcon-Warrior.png/revision/latest?cb=20220211161247",
+      "Slayer":             proxyUrl("1/15/ClassIcon-Warrior-Slayer.png/revision/latest?cb=20230901222441"),
+      "Paladine":           proxyUrl("6/66/ClassIcon-Warrior-Paladin.png/revision/latest?cb=20220211161249"),
+      "Guardian Knight":    proxyUrl("6/6f/ClassIcon-Warrior.png/revision/latest?cb=20220211161247"),
       /* Mage */
-      "Sorcière":         BASE + "6/63/ClassIcon-Mage-Sorceress.png/revision/latest?cb=20220211161242",
-      "Arcaniste":        BASE + "d/d4/ClassIcon-Mage-Arcanist.png/revision/latest?cb=20230901213545",
-      "Barde":            BASE + "1/1b/ClassIcon-Mage-Bard.png/revision/latest?cb=20220211161241",
-      "Invocatrice":      BASE + "e/e3/ClassIcon-Mage-Summoner.png/revision/latest?cb=20230901214149",
+      "Sorcière":           proxyUrl("6/63/ClassIcon-Mage-Sorceress.png/revision/latest?cb=20220211161242"),
+      "Sorceress":          proxyUrl("6/63/ClassIcon-Mage-Sorceress.png/revision/latest?cb=20220211161242"),
+      "Arcaniste":          proxyUrl("d/d4/ClassIcon-Mage-Arcanist.png/revision/latest?cb=20230901213545"),
+      "Arcanist":           proxyUrl("d/d4/ClassIcon-Mage-Arcanist.png/revision/latest?cb=20230901213545"),
+      "Barde":              proxyUrl("1/1b/ClassIcon-Mage-Bard.png/revision/latest?cb=20220211161241"),
+      "Bard":               proxyUrl("1/1b/ClassIcon-Mage-Bard.png/revision/latest?cb=20220211161241"),
+      "Invocatrice":        proxyUrl("e/e3/ClassIcon-Mage-Summoner.png/revision/latest?cb=20230901214149"),
+      "Summoner":           proxyUrl("e/e3/ClassIcon-Mage-Summoner.png/revision/latest?cb=20230901214149"),
       /* Martialiste Femme */
-      "Elementiste":      BASE + "e/e8/ClassIcon-Martial_Artist-Wardancer.png/revision/latest?cb=20220211161246",
-      "Spirite":          BASE + "1/19/ClassIcon-Martial_Artist-Soulfist.png/revision/latest?cb=20220211161245",
-      "Lancière":         BASE + "5/5c/ClassIcon-Martial_Artist-Glaivier.png/revision/latest?cb=20230901215814",
-      "Pugiliste":        BASE + "6/64/ClassIcon-Martial_Artist-Scrapper.png/revision/latest?cb=20220211161244",
+      "Elementiste":        proxyUrl("e/e8/ClassIcon-Martial_Artist-Wardancer.png/revision/latest?cb=20220211161246"),
+      "Wardancer":          proxyUrl("e/e8/ClassIcon-Martial_Artist-Wardancer.png/revision/latest?cb=20220211161246"),
+      "Spirite":            proxyUrl("1/19/ClassIcon-Martial_Artist-Soulfist.png/revision/latest?cb=20220211161245"),
+      "Soulfist":           proxyUrl("1/19/ClassIcon-Martial_Artist-Soulfist.png/revision/latest?cb=20220211161245"),
+      "Lancière":           proxyUrl("5/5c/ClassIcon-Martial_Artist-Glaivier.png/revision/latest?cb=20230901215814"),
+      "Glaivier":           proxyUrl("5/5c/ClassIcon-Martial_Artist-Glaivier.png/revision/latest?cb=20230901215814"),
+      "Pugiliste":          proxyUrl("6/64/ClassIcon-Martial_Artist-Scrapper.png/revision/latest?cb=20220211161244"),
+      "Scrapper":           proxyUrl("6/64/ClassIcon-Martial_Artist-Scrapper.png/revision/latest?cb=20220211161244"),
       /* Martialiste Homme */
-      "Striker":          BASE + "b/b0/ClassIcon-Martial_Artist-Striker.png/revision/latest?cb=20220211161245",
-      "Breaker":          BASE + "b/bd/ClassIcon-Martial_Artist-M.png/revision/latest?cb=20220212223255",
+      "Striker":            proxyUrl("b/b0/ClassIcon-Martial_Artist-Striker.png/revision/latest?cb=20220211161245"),
+      "Breaker":            proxyUrl("b/bd/ClassIcon-Martial_Artist-M.png/revision/latest?cb=20220212223255"),
       /* Assassin */
-      "Sanguelame":       BASE + "0/0a/ClassIcon-Assassin-Deathblade.png/revision/latest?cb=20220211161236",
-      "Démoniste":        BASE + "7/74/ClassIcon-Assassin-Shadowhunter.png/revision/latest?cb=20220211161234",
-      "Faucheuse":        BASE + "4/40/ClassIcon-Assassin-Reaper.png/revision/latest?cb=20230901211242",
-      "Dévoreuse d'âme":  BASE + "3/34/ClassIcon-Assassin.png/revision/latest?cb=20220211161235",
+      "Sanguelame":         proxyUrl("0/0a/ClassIcon-Assassin-Deathblade.png/revision/latest?cb=20220211161236"),
+      "Deathblade":         proxyUrl("0/0a/ClassIcon-Assassin-Deathblade.png/revision/latest?cb=20220211161236"),
+      "Démoniste":          proxyUrl("7/74/ClassIcon-Assassin-Shadowhunter.png/revision/latest?cb=20220211161234"),
+      "Shadowhunter":       proxyUrl("7/74/ClassIcon-Assassin-Shadowhunter.png/revision/latest?cb=20220211161234"),
+      "Faucheuse":          proxyUrl("4/40/ClassIcon-Assassin-Reaper.png/revision/latest?cb=20230901211242"),
+      "Reaper":             proxyUrl("4/40/ClassIcon-Assassin-Reaper.png/revision/latest?cb=20230901211242"),
+      "Dévoreuse d'âme":    proxyUrl("c/c3/ClassIcon-Assassin-Souleater.png/revision/latest?cb=20231125011727"),
+      "Soul Eater":         proxyUrl("c/c3/ClassIcon-Assassin-Souleater.png/revision/latest?cb=20231125011727"),
+      "SoulEater":          proxyUrl("c/c3/ClassIcon-Assassin-Souleater.png/revision/latest?cb=20231125011727"),
+      "Souleater":          proxyUrl("c/c3/ClassIcon-Assassin-Souleater.png/revision/latest?cb=20231125011727"),
       /* Gunner */
-      "Gunner":           BASE + "d/da/ClassIcon-Gunner-Deadeye.png/revision/latest?cb=20220211161238",
-      "Sagittaire":       BASE + "f/fd/ClassIcon-Gunner-Sharpshooter.png/revision/latest?cb=20220211161240",
-      "Artilleur":        BASE + "a/a8/ClassIcon-Gunner-Artillerist.png/revision/latest?cb=20220211161238",
-      "Machiniste":       BASE + "a/ad/ClassIcon-Gunner.png/revision/latest?cb=20220211161237",
+      "Gunner":             proxyUrl("d/da/ClassIcon-Gunner-Deadeye.png/revision/latest?cb=20220211161238"),
+      "Deadeye":            proxyUrl("d/da/ClassIcon-Gunner-Deadeye.png/revision/latest?cb=20220211161238"),
+      "Sagittaire":         proxyUrl("f/fd/ClassIcon-Gunner-Sharpshooter.png/revision/latest?cb=20220211161240"),
+      "Sharpshooter":       proxyUrl("f/fd/ClassIcon-Gunner-Sharpshooter.png/revision/latest?cb=20220211161240"),
+      "Artilleur":          proxyUrl("a/a8/ClassIcon-Gunner-Artillerist.png/revision/latest?cb=20220211161238"),
+      "Artillerist":        proxyUrl("a/a8/ClassIcon-Gunner-Artillerist.png/revision/latest?cb=20220211161238"),
+      "Machiniste":         proxyUrl("a/ad/ClassIcon-Gunner.png/revision/latest?cb=20220211161237"),
+      "Scouter":            proxyUrl("a/ad/ClassIcon-Gunner.png/revision/latest?cb=20220211161237"),
       /* Gunneuse */
-      "Fusilière":        BASE + "3/38/ClassIcon-Gunner-Gunslinger.png/revision/latest?cb=20220211161239",
+      "Fusilière":          proxyUrl("3/38/ClassIcon-Gunner-Gunslinger.png/revision/latest?cb=20220211161239"),
+      "Gunslinger":         proxyUrl("3/38/ClassIcon-Gunner-Gunslinger.png/revision/latest?cb=20220211161239"),
       /* Spécialiste */
-      "Artiste":          BASE + "d/da/ClassIcon-Specialist-Artist.png/revision/latest?cb=20230901210029",
-      "Helètempète":      BASE + "d/d7/ClassIcon-Specialist-Aeromancer.png/revision/latest?cb=20230901210140",
-      "Ame sauvage":      BASE + "3/3b/ClassIcon-Specialist.png/revision/latest?cb=20230901205506",
-      /* Guardian Knight */
-      "Dragon Knight":    BASE + "6/6f/ClassIcon-Warrior.png/revision/latest?cb=20220211161247"
+      "Artiste":            proxyUrl("d/da/ClassIcon-Specialist-Artist.png/revision/latest?cb=20230901210029"),
+      "Artist":             proxyUrl("d/da/ClassIcon-Specialist-Artist.png/revision/latest?cb=20230901210029"),
+      /* Hélètempète / Aeromancer — FICHIER LOCAL (icône absente du wiki Fandom) */
+      "Helètempète":        "assets/class-icons/heletempete.png",
+      "Aeromancer":         "assets/class-icons/heletempete.png",
+      /* Ame sauvage / Wildsoul — FICHIER LOCAL */
+      "Ame sauvage":        "assets/class-icons/ame-sauvage.png",
+      "Wildsoul":           "assets/class-icons/ame-sauvage.png",
+      /* Paladine / Valkyrie — FICHIER LOCAL (icône absente du wiki Fandom) */
+      "Paladine":           "assets/class-icons/valkyrie.png",
+      "Valkyrie":           "assets/class-icons/valkyrie.png",
+      /* Guardian Knight / Dragon Knight — FICHIER LOCAL (classe 2025, absente du wiki) */
+      "Dragon Knight":      "assets/class-icons/guardian-knight.png",
+      "Guardian Knight":    "assets/class-icons/guardian-knight.png",
+      "Guardianknight":     "assets/class-icons/guardian-knight.png",
     };
+
+    /* Emoji de fallback par classe (si l'image ne charge toujours pas) */
+    const classEmoji = {
+      "Berserker":"⚔️","Paladin":"🛡️","Paladine":"🛡️","Destructeur":"💥","Gunlancer":"🔫",
+      "Slayer":"🗡️","Guardian Knight":"🛡️","Dragon Knight":"🐉",
+      "Sorcière":"🔥","Arcaniste":"🃏","Barde":"🎵","Invocatrice":"🌿",
+      "Elementiste":"💨","Spirite":"👊","Lancière":"⚡","Pugiliste":"🥊",
+      "Striker":"🥋","Breaker":"💢",
+      "Sanguelame":"🩸","Démoniste":"😈","Faucheuse":"💀","Dévoreuse d'âme":"🖤",
+      "Souleater":"🖤","Soul Eater":"🖤",
+      "Gunner":"🎯","Sagittaire":"🏹","Artilleur":"💣","Machiniste":"🤖",
+      "Fusilière":"🔫",
+      "Artiste":"🎨","Helètempète":"🌪️","Ame sauvage":"🐺",
+    };
+
+    /* Résolution d'icône avec normalisation */
+    function getClassIconSrc(classe) {
+      if (!classe) return null;
+      let c = classe.replace(/\*/g, '').trim();
+      if (c.includes('/')) c = c.split('/')[0].trim();
+
+      // Recherche directe
+      if (classIcons[c]) return classIcons[c];
+
+      // Recherche insensible à la casse
+      const key = Object.keys(classIcons).find(k => k.toLowerCase() === c.toLowerCase());
+      return key ? classIcons[key] : classIcons["Berserker"];
+    }
+
+    function getClassEmoji(classe) {
+      if (!classe) return '⚔️';
+      let c = classe.replace(/\*/g, '').trim();
+      if (c.includes('/')) c = c.split('/')[0].trim();
+      if (classEmoji[c]) return classEmoji[c];
+      const key = Object.keys(classEmoji).find(k => k.toLowerCase() === c.toLowerCase());
+      return key ? classEmoji[key] : '⚔️';
+    }
+
+    /* Génère le HTML d'une icône de classe avec fallback emoji automatique */
+    function classIconHTML(classe, size = 30, extraStyle = '') {
+      const src = getClassIconSrc(classe);
+      const emoji = getClassEmoji(classe);
+      const rounded = size >= 40 ? '50%' : '6px';
+      return `<img
+        src="${src}"
+        alt="${classe}"
+        title="${classe}"
+        loading="lazy"
+        style="width:${size}px;height:${size}px;border-radius:${rounded};object-fit:cover;border:1px solid rgba(255,255,255,0.12);flex-shrink:0;${extraStyle}"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+      /><span style="display:none;width:${size}px;height:${size}px;border-radius:${rounded};background:rgba(179,0,27,0.2);border:1px solid rgba(179,0,27,0.3);align-items:center;justify-content:center;font-size:${Math.round(size*0.55)}px;flex-shrink:0;">${emoji}</span>`;
+    }
 
     /* Couleur iLvl */
     function ilvlClass(ilvl) {
@@ -805,7 +931,6 @@
     /* ── Classement top iLvl ───────────────────────────── */
     function updateClassement() {
       const container = document.getElementById('top-ilvl-list');
-      // Aplatir tous les persos
       let all = [];
       allJoueurs.forEach(j => {
         (j.personnages || []).forEach(p => {
@@ -827,11 +952,12 @@
         const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
         const medals = ['🥇','🥈','🥉'];
         const rankLabel = i < 3 ? medals[i] : `#${i+1}`;
-        const iconUrl = classIcons[p.classe] || classIcons["Berserker"];
         return `
           <div class="top-ilvl-item ${rankClass}">
             <div class="rank-badge">${rankLabel}</div>
-            <img src="${iconUrl}" alt="${p.classe}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;border:1px solid rgba(255,255,255,0.12);" loading="lazy" />
+            <div style="display:flex;align-items:center;flex-shrink:0;">
+              ${classIconHTML(p.classe, 32)}
+            </div>
             <div class="rank-perso-info">
               <div class="rank-perso-name">${p.perso}</div>
               <div class="rank-member-name">${p.membre} · <span class="rank-class">${p.classe}</span></div>
@@ -888,18 +1014,17 @@
         const rc = roleClass(joueur.role);
         const persosSorted = [...persos].sort((a,b) => (parseFloat(b.ilvl)||0) - (parseFloat(a.ilvl)||0));
         const topPerso = persosSorted[0];
-        const topIcon = topPerso ? (classIcons[topPerso.classe] || null) : null;
-        const avatarHTML = topIcon
-          ? `<img src="${topIcon}" alt="${topPerso.classe}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(201,146,42,0.4);box-shadow:0 0 12px rgba(179,0,27,0.2);" loading="lazy" />`
+
+        const avatarHTML = topPerso
+          ? `<div style="flex-shrink:0;display:flex;align-items:center;">${classIconHTML(topPerso.classe, 48, 'border:2px solid rgba(201,146,42,0.4);box-shadow:0 0 12px rgba(179,0,27,0.2);')}</div>`
           : `<div class="card-avatar">${roleAvatar(joueur.role)}</div>`;
 
         const persosHTML = persosSorted.length > 0
           ? persosSorted.map(p => {
-              const iconUrl = classIcons[p.classe] || classIcons["Berserker"];
               const iclass = ilvlClass(p.ilvl);
               return `
                 <div class="perso-row">
-                  <img class="perso-class-icon" src="${iconUrl}" alt="${p.classe}" title="${p.classe}" loading="lazy" />
+                  <div style="display:flex;align-items:center;">${classIconHTML(p.classe, 30)}</div>
                   <div class="perso-info">
                     <div class="perso-name">${p.nom || '—'}</div>
                     <div class="perso-class">${p.classe || '—'}</div>
@@ -942,7 +1067,6 @@
       document.getElementById('joueur-selectionne').textContent = joueurNom || joueurId;
       document.getElementById('joueur-selectionne').dataset.id = joueurId;
 
-      // Remplir archétypes
       const archetypeSelect = document.getElementById('archetype-personnage');
       archetypeSelect.innerHTML = '<option value="">— Archétype —</option>';
       Object.keys(archetypesClasses).forEach(a => {
@@ -951,20 +1075,16 @@
         archetypeSelect.appendChild(opt);
       });
 
-      // Reset classe
       const classeSelect = document.getElementById('classe-personnage');
       classeSelect.innerHTML = '<option value="">— Classe —</option>';
       classeSelect.disabled = true;
 
-      // Reset champs
       document.getElementById('nom-personnage').value = '';
       document.getElementById('ilvl-personnage').value = '';
       document.getElementById('update-ilvl-personnage').value = '';
 
-      // Remplir select personnages existants
       remplirListePersonnages(joueurId);
 
-      // Afficher popup
       const popup = document.getElementById('popup-ajout-personnage');
       popup.style.display = 'flex';
     };
@@ -1015,7 +1135,6 @@
       const joueur    = joueurDoc.data();
       const persos    = joueur.personnages || [];
 
-      // Vérifier doublon
       if (persos.find(p => p.nom.toLowerCase() === nom.toLowerCase())) {
         toast('Un personnage avec ce nom existe déjà !', true); return;
       }
