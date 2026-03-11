@@ -295,12 +295,106 @@
       font-size: 1.8rem;
       line-height: 1;
     }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE MOBILE
+    ══════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      /* Header : logos cachés, titre centré */
+      header { padding: 18px 16px 14px; }
+      header .logo { display: none; }
+      header h1 { font-size: clamp(1.4rem, 6vw, 2rem); letter-spacing: 3px; }
+
+      /* Nav : scroll horizontal sur mobile */
+      nav ul {
+        gap: 4px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+      nav ul::-webkit-scrollbar { display: none; }
+      nav ul li a,
+      nav ul li button {
+        font-size: 0.72rem;
+        padding: 7px 10px;
+        white-space: nowrap;
+      }
+
+      /* Dropdowns nav */
+      #nav-raid-menu, #nav-gestion-menu, #nav-gear-menu, #nav-ressources-menu {
+        min-width: 180px;
+        right: 0;
+        left: auto;
+      }
+
+      /* Hero */
+      .hero { min-height: 180px; border-radius: 10px; }
+      .hero-content { padding: 20px 18px; }
+      .hero-guild-name { letter-spacing: 3px; }
+      .hero-tagline { font-size: 0.7rem; letter-spacing: 2px; }
+
+      /* Date banner */
+      .date-banner { font-size: 0.68rem; letter-spacing: 1px; padding: 7px 14px; }
+
+      /* Main padding */
+      main { padding: 14px 12px; gap: 14px; }
+      main section { padding: 16px 14px; }
+      main section h2 { font-size: 1rem; letter-spacing: 2px; }
+
+      /* Raids du jour */
+      #raids-list li {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px 14px;
+        font-size: 0.8rem;
+      }
+      #raids-list li::before { display: none; }
+      #raids-list .raid-name { width: 100%; }
+      #raids-list .raid-time { font-size: 0.75rem; }
+      #raids-list a { font-size: 0.72rem; padding: 3px 8px; }
+
+      /* Quick links : 2 colonnes sur mobile */
+      .quick-links {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      .quick-link-card {
+        padding: 16px 10px;
+        font-size: 0.68rem;
+        letter-spacing: 0.8px;
+        gap: 7px;
+      }
+      .quick-link-icon { font-size: 1.5rem; }
+
+      /* Bouton déconnexion */
+      #logout-btn {
+        bottom: 14px;
+        right: 14px;
+        padding: 10px 16px;
+        font-size: 0.8rem;
+      }
+
+      /* User info */
+      #user-info { font-size: 0.72rem; padding: 6px 12px; }
+    }
+
+    @media (max-width: 420px) {
+      header h1 { font-size: 1.2rem; letter-spacing: 2px; }
+      .hero { min-height: 140px; }
+      .hero-guild-name { font-size: 1.4rem !important; letter-spacing: 2px; }
+      main { padding: 10px 10px; gap: 10px; }
+      .quick-links { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      .quick-link-card { padding: 14px 8px; font-size: 0.62rem; }
+      main section h2 { font-size: 0.9rem; }
+    }
   </style>
 
   <!-- Firebase + logique principale -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-auth.js";
     import { getFirestore, doc, collection, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -318,7 +412,10 @@
     const db   = getFirestore(app);
 
     // ── Auth ──────────────────────────────────────────
-    onAuthStateChanged(auth, async (user) => {
+    // On attend que Firebase ait résolu l'état auth UNE SEULE FOIS
+    // avant de décider quoi faire — évite la boucle index ↔ connexion
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      unsubscribe(); // on se désabonne immédiatement après le premier appel
       if (!user) { window.location.href = 'connexion.html'; return; }
 
       try {
@@ -354,21 +451,27 @@
       if (dateEl)    dateEl.textContent = dateCap;
       if (raidTitre) raidTitre.textContent = 'Raids du ' + dateCap;
 
-      // Raids du jour
+      // Raids du jour — collection 'planning' (nouveau planning custom)
       const raidsList = document.getElementById('raids-list');
       if (raidsList) {
         raidsList.innerHTML = '<li style="color:var(--text-dim);text-align:center;font-style:italic;">Chargement…</li>';
         try {
-          const raidsSnap = await getDocs(collection(db, 'raids'));
-          const todayStr  = now.toISOString().slice(0, 10);
-          let raidsToday  = [];
+          const planningSnap = await getDocs(collection(db, 'planning'));
+          // Date locale (pas UTC) pour éviter le décalage horaire en France
+          const todayStr = now.getFullYear() + '-'
+            + String(now.getMonth() + 1).padStart(2, '0') + '-'
+            + String(now.getDate()).padStart(2, '0');
+          let raidsToday = [];
 
-          raidsSnap.forEach(d => {
-            const raid = d.data();
-            if (raid.date === todayStr) raidsToday.push({ id: d.id, ...raid });
+          planningSnap.forEach(d => {
+            const ev = d.data();
+            // Afficher uniquement les raids du jour (pas events/maintenances)
+            if (ev.date === todayStr && ev.type === 'raid') {
+              raidsToday.push({ id: d.id, ...ev });
+            }
           });
 
-          raidsToday.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+          raidsToday.sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
           raidsList.innerHTML = '';
 
           if (raidsToday.length === 0) {
@@ -377,12 +480,13 @@
             raidsToday.forEach((raid, i) => {
               const li = document.createElement('li');
               li.style.animationDelay = (i * 0.08) + 's';
-              const inscrits = raid.inscriptions ? raid.inscriptions.length : 0;
+              const inscrits = raid.registrations ? raid.registrations.length : 0;
+              const maxStr = raid.maxPlayers ? `/${raid.maxPlayers}` : '';
               li.innerHTML = `
-                <span class="raid-name"><b>${raid.nom || raid.title || '—'}</b></span>
-                <span class="raid-time">${raid.time || ''}</span>
-                <a href="planning.html?raidId=${encodeURIComponent(raid.id)}" title="Voir dans le planning">
-                  ${inscrits} inscrit${inscrits !== 1 ? 's' : ''} →
+                <span class="raid-name"><b>${raid.title || '—'}</b></span>
+                <span class="raid-time">${raid.startTime || ''}</span>
+                <a href="planning.html" title="Voir dans le planning">
+                  ${inscrits}${maxStr} inscrit${inscrits !== 1 ? 's' : ''} →
                 </a>
               `;
               raidsList.appendChild(li);
@@ -435,7 +539,7 @@
   <header>
     <img src="Logo guilde.jpg" alt="Logo Bloodshadow" class="logo gauche" />
     <h1>Crimson Reign</h1>
-    <p style="font-family:'Cinzel',serif;font-size:0.82rem;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase;margin-top:4px;">Guilde · Lost Ark</p>
+    <p style="font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:3.5px;color:var(--text-muted);text-transform:uppercase;margin-top:5px;">Guilde Lost Ark</p>
     <img src="Logo guilde.jpg" alt="Logo Bloodshadow" class="logo droite" />
 
     <nav>
@@ -553,9 +657,8 @@
 
   </main>
 
-  <!-- Footer -->
-  <footer role="contentinfo">
-    <p>&copy; 2026 Guilde Crimson Reign — Tous droits réservés.</p>
+  <footer>
+    <p>© 2026 Guilde Crimson Reign — Lost Ark</p>
   </footer>
 
   <button id="logout-btn">🚪 Déconnexion</button>
