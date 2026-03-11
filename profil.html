@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profil — Bloodshadow</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Layout profil ── */
+    .profil-wrap { display:flex; flex-direction:column; gap:1.4rem; }
+
+    /* ── Header carte ── */
+    .profil-header {
+      background:linear-gradient(135deg,rgba(25,10,32,.98),rgba(14,5,20,.98));
+      border:1px solid rgba(179,0,27,.3); border-radius:16px; padding:28px 32px;
+      display:flex; align-items:center; gap:28px; position:relative; overflow:hidden;
+    }
+    .profil-header::before {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse at 80% 50%, rgba(179,0,27,.08) 0%, transparent 60%);
+      pointer-events:none;
+    }
+    .profil-avatar {
+      width:90px; height:90px; border-radius:50%; flex-shrink:0;
+      border:3px solid rgba(179,0,27,.5); background:rgba(179,0,27,.1);
+      display:flex; align-items:center; justify-content:center; font-size:2.5rem;
+      box-shadow:0 0 24px rgba(179,0,27,.3);
+    }
+    .profil-avatar img { width:100%; height:100%; border-radius:50%; object-fit:cover; }
+    .profil-info { flex:1; }
+    .profil-pseudo {
+      font-family:var(--font-head); font-size:1.8rem; font-weight:900;
+      color:var(--gold-light); letter-spacing:2px; margin-bottom:4px;
+      text-shadow:0 0 20px rgba(201,146,42,.3);
+    }
+    .profil-title { font-size:.85rem; color:var(--gold); font-style:italic; margin-bottom:12px; }
+    .profil-badges { display:flex; gap:8px; flex-wrap:wrap; }
+    .profil-badge {
+      padding:4px 12px; border-radius:20px; font-family:var(--font-head);
+      font-size:.68rem; letter-spacing:1px; text-transform:uppercase;
+    }
+    .badge-class { background:rgba(179,0,27,.15); border:1px solid rgba(179,0,27,.4); color:#ff9090; }
+    .badge-server { background:rgba(88,101,242,.15); border:1px solid rgba(88,101,242,.4); color:#a0aaff; }
+    .badge-role { background:rgba(201,146,42,.15); border:1px solid rgba(201,146,42,.4); color:var(--gold-light); }
+
+    .profil-stats-row {
+      display:flex; gap:24px; flex-wrap:wrap; margin-left:auto; flex-shrink:0;
+    }
+    .profil-stat { text-align:center; }
+    .profil-stat-val {
+      font-family:var(--font-head); font-size:1.4rem; font-weight:900;
+      color:var(--red); line-height:1; display:block;
+    }
+    .profil-stat-val.gold { color:var(--gold-light); }
+    .profil-stat-val.blue { color:#64b5ff; }
+    .profil-stat-label {
+      font-family:var(--font-head); font-size:.62rem; letter-spacing:1.5px;
+      text-transform:uppercase; color:var(--text-muted); display:block; margin-top:4px;
+    }
+
+    /* ── Grid contenu ── */
+    .profil-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
+    .profil-card {
+      background:linear-gradient(135deg,rgba(20,8,28,.98),rgba(14,5,20,.98));
+      border:1px solid rgba(179,0,27,.2); border-radius:14px; padding:20px 22px;
+    }
+    .card-title {
+      font-family:var(--font-head); font-size:.75rem; letter-spacing:2px;
+      text-transform:uppercase; color:var(--gold); margin-bottom:16px;
+      padding-bottom:10px; border-bottom:1px solid rgba(201,146,42,.2);
+      display:flex; align-items:center; gap:8px;
+    }
+
+    /* ── Stats combat ── */
+    .combat-stats { display:flex; flex-direction:column; gap:10px; }
+    .combat-stat-row { display:flex; align-items:center; gap:10px; }
+    .combat-stat-name {
+      font-family:var(--font-head); font-size:.72rem; letter-spacing:1px;
+      color:var(--text-muted); flex:1;
+    }
+    .combat-stat-bar-wrap { flex:2; height:6px; background:rgba(255,255,255,.06); border-radius:3px; overflow:hidden; }
+    .combat-stat-bar { height:100%; border-radius:3px; transition:width .6s ease; }
+    .bar-crit    { background:linear-gradient(90deg,#ff6b6b,#ff4040); }
+    .bar-spec    { background:linear-gradient(90deg,var(--gold),#e0952a); }
+    .bar-swift   { background:linear-gradient(90deg,#64dcff,#3bbfff); }
+    .bar-dom     { background:linear-gradient(90deg,#b06bff,#8a3bff); }
+    .bar-end     { background:linear-gradient(90deg,#64ff78,#3bdf50); }
+    .bar-exp     { background:linear-gradient(90deg,#ff9b64,#ff7340); }
+    .combat-stat-val {
+      font-family:var(--font-head); font-size:.78rem; font-weight:700;
+      color:var(--text); min-width:40px; text-align:right;
+    }
+
+    /* ── Engravings ── */
+    .engraving-list { display:flex; flex-direction:column; gap:10px; }
+    .engraving-item {
+      display:flex; align-items:center; gap:12px; padding:10px 12px;
+      background:rgba(10,3,16,.5); border-radius:10px;
+      border-left:2px solid rgba(201,146,42,.3); transition:border-color .2s;
+    }
+    .engraving-item:hover { border-color:var(--gold); }
+    .engraving-icon {
+      width:36px; height:36px; border-radius:8px; object-fit:cover;
+      border:1px solid rgba(255,255,255,.1); flex-shrink:0;
+    }
+    .engraving-icon-fallback {
+      width:36px; height:36px; border-radius:8px; flex-shrink:0;
+      background:rgba(201,146,42,.1); border:1px solid rgba(201,146,42,.3);
+      display:flex; align-items:center; justify-content:center; font-size:1rem;
+    }
+    .engraving-info { flex:1; min-width:0; }
+    .engraving-name {
+      font-family:var(--font-head); font-size:.82rem; color:var(--text);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .engraving-pts { font-size:.7rem; color:var(--text-muted); margin-top:2px; }
+    .engraving-lv {
+      font-family:var(--font-head); font-size:.75rem; font-weight:900;
+      padding:3px 9px; border-radius:6px; flex-shrink:0;
+    }
+    .lv3 { background:rgba(255,200,0,.15); border:1px solid rgba(255,200,0,.4); color:#ffd966; }
+    .lv2 { background:rgba(180,100,255,.15); border:1px solid rgba(180,100,255,.4); color:#c8a0ff; }
+    .lv1 { background:rgba(100,180,255,.15); border:1px solid rgba(100,180,255,.4); color:#90c8ff; }
+
+    /* ── Gems ── */
+    .gems-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+    .gem-item {
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      padding:10px 6px; background:rgba(10,3,16,.5); border-radius:10px;
+      border:1px solid rgba(179,0,27,.15); transition:all .2s; cursor:default;
+    }
+    .gem-item:hover { border-color:rgba(201,146,42,.3); transform:translateY(-2px); }
+    .gem-icon {
+      width:44px; height:44px; border-radius:8px; object-fit:cover;
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .gem-icon-fallback {
+      width:44px; height:44px; border-radius:8px; background:rgba(179,0,27,.1);
+      border:1px solid rgba(179,0,27,.2); display:flex; align-items:center;
+      justify-content:center; font-size:1.2rem;
+    }
+    .gem-lv {
+      font-family:var(--font-head); font-size:.68rem; font-weight:900;
+      padding:2px 7px; border-radius:5px; letter-spacing:.5px;
+    }
+    .gem-lv-high { background:rgba(255,200,0,.15); color:#ffd966; border:1px solid rgba(255,200,0,.3); }
+    .gem-lv-mid  { background:rgba(180,100,255,.15); color:#c8a0ff; border:1px solid rgba(180,100,255,.3); }
+    .gem-lv-low  { background:rgba(100,180,255,.15); color:#90c8ff; border:1px solid rgba(100,180,255,.3); }
+    .gem-type { font-size:.6rem; color:var(--text-muted); text-align:center; }
+    .gem-type.dmg { color:#ff8080; }
+    .gem-type.cd  { color:#80c8ff; }
+
+    /* ── Personnages ── */
+    .perso-list { display:flex; flex-direction:column; gap:8px; }
+    .perso-item {
+      display:flex; align-items:center; gap:12px; padding:10px 14px;
+      background:rgba(10,3,16,.5); border-radius:10px;
+      border-left:2px solid rgba(179,0,27,.2); transition:all .2s;
+    }
+    .perso-item.main { border-left-color:var(--gold); background:rgba(201,146,42,.05); }
+    .perso-icon { width:32px; height:32px; border-radius:6px; object-fit:cover; flex-shrink:0; }
+    .perso-info { flex:1; }
+    .perso-name { font-family:var(--font-head); font-size:.82rem; color:var(--text); }
+    .perso-class { font-size:.68rem; color:var(--text-muted); margin-top:1px; }
+    .perso-ilvl { font-family:var(--font-head); font-size:.82rem; font-weight:700; color:var(--gold); }
+    .perso-main-badge {
+      font-family:var(--font-head); font-size:.6rem; letter-spacing:1px;
+      padding:2px 7px; border-radius:10px; background:rgba(201,146,42,.15);
+      border:1px solid rgba(201,146,42,.3); color:var(--gold-light);
+    }
+
+    /* ── Pseudo input dans profil ── */
+    .pseudo-link-box {
+      background:rgba(10,3,16,.6); border:1px solid rgba(179,0,27,.2);
+      border-radius:10px; padding:14px 16px; margin-bottom:14px;
+    }
+    .pseudo-link-box label { font-family:var(--font-head); font-size:.68rem; letter-spacing:1px; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:6px; }
+    .pseudo-input-row { display:flex; gap:8px; }
+    .pseudo-input-row input { flex:1; }
+    .btn-fetch {
+      padding:10px 18px; font-family:var(--font-head); font-size:.72rem;
+      letter-spacing:1px; text-transform:uppercase; cursor:pointer;
+      border-radius:8px; border:none; background:linear-gradient(135deg,var(--red),#8a0010);
+      color:#fff; transition:all .2s; white-space:nowrap;
+    }
+    .btn-fetch:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(179,0,27,.4); }
+    .btn-fetch:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+    /* ── Loader ── */
+    .profil-loader {
+      display:flex; flex-direction:column; align-items:center; gap:16px;
+      padding:60px; color:var(--text-muted);
+    }
+    .loader-ring {
+      width:48px; height:48px; border:3px solid rgba(179,0,27,.2);
+      border-top-color:var(--red); border-radius:50%;
+      animation:spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .profil-error {
+      text-align:center; padding:40px; color:#ff8080;
+      font-family:var(--font-head); font-size:.9rem; letter-spacing:1px;
+    }
+
+    /* ── Edit pseudo btn ── */
+    #btn-edit-pseudo {
+      position:absolute; top:20px; right:20px;
+      padding:7px 14px; font-family:var(--font-head); font-size:.68rem;
+      letter-spacing:1px; text-transform:uppercase; cursor:pointer;
+      border-radius:8px; border:1px solid rgba(179,0,27,.3);
+      background:rgba(14,5,20,.7); color:var(--text-muted); transition:all .2s;
+    }
+    #btn-edit-pseudo:hover { color:var(--gold-light); border-color:var(--gold); }
+
+    /* ── Responsive ── */
+    @media(max-width:768px) {
+      .profil-grid { grid-template-columns:1fr; }
+      .profil-header { flex-direction:column; text-align:center; }
+      .profil-stats-row { margin-left:0; justify-content:center; }
+      .gems-grid { grid-template-columns:repeat(4,1fr); }
+    }
+
+    /* ── Toast ── */
+    #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,rgba(22,12,28,.98),rgba(18,8,24,.98));border:1px solid rgba(201,146,42,.5);border-radius:30px;padding:12px 24px;font-family:var(--font-head);font-size:.8rem;letter-spacing:1px;color:var(--gold-light);box-shadow:0 8px 24px rgba(0,0,0,.6);z-index:99999;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  </style>
+</head>
+<body>
+  <div id="user-info">Connecté en tant que : <span id="user-name">…</span></div>
+  <div id="toast"></div>
+
+  <header>
+    <img src="Logo guilde.jpg" alt="Logo Bloodshadow" class="logo gauche" />
+    <h1>Profil</h1>
+    <p style="font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase;margin-top:4px;">Guilde Bloodshadow</p>
+    <img src="Logo guilde.jpg" alt="Logo Bloodshadow" class="logo droite" />
+    <nav><ul>
+      <li><a href="index.html">🏠</a></li>
+      <li class="nav-raid" style="position:relative;">
+        <button id="nav-raid-toggle" aria-haspopup="true" aria-expanded="false"><span>🗡️</span> Raid <span style="font-size:10px;opacity:.6;">▼</span></button>
+        <div id="nav-raid-menu">
+          <a href="planning.html"><span>📅</span> Planning de Raid</a>
+          <a href="excel_raid.html"><span>📊</span> Excel Raid</a>
+        </div>
+      </li>
+      <li class="nav-gestion" style="position:relative;">
+        <button id="nav-gestion-toggle" aria-haspopup="true" aria-expanded="false"><span>🧩</span> Gestion <span style="font-size:10px;opacity:.6;">▼</span></button>
+        <div id="nav-gestion-menu"><a href="membre_guilde.html"><span>👥</span> Membres</a></div>
+      </li>
+      <li><a href="Objectifs.html">🎯 Objectifs</a></li>
+      <li><a href="Cagnotte.html">💰 Cagnotte</a></li>
+      <li class="nav-annonce" style="display:none;position:relative;">
+        <button id="nav-gear-toggle" aria-haspopup="true" aria-expanded="false">📢</button>
+        <div id="nav-gear-menu">
+          <a href="annonce.html" data-role="mod"><span>📝</span> Annonce</a>
+          <a href="admin.html" data-role="admin"><span>⚙️</span> Administration</a>
+        </div>
+      </li>
+      <li class="nav-ressources" style="position:relative;">
+        <button id="nav-ressources-toggle" aria-haspopup="true" aria-expanded="false"><span>📚</span> Ressources <span style="font-size:10px;opacity:.6;">▼</span></button>
+        <div id="nav-ressources-menu">
+          <a href="https://www.playlostark.com/fr-fr/news" target="_blank" rel="noopener"><span>📰</span> News Lost Ark</a>
+          <a href="https://www.playlostark.com/fr-fr/support/server-status" target="_blank" rel="noopener"><span>🖥️</span> Server Status</a>
+          <a href="https://www.lostark.nexus" target="_blank" rel="noopener"><span>🛠️</span> Build Personnages</a>
+        </div>
+      </li>
+    </ul></nav>
+  </header>
+
+  <main>
+    <div class="profil-wrap" id="profil-wrap">
+      <div class="profil-loader" id="profil-loader">
+        <div class="loader-ring"></div>
+        <span style="font-family:var(--font-head);letter-spacing:2px;font-size:.8rem;">Chargement du profil…</span>
+      </div>
+    </div>
+  </main>
+
+  <button id="logout-btn">🚪 Déconnexion</button>
+
+  <script type="module">
+    import{initializeApp}from"https://www.gstatic.com/firebasejs/9.17.0/firebase-app.js";
+    import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/9.17.0/firebase-auth.js";
+    import{getFirestore,collection,getDocs,doc,updateDoc,query,where}from"https://www.gstatic.com/firebasejs/9.17.0/firebase-firestore.js";
+
+    const app=initializeApp({apiKey:"AIzaSyBfJubhqQFQNo8fxVLKh1DKlfisJhZYwGI",authDomain:"bloodshadowsite-d35ce.firebaseapp.com",projectId:"bloodshadowsite-d35ce",storageBucket:"bloodshadowsite-d35ce.firebasestorage.app",messagingSenderId:"368188025874",appId:"1:368188025874:web:cfdd31f87651f1a3737ccb"});
+    const auth=getAuth(app),db=getFirestore(app);
+
+    /* ── State ── */
+    let currentUser=null, viewedMembre=null, viewedDocId=null, isAdmin=false, isSelf=false;
+    const params=new URLSearchParams(location.search);
+    const targetUid=params.get('uid');
+
+    /* ── Toast ── */
+    function toast(msg,err=false){const el=document.getElementById('toast');el.textContent=(err?'❌ ':'✅ ')+msg;el.style.borderColor=err?'rgba(179,0,27,.5)':'rgba(201,146,42,.5)';el.style.color=err?'#ff8080':'var(--gold-light)';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2800);}
+
+    /* ── Icones classes ── */
+    const FD="https://static.wikia.nocookie.net/lostark_gamepedia/images/";
+    const px=p=>"https://wsrv.nl/?url="+encodeURIComponent(FD+p)+"&w=64&h=64&output=webp&q=80";
+    const CI={"Berserker":px("b/b8/ClassIcon-Warrior-Berserker.png/revision/latest?cb=20220211161248"),"Paladin":px("6/66/ClassIcon-Warrior-Paladin.png/revision/latest?cb=20220211161249"),"Destructeur":px("3/3b/ClassIcon-Warrior-Destroyer.png/revision/latest?cb=20230901222333"),"Gunlancer":px("e/eb/ClassIcon-Warrior-Gunlancer.png/revision/latest?cb=20220211161248"),"Slayer":px("1/15/ClassIcon-Warrior-Slayer.png/revision/latest?cb=20230901222441"),"Paladine":"assets/class-icons/valkyrie.png","Valkyrie":"assets/class-icons/valkyrie.png","Guardian Knight":"assets/class-icons/guardian-knight.png","Sorcière":px("6/63/ClassIcon-Mage-Sorceress.png/revision/latest?cb=20220211161242"),"Arcaniste":px("d/d4/ClassIcon-Mage-Arcanist.png/revision/latest?cb=20230901213545"),"Barde":px("1/1b/ClassIcon-Mage-Bard.png/revision/latest?cb=20220211161241"),"Invocatrice":px("e/e3/ClassIcon-Mage-Summoner.png/revision/latest?cb=20230901214149"),"Elementiste":px("e/e8/ClassIcon-Martial_Artist-Wardancer.png/revision/latest?cb=20220211161246"),"Spirite":px("1/19/ClassIcon-Martial_Artist-Soulfist.png/revision/latest?cb=20220211161245"),"Lancière":px("5/5c/ClassIcon-Martial_Artist-Glaivier.png/revision/latest?cb=20230901215814"),"Pugiliste":px("6/64/ClassIcon-Martial_Artist-Scrapper.png/revision/latest?cb=20220211161244"),"Striker":px("b/b0/ClassIcon-Martial_Artist-Striker.png/revision/latest?cb=20220211161245"),"Breaker":"assets/class-icons/breaker.png","Sanguelame":px("0/0a/ClassIcon-Assassin-Deathblade.png/revision/latest?cb=20220211161236"),"Démoniste":px("7/74/ClassIcon-Assassin-Shadowhunter.png/revision/latest?cb=20220211161234"),"Faucheuse":px("4/40/ClassIcon-Assassin-Reaper.png/revision/latest?cb=20230901211242"),"Gunner":px("d/da/ClassIcon-Gunner-Deadeye.png/revision/latest?cb=20220211161238"),"Sagittaire":px("f/fd/ClassIcon-Gunner-Sharpshooter.png/revision/latest?cb=20220211161240"),"Artilleur":px("a/a8/ClassIcon-Gunner-Artillerist.png/revision/latest?cb=20220211161238"),"Machiniste":px("a/ad/ClassIcon-Gunner.png/revision/latest?cb=20220211161237"),"Fusilière":px("3/38/ClassIcon-Gunner-Gunslinger.png/revision/latest?cb=20220211161239"),"Artiste":px("d/da/ClassIcon-Specialist-Artist.png/revision/latest?cb=20230901210029"),"Helètempête":"assets/class-icons/heletempete.png","Ame sauvage":"assets/class-icons/ame-sauvage.png"};
+    const getIcon=c=>{if(!c)return CI["Berserker"];const k=c.replace(/\*/g,'').trim();return CI[k]||CI[Object.keys(CI).find(i=>i&&i.toLowerCase()===k.toLowerCase())]||CI["Berserker"];};
+
+    /* ── Fetch API Lost Ark ── */
+    async function fetchLostArkProfile(charName) {
+      const res = await fetch('/api/lostark-profile?character='+encodeURIComponent(charName));
+      if (!res.ok) {
+        const err = await res.json().catch(()=>({error:'Erreur inconnue'}));
+        throw new Error(err.error||'Erreur API');
+      }
+      return res.json();
+    }
+
+    /* ── Render profil ── */
+    function renderProfile(membre, laData) {
+      const wrap = document.getElementById('profil-wrap');
+      const profile  = laData?.profile  || null;
+      const engravings = laData?.engravings || null;
+      const gems     = laData?.gems     || null;
+
+      const pseudo = membre.pseudoLostArk || membre.nom || '?';
+      const classe = profile?.CharacterClassName || membre.personnages?.[0]?.classe || '?';
+      const ilvl   = profile?.ItemAvgLevel?.replace(',','.') || membre.personnages?.[0]?.ilvl || '?';
+      const server = profile?.ServerName || 'EUC';
+      const title  = profile?.CharacterTitle || '';
+      const cp     = profile?.UsingSkillPoint || '';
+
+      /* Stats combat */
+      const stats = profile?.Stats || [];
+      const statMap = {};
+      stats.forEach(s => { statMap[s.Type] = parseInt(s.Value)||0; });
+      const maxStat = Math.max(...Object.values(statMap), 1);
+
+      /* Engravings */
+      const engList = engravings?.ArkPassiveEffects || engravings?.Effects || [];
+
+      /* Gems */
+      const gemList = gems?.Gems || [];
+      const gemEffects = gems?.Effects || [];
+
+      wrap.innerHTML = `
+        <!-- Header -->
+        <div class="profil-header">
+          <button id="btn-edit-pseudo" style="${(isSelf||isAdmin)?'':'display:none;'}">✏️ Modifier le pseudo</button>
+          <div class="profil-avatar">
+            <img src="${getIcon(classe)}" alt="${classe}" onerror="this.src='';this.parentElement.innerHTML='⚔️';" />
+          </div>
+          <div class="profil-info">
+            <div class="profil-pseudo">${pseudo}</div>
+            ${title?`<div class="profil-title">${title}</div>`:''}
+            <div class="profil-badges">
+              <span class="profil-badge badge-class">${classe}</span>
+              <span class="profil-badge badge-server">EUC · ${server}</span>
+              ${membre.role?`<span class="profil-badge badge-role">${membre.role}</span>`:''}
+            </div>
+          </div>
+          <div class="profil-stats-row">
+            <div class="profil-stat">
+              <span class="profil-stat-val">${ilvl}</span>
+              <span class="profil-stat-label">iLvl</span>
+            </div>
+            ${cp?`<div class="profil-stat"><span class="profil-stat-val gold">${parseInt(cp).toLocaleString('fr-FR')}</span><span class="profil-stat-label">Skill Pts</span></div>`:''}
+          </div>
+        </div>
+
+        <!-- Pseudo non lié -->
+        ${!membre.pseudoLostArk ? `
+        <div class="profil-card">
+          <div class="pseudo-link-box">
+            <label>🔗 Lier ton pseudo Lost Ark</label>
+            <div class="pseudo-input-row">
+              <input type="text" id="pseudo-input" placeholder="Ex: Kisytloa" />
+              <button class="btn-fetch" id="btn-save-pseudo">Enregistrer &amp; Charger</button>
+            </div>
+            <div style="font-size:.72rem;color:var(--text-muted);margin-top:8px;">Entre ton pseudo principal (celui affiché dans le jeu). Les données seront chargées depuis l'API Lost Ark.</div>
+          </div>
+        </div>` : ''}
+
+        <!-- Grid -->
+        <div class="profil-grid">
+
+          <!-- Stats Combat -->
+          <div class="profil-card">
+            <div class="card-title">⚡ Stats de Combat</div>
+            ${stats.length === 0 ? `<div style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:20px;">Aucune donnée disponible</div>` : `
+            <div class="combat-stats">
+              ${renderStatBar('Crit', statMap['치명']||statMap['Crit']||0, maxStat, 'crit')}
+              ${renderStatBar('Spécialisation', statMap['특화']||statMap['Specialization']||0, maxStat, 'spec')}
+              ${renderStatBar('Agilité', statMap['신속']||statMap['Swiftness']||0, maxStat, 'swift')}
+              ${renderStatBar('Domination', statMap['제압']||statMap['Domination']||0, maxStat, 'dom')}
+              ${renderStatBar('Endurance', statMap['인내']||statMap['Endurance']||0, maxStat, 'end')}
+              ${renderStatBar('Expertise', statMap['숙련']||statMap['Expertise']||0, maxStat, 'exp')}
+            </div>`}
+          </div>
+
+          <!-- Engravings -->
+          <div class="profil-card">
+            <div class="card-title">📜 Gravures</div>
+            ${engList.length === 0 ? `<div style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:20px;">Aucune gravure disponible</div>` : `
+            <div class="engraving-list">
+              ${engList.slice(0,8).map(e => renderEngraving(e)).join('')}
+            </div>`}
+          </div>
+
+          <!-- Gems -->
+          <div class="profil-card" style="grid-column:span 2;">
+            <div class="card-title">💎 Gemmes</div>
+            ${gemList.length === 0 ? `<div style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:20px;">Aucune gemme disponible</div>` : `
+            <div class="gems-grid">
+              ${gemList.map(g => renderGem(g, gemEffects)).join('')}
+            </div>`}
+          </div>
+
+          <!-- Personnages Firebase -->
+          ${membre.personnages?.length ? `
+          <div class="profil-card" style="grid-column:span 2;">
+            <div class="card-title">👤 Personnages enregistrés</div>
+            <div class="perso-list">
+              ${[...(membre.personnages||[])].sort((a,b)=>(parseFloat(b.ilvl)||0)-(parseFloat(a.ilvl)||0)).map((p,i)=>`
+                <div class="perso-item ${i===0?'main':''}">
+                  <img src="${getIcon(p.classe)}" class="perso-icon" alt="${p.classe}" onerror="this.src='';" />
+                  <div class="perso-info">
+                    <div class="perso-name">${p.nom}</div>
+                    <div class="perso-class">${p.classe}</div>
+                  </div>
+                  <span class="perso-ilvl">${parseFloat(p.ilvl).toLocaleString('fr-FR')}</span>
+                  ${i===0?'<span class="perso-main-badge">Principal</span>':''}
+                </div>`).join('')}
+            </div>
+          </div>` : ''}
+
+        </div>
+      `;
+
+      /* Bouton edit pseudo */
+      document.getElementById('btn-edit-pseudo')?.addEventListener('click', showEditPseudo);
+
+      /* Bouton save pseudo si pas lié */
+      document.getElementById('btn-save-pseudo')?.addEventListener('click', async () => {
+        const input = document.getElementById('pseudo-input');
+        const val = input.value.trim();
+        if (!val) { toast('Entre ton pseudo !', true); return; }
+        await savePseudoAndRefresh(val);
+      });
+    }
+
+    function renderStatBar(name, val, max, cls) {
+      if (!val) return '';
+      const pct = Math.min(Math.round((val/max)*100), 100);
+      return `<div class="combat-stat-row">
+        <span class="combat-stat-name">${name}</span>
+        <div class="combat-stat-bar-wrap"><div class="combat-stat-bar bar-${cls}" style="width:${pct}%"></div></div>
+        <span class="combat-stat-val">${val.toLocaleString('fr-FR')}</span>
+      </div>`;
+    }
+
+    function renderEngraving(e) {
+      const name  = e.Name || e.SkillName || '?';
+      const pts   = e.Point || 0;
+      const lv    = e.Level || Math.floor(pts/5) || 1;
+      const icon  = e.Icon || '';
+      const lvClass = lv>=3?'lv3':lv>=2?'lv2':'lv1';
+      return `<div class="engraving-item">
+        ${icon
+          ? `<img src="${icon}" class="engraving-icon" alt="${name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" /><div class="engraving-icon-fallback" style="display:none;">📜</div>`
+          : `<div class="engraving-icon-fallback">📜</div>`}
+        <div class="engraving-info">
+          <div class="engraving-name">${name}</div>
+          ${pts?`<div class="engraving-pts">${pts} / 20 pts</div>`:''}
+        </div>
+        <span class="engraving-lv ${lvClass}">Lv.${lv}</span>
+      </div>`;
+    }
+
+    function renderGem(g, effects) {
+      const lv   = g.Level || 1;
+      const icon = g.Icon  || '';
+      const name = g.Name  || '?';
+      /* Retrouver l'effet lié à cette gemme */
+      const eff  = effects.find(e => e.GemSlot === g.Slot);
+      const type = eff?.Description?.includes('쿨다운')||eff?.Description?.includes('Cooldown') ? 'cd'
+                 : eff?.Description?.includes('피해')||eff?.Description?.includes('Damage') ? 'dmg' : '';
+      const typeLabel = type==='dmg'?'Dégâts':type==='cd'?'Cooldown':'';
+      const lvClass = lv>=7?'gem-lv-high':lv>=4?'gem-lv-mid':'gem-lv-low';
+      return `<div class="gem-item" title="${name}">
+        ${icon
+          ? `<img src="${icon}" class="gem-icon" alt="${name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" /><div class="gem-icon-fallback" style="display:none;">💎</div>`
+          : `<div class="gem-icon-fallback">💎</div>`}
+        <span class="gem-lv ${lvClass}">Lv.${lv}</span>
+        ${typeLabel?`<span class="gem-type ${type}">${typeLabel}</span>`:''}
+      </div>`;
+    }
+
+    function showEditPseudo() {
+      const current = viewedMembre?.pseudoLostArk || '';
+      const html = `
+        <div style="background:rgba(10,3,16,.95);border:1px solid rgba(179,0,27,.3);border-radius:12px;padding:20px;max-width:400px;margin:0 auto;">
+          <div style="font-family:var(--font-head);font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">Modifier le pseudo Lost Ark</div>
+          <div class="pseudo-input-row">
+            <input type="text" id="pseudo-edit-input" value="${current}" placeholder="Ex: Kisytloa" />
+            <button class="btn-fetch" id="btn-confirm-edit">OK</button>
+          </div>
+        </div>`;
+      const div = document.createElement('div');
+      div.id = 'pseudo-edit-overlay';
+      div.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+      div.innerHTML = html;
+      div.addEventListener('click', e => { if(e.target===div) div.remove(); });
+      document.body.appendChild(div);
+      document.getElementById('btn-confirm-edit').addEventListener('click', async () => {
+        const val = document.getElementById('pseudo-edit-input').value.trim();
+        if (!val) return;
+        div.remove();
+        await savePseudoAndRefresh(val);
+      });
+    }
+
+    async function savePseudoAndRefresh(pseudo) {
+      try {
+        await updateDoc(doc(db,'joueurs',viewedDocId), { pseudoLostArk: pseudo });
+        viewedMembre = { ...viewedMembre, pseudoLostArk: pseudo };
+        toast('Pseudo enregistré ! Chargement…');
+        await loadAndRender();
+      } catch(e) { toast('Erreur : '+e.message, true); }
+    }
+
+    async function loadAndRender() {
+      const wrap = document.getElementById('profil-wrap');
+      wrap.innerHTML = '<div class="profil-loader"><div class="loader-ring"></div><span style="font-family:var(--font-head);letter-spacing:2px;font-size:.8rem;">Chargement depuis l\'API Lost Ark…</span></div>';
+
+      if (!viewedMembre.pseudoLostArk) {
+        renderProfile(viewedMembre, null);
+        return;
+      }
+
+      try {
+        const laData = await fetchLostArkProfile(viewedMembre.pseudoLostArk);
+        renderProfile(viewedMembre, laData);
+      } catch(e) {
+        wrap.innerHTML = `<div class="profil-error">
+          <div style="font-size:2rem;margin-bottom:12px;">⚠️</div>
+          <div>${e.message}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:8px;">Vérifie que le pseudo est correct et que l'API est configurée.</div>
+          <button onclick="renderProfile(viewedMembre,null)" style="margin-top:16px;padding:8px 20px;font-family:var(--font-head);font-size:.72rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:8px;border:1px solid rgba(179,0,27,.3);background:rgba(14,5,20,.7);color:var(--text-muted);">Afficher sans données</button>
+        </div>`;
+      }
+    }
+
+    /* ── Auth + chargement ── */
+    onAuthStateChanged(auth, async user => {
+      if (!user) { window.location.href='connexion.html'; return; }
+      currentUser = user;
+
+      /* Récupérer le membre courant */
+      const mySnap = await getDocs(query(collection(db,'joueurs'), where('uid','==',user.uid)));
+      if (!mySnap.empty) {
+        const myData = mySnap.docs[0].data();
+        const myRole = (myData.role||'').trim();
+        isAdmin = (myRole==='Administrateur');
+        document.getElementById('user-name').textContent = myData.nom||user.displayName||'Invité';
+        const navLi = document.querySelector('li.nav-annonce');
+        if(navLi) navLi.style.display=(myRole==='Administrateur'||myRole==='Modérateur')?'list-item':'none';
+        const al = document.querySelector('#nav-gear-menu a[data-role="admin"]');
+        if(al) al.style.display=isAdmin?'flex':'none';
+      }
+
+      /* Charger le membre cible (uid dans l'URL ou soi-même) */
+      const uid = targetUid || user.uid;
+      isSelf = (uid === user.uid);
+      const snap = await getDocs(query(collection(db,'joueurs'), where('uid','==',uid)));
+
+      if (snap.empty) {
+        document.getElementById('profil-wrap').innerHTML = '<div class="profil-error">⚠️ Membre introuvable.</div>';
+        return;
+      }
+
+      viewedDocId  = snap.docs[0].id;
+      viewedMembre = snap.docs[0].data();
+      await loadAndRender();
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', async()=>{ await signOut(auth); window.location.href='connexion.html'; });
+  </script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded',function(){
+    function makeDropdown(t,m){const toggle=document.getElementById(t),menu=document.getElementById(m);if(!toggle||!menu)return;const close=()=>{menu.style.display='none';toggle.setAttribute('aria-expanded','false');};const open=()=>{menu.style.display='block';toggle.setAttribute('aria-expanded','true');};toggle.addEventListener('click',e=>{e.preventDefault();menu.style.display==='block'?close():open();});document.addEventListener('click',e=>{if(!menu.contains(e.target)&&e.target!==toggle&&!toggle.contains(e.target))close();});document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});}
+    makeDropdown('nav-raid-toggle','nav-raid-menu');
+    makeDropdown('nav-gestion-toggle','nav-gestion-menu');
+    makeDropdown('nav-gear-toggle','nav-gear-menu');
+    makeDropdown('nav-ressources-toggle','nav-ressources-menu');
+  });
+  </script>
+</body>
+</html>

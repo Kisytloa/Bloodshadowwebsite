@@ -303,6 +303,7 @@
       padding: 10px 18px 14px;
       display: flex;
       justify-content: flex-end;
+      gap: 8px;
     }
 
     .btn-edit-perso {
@@ -500,7 +501,7 @@
   <header>
     <img src="Logo guilde.jpg" alt="Logo Bloodshadow" class="logo gauche" />
     <h1>Membres</h1>
-    <p style="font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase;margin-top:4px;">Guilde Crimson Reign</p>
+    <p style="font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase;margin-top:4px;">Guilde Bloodshadow</p>
     <img src="Logo guilde.jpg" alt="Logo Bloodshadow" class="logo droite" />
 
     <nav>
@@ -790,6 +791,8 @@
       "Artiste":            proxyUrl("d/da/ClassIcon-Specialist-Artist.png/revision/latest?cb=20230901210029"),
       "Artist":             proxyUrl("d/da/ClassIcon-Specialist-Artist.png/revision/latest?cb=20230901210029"),
       /* Hélètempète / Aeromancer — FICHIER LOCAL (icône absente du wiki Fandom) */
+      "Helètempète":        "assets/class-icons/heletempete.png",
+      "Aeromancer":         "assets/class-icons/heletempete.png",
       /* Ame sauvage / Wildsoul — FICHIER LOCAL */
       "Ame sauvage":        "assets/class-icons/ame-sauvage.png",
       "Wildsoul":           "assets/class-icons/ame-sauvage.png",
@@ -1039,7 +1042,7 @@
             <div class="card-header">
               ${avatarHTML}
               <div class="card-member-info">
-                <div class="card-member-name">${joueur.nom || joueur.id}</div>
+                <a class="card-member-name" href="profil.html?uid=${joueur.uid || joueur.id}" style="text-decoration:none;cursor:pointer;">${joueur.nom || joueur.id}</a>
                 <div class="card-member-role ${rc}">${joueur.role || 'Membre de Guilde'}</div>
               </div>
               ${maxIlvl > 0 ? `
@@ -1054,6 +1057,9 @@
               <button class="btn-edit-perso" onclick="ouvrirAjoutPerso('${joueur.id}', '${(joueur.nom||'').replace(/'/g,'\\\'')}')" >
                 ✏️ Modifier
               </button>
+              <a href="profil.html?uid=${joueur.uid || joueur.id}" class="btn-edit-perso" style="text-decoration:none;text-align:center;background:linear-gradient(135deg,rgba(88,101,242,.2),rgba(60,69,196,.2));border-color:rgba(88,101,242,.4);color:#a0aaff;">
+                👁 Voir profil
+              </a>
             </div>
           </div>
         `;
