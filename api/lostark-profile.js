@@ -1,16 +1,25 @@
 const LOSTARK_API_KEY = process.env.LOSTARK_API_KEY || '';
 const BASE_URL = 'https://developer-lostark.game.onstove.com';
 
+async function safeJson(r) {
+  try {
+    const text = await r.text();
+    console.log(`Raw response (first 200 chars): ${text.substring(0, 200)}`);
+    return JSON.parse(text);
+  } catch (e) {
+    console.error(`JSON parse error: ${e.message}`);
+    return null;
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   const { character } = req.query;
   if (!character) return res.status(400).json({ error: 'Paramètre character manquant' });
-
-  if (!LOSTARK_API_KEY) return res.status(500).json({ error: 'Clé API Lost Ark non configurée - vérifier variable LOSTARK_API_KEY sur Vercel' });
+  if (!LOSTARK_API_KEY) return res.status(500).json({ error: 'Clé API manquante' });
 
   const headers = {
     'Authorization': `bearer ${LOSTARK_API_KEY}`,
@@ -19,38 +28,31 @@ export default async function handler(req, res) {
 
   try {
     const profileRes = await fetch(`${BASE_URL}/armories/characters/${encodeURIComponent(character)}/profiles`, { headers });
-    
-    // Log du statut pour debug
-    console.log(`Profile API status: ${profileRes.status} for character: ${character}`);
-    
-    if (profileRes.status === 401) return res.status(401).json({ error: 'Clé API invalide ou expirée (401)' });
-    if (profileRes.status === 403) return res.status(403).json({ error: 'Clé API non autorisée (403) - vérifier les permissions' });
-    if (profileRes.status === 404) return res.status(404).json({ error: `Personnage "${character}" introuvable sur EUC` });
-    if (profileRes.status === 429) return res.status(429).json({ error: 'Trop de requêtes - limite API atteinte' });
+    console.log(`Profile status: ${profileRes.status}, content-type: ${profileRes.headers.get('content-type')}`);
+
     if (!profileRes.ok) {
-      const body = await profileRes.text();
-      return res.status(profileRes.status).json({ error: `Erreur API Lost Ark (${profileRes.status}): ${body}` });
+      const txt = await profileRes.text();
+      return res.status(profileRes.status).json({ error: `API error ${profileRes.status}: ${txt.substring(0, 200)}` });
     }
 
-    const profile = await profileRes.json();
+    const profile = await safeJson(profileRes);
 
-    // Fetch le reste en parallèle
-    const [equipRes, engravingRes, gemsRes] = await Promise.all([
+    const [equipRes, engRes, gemsRes] = await Promise.all([
       fetch(`${BASE_URL}/armories/characters/${encodeURIComponent(character)}/equipment`, { headers }),
       fetch(`${BASE_URL}/armories/characters/${encodeURIComponent(character)}/engravings`, { headers }),
       fetch(`${BASE_URL}/armories/characters/${encodeURIComponent(character)}/gems`, { headers }),
     ]);
 
-    console.log(`Equipment: ${equipRes.status}, Engravings: ${engravingRes.status}, Gems: ${gemsRes.status}`);
+    const equipment = equipRes.ok ? await safeJson(equipRes) : null;
+    const engravings = engRes.ok ? await safeJson(engRes) : null;
+    const gems = gemsRes.ok ? await safeJson(gemsRes) : null;
 
-    const equipment  = equipRes.ok  ? await equipRes.json()    : null;
-    const engravings = engravingRes.ok ? await engravingRes.json() : null;
-    const gems       = gemsRes.ok   ? await gemsRes.json()     : null;
+    console.log(`profile keys: ${profile ? Object.keys(profile).join(',') : 'null'}`);
 
     return res.status(200).json({ profile, equipment, engravings, gems });
 
   } catch (e) {
-    console.error('Erreur fetch Lost Ark:', e.message);
-    return res.status(500).json({ error: `Erreur réseau: ${e.message}` });
+    console.error(`Fatal error: ${e.message}`);
+    return res.status(500).json({ error: e.message });
   }
 }
