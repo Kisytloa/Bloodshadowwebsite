@@ -3,226 +3,532 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Profil — Bloodshadow</title>
+  <title>Profil — Crimson Reign</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* ── Layout profil ── */
-    .profil-wrap { display:flex; flex-direction:column; gap:1.4rem; }
+    /* ══════════════════════════════════════════
+       TOKENS & RESET
+    ══════════════════════════════════════════ */
+    :root {
+      --nm: #2d8a3e; --hm: #b3001b;
+      --tier-s: #ffb020; --tier-a: #cc55ff; --tier-b: #4499ff; --tier-c: #55cc88;
+    }
 
-    /* ── Header carte ── */
+    /* ══════════════════════════════════════════
+       BANNIÈRE
+    ══════════════════════════════════════════ */
+    .banner-shell {
+      position: relative;
+      height: 240px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.7);
+      /* pas de margin-bottom négatif — on gère le chevauchement autrement */
+    }
+    .banner-img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center 35%;
+      transition: transform 8s ease;
+    }
+    .banner-shell:hover .banner-img { transform: scale(1.04); }
+    .banner-fog {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(8,2,14,0)    0%,
+        rgba(8,2,14,.15)  45%,
+        rgba(8,2,14,.92) 100%
+      );
+    }
+    /* Particules braises CSS */
+    .banner-embers {
+      position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+    }
+    .ember {
+      position: absolute; bottom: -10px;
+      width: 3px; height: 3px; border-radius: 50%;
+      background: var(--gold-light);
+      animation: floatEmber var(--dur) ease-in infinite;
+      animation-delay: var(--delay);
+      left: var(--x);
+      opacity: 0;
+    }
+    @keyframes floatEmber {
+      0%   { opacity: 0;   transform: translateY(0)   scale(1);   }
+      15%  { opacity: .9;                                          }
+      80%  { opacity: .4;  transform: translateY(-160px) scale(.5) translateX(20px); }
+      100% { opacity: 0;   transform: translateY(-200px) scale(0); }
+    }
+
+    /* Bouton bannière — crayon toujours visible coin bas-droit */
+    .btn-banner-edit {
+      position: absolute; bottom: 12px; right: 12px; z-index: 10;
+      width: 34px !important; height: 34px !important;
+      border-radius: 50% !important;
+      border: 1px solid rgba(255,255,255,.3) !important;
+      background: rgba(0,0,0,.6) !important; backdrop-filter: blur(10px);
+      color: #fff !important;
+      font-size: .9rem !important;
+      display: inline-flex !important; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,.5) !important;
+      transform: none !important;
+      padding: 0 !important;
+      opacity: 1 !important;
+    }
+    .btn-banner-edit:hover {
+      background: rgba(179,0,27,.75) !important;
+      border-color: rgba(179,0,27,.9) !important;
+      transform: scale(1.1) !important;
+      box-shadow: 0 0 14px rgba(179,0,27,.5) !important;
+    }
+
+    /* ══════════════════════════════════════════
+       HEADER CARD
+    ══════════════════════════════════════════ */
     .profil-header {
-      background:linear-gradient(135deg,rgba(25,10,32,.98),rgba(14,5,20,.98));
-      border:1px solid rgba(179,0,27,.3); border-radius:16px; padding:28px 32px;
-      display:flex; align-items:center; gap:28px; position:relative; overflow:hidden;
+      position: relative; z-index: 2;
+      background: linear-gradient(145deg, rgba(22,10,30,.98), rgba(14,5,20,.99));
+      border: 1px solid rgba(179,0,27,.22);
+      border-radius: 20px;
+      padding: 24px 28px 22px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 22px; align-items: center;
+      box-shadow: 0 16px 50px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.04);
+      animation: slideUp .45s cubic-bezier(.25,.46,.45,.94) both;
     }
+    @keyframes slideUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
+
+    /* Ligne dorée supprimée — causait artefact visuel sur la bannière */
+    /* Lueur rouge côté gauche */
     .profil-header::before {
-      content:''; position:absolute; inset:0;
-      background:radial-gradient(ellipse at 80% 50%, rgba(179,0,27,.08) 0%, transparent 60%);
-      pointer-events:none;
+      content: '';
+      position: absolute; inset: 0; border-radius: 20px; pointer-events: none;
+      background: radial-gradient(ellipse at 20% 60%, rgba(179,0,27,.08) 0%, transparent 55%);
     }
-    .profil-avatar {
-      width:90px; height:90px; border-radius:50%; flex-shrink:0;
-      border:3px solid rgba(179,0,27,.5); background:rgba(179,0,27,.1);
-      display:flex; align-items:center; justify-content:center; font-size:2.5rem;
-      box-shadow:0 0 24px rgba(179,0,27,.3);
+
+    /* ── Avatar ── */
+    .avatar-zone { position: relative; flex-shrink: 0; width: 108px; height: 108px; }
+    .avatar-ring {
+      width: 108px; height: 108px; border-radius: 50%;
+      position: relative;
+      box-shadow: 0 0 28px rgba(179,0,27,.55), 0 0 55px rgba(201,146,42,.12);
     }
-    .profil-avatar img { width:100%; height:100%; border-radius:50%; object-fit:cover; }
-    .profil-info { flex:1; }
+    /* Anneau animé via pseudo-élément */
+    .avatar-ring::before {
+      content: '';
+      position: absolute; inset: -3px; border-radius: 50%;
+      background: conic-gradient(var(--gold) 0deg, var(--red) 100deg, #2a0005 180deg, var(--red) 260deg, var(--gold) 360deg);
+      animation: spinRing 5s linear infinite;
+      z-index: 0;
+    }
+    @keyframes spinRing { to { transform: rotate(360deg); } }
+    .avatar-inner {
+      position: relative; z-index: 1;
+      width: 100%; height: 100%; border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid #0c0814;
+      background: #0c0814;
+    }
+    .avatar-img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .4s ease; display: block;
+    }
+    .avatar-zone:hover .avatar-img { transform: scale(1.08); }
+
+    /* Edit avatar overlay */
+    .btn-avatar-edit {
+      position: absolute; bottom: 2px; right: 2px; z-index: 5;
+      width: 30px; height: 30px; border-radius: 50% !important;
+      background: rgba(14,5,20,.92) !important; border: 2px solid rgba(201,146,42,.5) !important;
+      color: var(--gold-light) !important; font-size: .7rem !important;
+      cursor: pointer; display: none;
+      align-items: center; justify-content: center;
+      transition: all .2s !important; box-shadow: none !important;
+      padding: 0 !important; transform: none !important;
+    }
+    .btn-avatar-edit:hover { background: rgba(179,0,27,.6) !important; border-color: var(--red) !important; color: #fff !important; transform: none !important; }
+
+    /* ── Infos centre ── */
+    .profil-info { min-width: 0; }
+
     .profil-pseudo {
-      font-family:var(--font-head); font-size:1.8rem; font-weight:900;
-      color:var(--gold-light); letter-spacing:2px; margin-bottom:4px;
-      text-shadow:0 0 20px rgba(201,146,42,.3);
-    }
-    .profil-title { font-size:.85rem; color:var(--gold); font-style:italic; margin-bottom:12px; }
-    .profil-badges { display:flex; gap:8px; flex-wrap:wrap; }
-    .profil-badge {
-      padding:4px 12px; border-radius:20px; font-family:var(--font-head);
-      font-size:.68rem; letter-spacing:1px; text-transform:uppercase;
-    }
-    .badge-class { background:rgba(179,0,27,.15); border:1px solid rgba(179,0,27,.4); color:#ff9090; }
-    .badge-server { background:rgba(88,101,242,.15); border:1px solid rgba(88,101,242,.4); color:#a0aaff; }
-    .badge-role { background:rgba(201,146,42,.15); border:1px solid rgba(201,146,42,.4); color:var(--gold-light); }
-
-    .profil-stats-row {
-      display:flex; gap:24px; flex-wrap:wrap; margin-left:auto; flex-shrink:0;
-    }
-    .profil-stat { text-align:center; }
-    .profil-stat-val {
-      font-family:var(--font-head); font-size:1.4rem; font-weight:900;
-      color:var(--red); line-height:1; display:block;
-    }
-    .profil-stat-val.gold { color:var(--gold-light); }
-    .profil-stat-val.blue { color:#64b5ff; }
-    .profil-stat-label {
-      font-family:var(--font-head); font-size:.62rem; letter-spacing:1.5px;
-      text-transform:uppercase; color:var(--text-muted); display:block; margin-top:4px;
+      font-family: var(--font-head);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 900; letter-spacing: 3px;
+      color: var(--gold-light);
+      text-shadow: 0 0 40px rgba(201,146,42,.35);
+      line-height: 1; margin-bottom: 5px;
+      animation: shimmer 6s ease-in-out infinite alternate;
     }
 
-    /* ── Grid contenu ── */
-    .profil-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
-    .profil-card {
-      background:linear-gradient(135deg,rgba(20,8,28,.98),rgba(14,5,20,.98));
-      border:1px solid rgba(179,0,27,.2); border-radius:14px; padding:20px 22px;
-    }
-    .card-title {
-      font-family:var(--font-head); font-size:.75rem; letter-spacing:2px;
-      text-transform:uppercase; color:var(--gold); margin-bottom:16px;
-      padding-bottom:10px; border-bottom:1px solid rgba(201,146,42,.2);
-      display:flex; align-items:center; gap:8px;
+    .profil-titre {
+      font-family: 'Cinzel', serif;
+      font-size: .8rem; color: var(--gold);
+      font-style: italic; letter-spacing: 2px;
+      margin-bottom: 12px; min-height: 18px;
+      opacity: .85;
     }
 
-    /* ── Stats combat ── */
-    .combat-stats { display:flex; flex-direction:column; gap:10px; }
-    .combat-stat-row { display:flex; align-items:center; gap:10px; }
-    .combat-stat-name {
-      font-family:var(--font-head); font-size:.72rem; letter-spacing:1px;
-      color:var(--text-muted); flex:1;
+    .profil-badges { display: flex; gap: 7px; flex-wrap: wrap; }
+    .badge {
+      padding: 4px 12px; border-radius: 30px;
+      font-family: var(--font-head); font-size: .62rem;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      display: flex; align-items: center; gap: 5px;
     }
-    .combat-stat-bar-wrap { flex:2; height:6px; background:rgba(255,255,255,.06); border-radius:3px; overflow:hidden; }
-    .combat-stat-bar { height:100%; border-radius:3px; transition:width .6s ease; }
-    .bar-crit    { background:linear-gradient(90deg,#ff6b6b,#ff4040); }
-    .bar-spec    { background:linear-gradient(90deg,var(--gold),#e0952a); }
-    .bar-swift   { background:linear-gradient(90deg,#64dcff,#3bbfff); }
-    .bar-dom     { background:linear-gradient(90deg,#b06bff,#8a3bff); }
-    .bar-end     { background:linear-gradient(90deg,#64ff78,#3bdf50); }
-    .bar-exp     { background:linear-gradient(90deg,#ff9b64,#ff7340); }
-    .combat-stat-val {
-      font-family:var(--font-head); font-size:.78rem; font-weight:700;
-      color:var(--text); min-width:40px; text-align:right;
+    .badge-admin  { background: rgba(45,138,62,.15);  border: 1px solid rgba(45,138,62,.4);  color: #80ff95; }
+    .badge-mod    { background: rgba(68,153,255,.12); border: 1px solid rgba(68,153,255,.35); color: #90c8ff; }
+    .badge-member { background: rgba(201,146,42,.12); border: 1px solid rgba(201,146,42,.35); color: var(--gold-light); }
+    .badge-class  { background: rgba(179,0,27,.12);   border: 1px solid rgba(179,0,27,.35);   color: #ff9090; }
+    .badge-ilvl   { background: rgba(255,176,32,.1);  border: 1px solid rgba(255,176,32,.35); color: var(--tier-s); }
+
+    /* ── Stats droite ── */
+    .profil-stats {
+      display: flex; flex-direction: column; gap: 10px;
+      align-items: flex-end; align-self: center;
+    }
+    .stat-chips { display: flex; gap: 10px; }
+    .stat-chip {
+      display: flex !important; flex-direction: column; align-items: center;
+      padding: 12px 18px; border-radius: 12px;
+      background: rgba(10,3,16,.7) !important;
+      border: 1px solid rgba(179,0,27,.2) !important;
+      min-width: 70px;
+      transition: border-color .25s, transform .25s;
+      box-shadow: none !important; cursor: default;
+      font-family: inherit;
+    }
+    .stat-chip:hover { border-color: rgba(201,146,42,.4) !important; transform: translateY(-3px); background: rgba(10,3,16,.7) !important; }
+    .stat-val {
+      font-family: var(--font-head); font-size: 1.5rem; font-weight: 900;
+      line-height: 1; color: var(--red);
+    }
+    .stat-val.gold  { color: var(--gold-light); }
+    .stat-val.blue  { color: var(--tier-b); }
+    .stat-label {
+      font-family: var(--font-head); font-size: .53rem;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--text-muted); margin-top: 4px;
+    }
+    /* Neutraliser style.css global sur ces boutons discrets */
+    .btn-edit-header, .btn-small {
+      display: inline-flex !important; align-items: center; gap: 7px;
+      border-radius: 10px !important;
+      border: 1px solid rgba(179,0,27,.3) !important;
+      background: rgba(14,5,20,.7) !important;
+      color: var(--text-muted) !important;
+      font-family: var(--font-head) !important;
+      letter-spacing: 1px !important; text-transform: uppercase !important;
+      cursor: pointer; transition: all .2s !important;
+      box-shadow: none !important;
+      transform: none !important;
+    }
+    .btn-edit-header { padding: 8px 16px !important; font-size: .65rem !important; }
+    .btn-small {
+      display: inline-flex !important; align-items: center; gap: 6px;
+      padding: 5px 12px !important; border-radius: 8px !important; margin-top: 10px;
+      border: 1px solid rgba(179,0,27,.25) !important;
+      background: transparent !important; color: var(--text-dim) !important;
+      font-family: var(--font-head) !important; font-size: .6rem !important;
+      letter-spacing: 1px !important; text-transform: uppercase !important;
+      cursor: pointer; transition: all .2s !important;
+      box-shadow: none !important; transform: none !important;
+    }
+    .btn-small:hover {
+      color: var(--gold-light) !important;
+      border-color: rgba(201,146,42,.45) !important;
+      background: rgba(201,146,42,.04) !important;
+      box-shadow: none !important; transform: none !important;
+    }
+    .btn-edit-header:hover, .btn-small:hover {
+      color: var(--gold-light) !important;
+      border-color: rgba(201,146,42,.5) !important;
+      background: rgba(28,12,38,.9) !important;
+      box-shadow: none !important;
+      transform: none !important;
     }
 
-    /* ── Engravings ── */
-    .engraving-list { display:flex; flex-direction:column; gap:10px; }
-    .engraving-item {
-      display:flex; align-items:center; gap:12px; padding:10px 12px;
-      background:rgba(10,3,16,.5); border-radius:10px;
-      border-left:2px solid rgba(201,146,42,.3); transition:border-color .2s;
+    /* ══════════════════════════════════════════
+       BIO
+    ══════════════════════════════════════════ */
+    .bio-card {
+      background: linear-gradient(135deg, rgba(18,7,25,.95), rgba(12,4,18,.97));
+      border: 1px solid rgba(179,0,27,.16); border-radius: 16px;
+      padding: 20px 26px;
+      animation: slideUp .5s .1s cubic-bezier(.25,.46,.45,.94) both;
     }
-    .engraving-item:hover { border-color:var(--gold); }
-    .engraving-icon {
-      width:36px; height:36px; border-radius:8px; object-fit:cover;
-      border:1px solid rgba(255,255,255,.1); flex-shrink:0;
+    .section-label {
+      font-family: var(--font-head); font-size: .65rem; letter-spacing: 2.5px;
+      text-transform: uppercase; color: var(--gold);
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 12px;
     }
-    .engraving-icon-fallback {
-      width:36px; height:36px; border-radius:8px; flex-shrink:0;
-      background:rgba(201,146,42,.1); border:1px solid rgba(201,146,42,.3);
-      display:flex; align-items:center; justify-content:center; font-size:1rem;
+    .section-label::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(90deg, rgba(201,146,42,.3), transparent);
     }
-    .engraving-info { flex:1; min-width:0; }
-    .engraving-name {
-      font-family:var(--font-head); font-size:.82rem; color:var(--text);
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    .bio-text {
+      font-size: .9rem; color: var(--text-muted); line-height: 1.75;
+      font-style: italic; min-height: 20px;
     }
-    .engraving-pts { font-size:.7rem; color:var(--text-muted); margin-top:2px; }
-    .engraving-lv {
-      font-family:var(--font-head); font-size:.75rem; font-weight:900;
-      padding:3px 9px; border-radius:6px; flex-shrink:0;
+    .bio-empty { color: var(--text-dim); }
+    .btn-small {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 8px; margin-top: 10px;
+      border: 1px solid rgba(179,0,27,.25);
+      background: transparent; color: var(--text-dim);
+      font-family: var(--font-head); font-size: .6rem;
+      letter-spacing: 1px; text-transform: uppercase;
+      cursor: pointer; transition: all .2s;
     }
-    .lv3 { background:rgba(255,200,0,.15); border:1px solid rgba(255,200,0,.4); color:#ffd966; }
-    .lv2 { background:rgba(180,100,255,.15); border:1px solid rgba(180,100,255,.4); color:#c8a0ff; }
-    .lv1 { background:rgba(100,180,255,.15); border:1px solid rgba(100,180,255,.4); color:#90c8ff; }
+    .btn-small:hover { color: var(--gold-light); border-color: var(--gold); }
 
-    /* ── Gems ── */
-    .gems-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
-    .gem-item {
-      display:flex; flex-direction:column; align-items:center; gap:6px;
-      padding:10px 6px; background:rgba(10,3,16,.5); border-radius:10px;
-      border:1px solid rgba(179,0,27,.15); transition:all .2s; cursor:default;
+    /* ══════════════════════════════════════════
+       GRILLE 2 COL
+    ══════════════════════════════════════════ */
+    .profil-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
     }
-    .gem-item:hover { border-color:rgba(201,146,42,.3); transform:translateY(-2px); }
-    .gem-icon {
-      width:44px; height:44px; border-radius:8px; object-fit:cover;
-      border:1px solid rgba(255,255,255,.12);
-    }
-    .gem-icon-fallback {
-      width:44px; height:44px; border-radius:8px; background:rgba(179,0,27,.1);
-      border:1px solid rgba(179,0,27,.2); display:flex; align-items:center;
-      justify-content:center; font-size:1.2rem;
-    }
-    .gem-lv {
-      font-family:var(--font-head); font-size:.68rem; font-weight:900;
-      padding:2px 7px; border-radius:5px; letter-spacing:.5px;
-    }
-    .gem-lv-high { background:rgba(255,200,0,.15); color:#ffd966; border:1px solid rgba(255,200,0,.3); }
-    .gem-lv-mid  { background:rgba(180,100,255,.15); color:#c8a0ff; border:1px solid rgba(180,100,255,.3); }
-    .gem-lv-low  { background:rgba(100,180,255,.15); color:#90c8ff; border:1px solid rgba(100,180,255,.3); }
-    .gem-type { font-size:.6rem; color:var(--text-muted); text-align:center; }
-    .gem-type.dmg { color:#ff8080; }
-    .gem-type.cd  { color:#80c8ff; }
+    .span-full { grid-column: span 2; }
 
-    /* ── Personnages ── */
-    .perso-list { display:flex; flex-direction:column; gap:8px; }
-    .perso-item {
-      display:flex; align-items:center; gap:12px; padding:10px 14px;
-      background:rgba(10,3,16,.5); border-radius:10px;
-      border-left:2px solid rgba(179,0,27,.2); transition:all .2s;
+    .pcard {
+      background: linear-gradient(145deg, rgba(18,7,25,.97), rgba(12,4,18,.98));
+      border: 1px solid rgba(179,0,27,.16); border-radius: 16px;
+      padding: 20px 22px;
+      animation: slideUp .5s cubic-bezier(.25,.46,.45,.94) both;
     }
-    .perso-item.main { border-left-color:var(--gold); background:rgba(201,146,42,.05); }
-    .perso-icon { width:32px; height:32px; border-radius:6px; object-fit:cover; flex-shrink:0; }
-    .perso-info { flex:1; }
-    .perso-name { font-family:var(--font-head); font-size:.82rem; color:var(--text); }
-    .perso-class { font-size:.68rem; color:var(--text-muted); margin-top:1px; }
-    .perso-ilvl { font-family:var(--font-head); font-size:.82rem; font-weight:700; color:var(--gold); }
-    .perso-main-badge {
-      font-family:var(--font-head); font-size:.6rem; letter-spacing:1px;
-      padding:2px 7px; border-radius:10px; background:rgba(201,146,42,.15);
-      border:1px solid rgba(201,146,42,.3); color:var(--gold-light);
+    .pcard:nth-child(1) { animation-delay: .12s; }
+    .pcard:nth-child(2) { animation-delay: .18s; }
+    .pcard:nth-child(3) { animation-delay: .24s; }
+
+    /* ══════════════════════════════════════════
+       PERSONNAGES
+    ══════════════════════════════════════════ */
+    .perso-list { display: flex; flex-direction: column; gap: 7px; margin-top: 4px; }
+
+    .perso-row {
+      display: flex; align-items: center; gap: 13px;
+      padding: 10px 14px; border-radius: 11px;
+      background: rgba(10,3,16,.55);
+      border-left: 3px solid rgba(179,0,27,.2);
+      transition: all .22s; position: relative; overflow: hidden;
+    }
+    .perso-row::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(201,146,42,.04), transparent);
+      opacity: 0; transition: opacity .22s;
+    }
+    .perso-row:hover { border-left-color: var(--gold); transform: translateX(4px); }
+    .perso-row:hover::after { opacity: 1; }
+    .perso-row.is-main {
+      border-left-color: var(--gold);
+      background: rgba(201,146,42,.05);
     }
 
-    /* ── Pseudo input dans profil ── */
-    .pseudo-link-box {
-      background:rgba(10,3,16,.6); border:1px solid rgba(179,0,27,.2);
-      border-radius:10px; padding:14px 16px; margin-bottom:14px;
+    .perso-icon-wrap {
+      position: relative; flex-shrink: 0;
+      width: 38px; height: 38px;
     }
-    .pseudo-link-box label { font-family:var(--font-head); font-size:.68rem; letter-spacing:1px; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:6px; }
-    .pseudo-input-row { display:flex; gap:8px; }
-    .pseudo-input-row input { flex:1; }
-    .btn-fetch {
-      padding:10px 18px; font-family:var(--font-head); font-size:.72rem;
-      letter-spacing:1px; text-transform:uppercase; cursor:pointer;
-      border-radius:8px; border:none; background:linear-gradient(135deg,var(--red),#8a0010);
-      color:#fff; transition:all .2s; white-space:nowrap;
+    .perso-icon {
+      width: 38px; height: 38px; border-radius: 9px;
+      object-fit: cover; border: 1px solid rgba(255,255,255,.1);
+      display: block;
     }
-    .btn-fetch:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(179,0,27,.4); }
-    .btn-fetch:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+    .main-glow {
+      position: absolute; inset: -3px; border-radius: 12px;
+      box-shadow: 0 0 12px rgba(201,146,42,.5);
+      pointer-events: none;
+    }
 
-    /* ── Loader ── */
-    .profil-loader {
-      display:flex; flex-direction:column; align-items:center; gap:16px;
-      padding:60px; color:var(--text-muted);
+    .perso-info { flex: 1; min-width: 0; }
+    .perso-name {
+      font-family: var(--font-head); font-size: .82rem;
+      color: var(--text); letter-spacing: .5px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .loader-ring {
-      width:48px; height:48px; border:3px solid rgba(179,0,27,.2);
-      border-top-color:var(--red); border-radius:50%;
-      animation:spin .8s linear infinite;
+    .perso-class { font-size: .68rem; color: var(--text-muted); margin-top: 1px; }
+
+    .perso-ilvl-wrap { text-align: right; flex-shrink: 0; }
+    .perso-ilvl {
+      font-family: var(--font-head); font-size: .9rem; font-weight: 900;
+      letter-spacing: .5px;
     }
+    /* Tiers de couleur iLvl */
+    .ilvl-s { color: var(--tier-s); text-shadow: 0 0 8px rgba(255,176,32,.4); }
+    .ilvl-a { color: var(--tier-a); text-shadow: 0 0 8px rgba(204,85,255,.3); }
+    .ilvl-b { color: var(--tier-b); }
+    .ilvl-c { color: var(--tier-c); }
+    .ilvl-d { color: var(--text-muted); }
+
+    .tag-main {
+      font-family: var(--font-head); font-size: .52rem; letter-spacing: 1px;
+      padding: 2px 7px; border-radius: 10px; margin-top: 3px;
+      background: rgba(201,146,42,.15); border: 1px solid rgba(201,146,42,.35);
+      color: var(--gold-light); display: inline-block;
+    }
+
+    /* ══════════════════════════════════════════
+       HISTORIQUE RAIDS — amélioré
+    ══════════════════════════════════════════ */
+    .raid-list { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+
+    .raid-row {
+      display: grid;
+      grid-template-columns: 90px 1fr auto;
+      align-items: center; gap: 12px;
+      padding: 10px 14px; border-radius: 11px;
+      background: rgba(10,3,16,.55);
+      border: 1px solid rgba(179,0,27,.1);
+      transition: all .22s;
+    }
+    .raid-row:hover { border-color: rgba(201,146,42,.3); background: rgba(179,0,27,.05); }
+
+    .raid-date {
+      font-family: var(--font-head); font-size: .62rem;
+      color: var(--text-dim); letter-spacing: .8px;
+    }
+
+    .raid-name-wrap { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .raid-badge {
+      display: inline-flex; align-items: center;
+      padding: 2px 8px; border-radius: 20px;
+      font-family: var(--font-head); font-size: .55rem; letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+    .raid-badge.nm { background: rgba(45,138,62,.15); border: 1px solid rgba(45,138,62,.4); color: #80ff95; }
+    .raid-badge.hm { background: rgba(179,0,27,.15);  border: 1px solid rgba(179,0,27,.4);  color: #ff8080; }
+
+    .raid-title {
+      font-family: var(--font-head); font-size: .78rem;
+      color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .raid-perso {
+      font-size: .68rem; color: var(--text-muted); text-align: right;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .raid-perso strong { color: var(--text); }
+
+    .empty-state {
+      text-align: center; padding: 28px 20px;
+      color: var(--text-dim); font-style: italic; font-size: .85rem;
+    }
+    .empty-state::before { content: attr(data-icon); display: block; font-size: 1.8rem; margin-bottom: 8px; font-style: normal; }
+
+    /* ══════════════════════════════════════════
+       POPUPS EDIT
+    ══════════════════════════════════════════ */
+    .edit-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.8); backdrop-filter: blur(6px);
+      z-index: 9999; display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      animation: fadeIn .2s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .edit-popup {
+      background: linear-gradient(145deg, rgba(22,10,30,.99), rgba(14,5,20,.99));
+      border: 1px solid rgba(179,0,27,.3); border-radius: 18px;
+      padding: 30px; width: 100%; max-width: 480px;
+      position: relative;
+      box-shadow: 0 40px 100px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.03);
+      animation: popIn .25s cubic-bezier(.25,.46,.45,.94);
+    }
+    @keyframes popIn { from { opacity:0; transform:scale(.94) translateY(12px); } to { opacity:1; transform:none; } }
+    .edit-popup::before {
+      content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--red), var(--gold), var(--red), transparent);
+    }
+    .edit-popup .close-btn {
+      position: absolute; top: 16px; right: 20px;
+      font-size: 1.3rem; color: var(--text-muted); cursor: pointer;
+      transition: color .2s; background: none; border: none;
+      line-height: 1; padding: 0;
+    }
+    .edit-popup .close-btn:hover { color: #fff; }
+    .edit-popup-title {
+      font-family: var(--font-head); font-size: .82rem;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--gold);
+      margin-bottom: 22px;
+    }
+    .edit-field { margin-bottom: 16px; }
+    .edit-field label {
+      font-family: var(--font-head); font-size: .65rem; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--text-muted);
+      display: block; margin-bottom: 7px;
+    }
+    .edit-field textarea, .edit-field input[type=text] {
+      width: 100%; background: rgba(8,2,14,.9);
+      border: 1px solid rgba(179,0,27,.3); border-radius: 10px;
+      padding: 12px 14px; color: var(--text);
+      font-family: 'Nunito', sans-serif; font-size: .9rem;
+      resize: vertical; outline: none; transition: border-color .2s;
+      box-sizing: border-box;
+    }
+    .edit-field textarea:focus, .edit-field input[type=text]:focus { border-color: var(--gold); }
+
+    .upload-zone {
+      border: 2px dashed rgba(179,0,27,.3); border-radius: 12px;
+      padding: 26px; text-align: center; cursor: pointer;
+      transition: all .2s; position: relative; overflow: hidden;
+    }
+    .upload-zone:hover { border-color: rgba(201,146,42,.5); background: rgba(201,146,42,.03); }
+    .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-hint { font-family: var(--font-head); font-size: .68rem; letter-spacing: 1px; color: var(--text-muted); }
+    .upload-hint .hint-icon { font-size: 1.8rem; display: block; margin-bottom: 8px; }
+    .upload-preview { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-top: 12px; display: none; }
+    .upload-preview.is-avatar { width: 90px; height: 90px; border-radius: 50%; margin: 12px auto 0; }
+
+    .btn-save {
+      width: 100%; padding: 13px; margin-top: 6px;
+      font-family: var(--font-head); font-size: .75rem; letter-spacing: 2px;
+      text-transform: uppercase; cursor: pointer; border-radius: 12px;
+      border: none; background: linear-gradient(135deg, var(--red), #8a0010);
+      color: #fff; box-shadow: 0 0 18px rgba(179,0,27,.35); transition: all .2s;
+    }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(179,0,27,.55); }
+    .btn-save:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    /* Toast */
+    #toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px); background:linear-gradient(135deg,rgba(22,12,28,.98),rgba(18,8,24,.98)); border:1px solid rgba(201,146,42,.5); border-radius:30px; padding:12px 24px; font-family:var(--font-head); font-size:.8rem; letter-spacing:1px; color:var(--gold-light); box-shadow:0 8px 24px rgba(0,0,0,.6); z-index:99999; opacity:0; transition:opacity .3s,transform .3s; pointer-events:none; white-space:nowrap; }
+    #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    /* Loader */
+    .profil-loader { display:flex; flex-direction:column; align-items:center; gap:14px; padding:80px 40px; }
+    .loader-ring { width:44px; height:44px; border:3px solid rgba(179,0,27,.2); border-top-color:var(--red); border-radius:50%; animation:spin .8s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
-    .profil-error {
-      text-align:center; padding:40px; color:#ff8080;
-      font-family:var(--font-head); font-size:.9rem; letter-spacing:1px;
-    }
 
-    /* ── Edit pseudo btn ── */
-    #btn-edit-pseudo {
-      position:absolute; top:20px; right:20px;
-      padding:7px 14px; font-family:var(--font-head); font-size:.68rem;
-      letter-spacing:1px; text-transform:uppercase; cursor:pointer;
-      border-radius:8px; border:1px solid rgba(179,0,27,.3);
-      background:rgba(14,5,20,.7); color:var(--text-muted); transition:all .2s;
+    /* ══════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════ */
+    @media(max-width:900px){
+      .profil-header { grid-template-columns: auto 1fr; }
+      .profil-stats { grid-column: span 2; flex-direction: row; justify-content: space-between; align-items: center; }
     }
-    #btn-edit-pseudo:hover { color:var(--gold-light); border-color:var(--gold); }
-
-    /* ── Responsive ── */
-    @media(max-width:768px) {
-      .profil-grid { grid-template-columns:1fr; }
-      .profil-header { flex-direction:column; text-align:center; }
-      .profil-stats-row { margin-left:0; justify-content:center; }
-      .gems-grid { grid-template-columns:repeat(4,1fr); }
+    @media(max-width:700px){
+      .banner-shell { height: 180px; margin-bottom: -40px; }
+      .profil-header { padding: 18px; gap: 14px; }
+      .avatar-ring { width: 86px; height: 86px; }
+      .profil-pseudo { font-size: 1.4rem; }
+      .profil-grid { grid-template-columns: 1fr; }
+      .span-full { grid-column: span 1; }
+      .raid-row { grid-template-columns: 75px 1fr auto; gap: 8px; }
+      header .logo { display: none; }
+      nav ul { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 4px; }
+      nav ul::-webkit-scrollbar { display: none; }
+      nav ul li a, nav ul li button { font-size: .68rem; padding: 6px 8px; white-space: nowrap; }
     }
-
-    /* ── Toast ── */
-    #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,rgba(22,12,28,.98),rgba(18,8,24,.98));border:1px solid rgba(201,146,42,.5);border-radius:30px;padding:12px 24px;font-family:var(--font-head);font-size:.8rem;letter-spacing:1px;color:var(--gold-light);box-shadow:0 8px 24px rgba(0,0,0,.6);z-index:99999;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap}
-    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    @media(max-width:480px){
+      .stat-chips { gap: 7px; }
+      .stat-chip { padding: 10px 12px; min-width: 55px; }
+      .stat-val { font-size: 1.3rem; }
+      .profil-stats { flex-wrap: wrap; }
+    }
   </style>
 </head>
 <body>
@@ -230,10 +536,10 @@
   <div id="toast"></div>
 
   <header>
-    <img src="Logo guilde.jpg" alt="Logo Bloodshadow" class="logo gauche" />
+    <img src="Logo guilde.jpg" alt="Logo" class="logo gauche" />
     <h1>Profil</h1>
-    <p style="font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase;margin-top:4px;">Guilde Bloodshadow</p>
-    <img src="Logo guilde.jpg" alt="Logo Bloodshadow" class="logo droite" />
+    <p style="font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase;margin-top:4px;">Guilde Crimson Reign</p>
+    <img src="Logo guilde.jpg" alt="Logo" class="logo droite" />
     <nav><ul>
       <li><a href="index.html">🏠</a></li>
       <li class="nav-raid" style="position:relative;">
@@ -241,11 +547,14 @@
         <div id="nav-raid-menu">
           <a href="planning.html"><span>📅</span> Planning de Raid</a>
           <a href="excel_raid.html"><span>📊</span> Excel Raid</a>
+          <a href="wiki.html"><span>📚</span> Wiki Raids</a>
         </div>
       </li>
       <li class="nav-gestion" style="position:relative;">
         <button id="nav-gestion-toggle" aria-haspopup="true" aria-expanded="false"><span>🧩</span> Gestion <span style="font-size:10px;opacity:.6;">▼</span></button>
-        <div id="nav-gestion-menu"><a href="membre_guilde.html"><span>👥</span> Membres</a></div>
+        <div id="nav-gestion-menu">
+          <a href="membre_guilde.html"><span>👥</span> Membres</a>
+        </div>
       </li>
       <li><a href="Objectifs.html">🎯 Objectifs</a></li>
       <li><a href="Cagnotte.html">💰 Cagnotte</a></li>
@@ -268,8 +577,8 @@
   </header>
 
   <main>
-    <div class="profil-wrap" id="profil-wrap">
-      <div class="profil-loader" id="profil-loader">
+    <div id="profil-wrap">
+      <div class="profil-loader">
         <div class="loader-ring"></div>
         <span style="font-family:var(--font-head);letter-spacing:2px;font-size:.8rem;">Chargement du profil…</span>
       </div>
@@ -286,308 +595,421 @@
     const app=initializeApp({apiKey:"AIzaSyBfJubhqQFQNo8fxVLKh1DKlfisJhZYwGI",authDomain:"bloodshadowsite-d35ce.firebaseapp.com",projectId:"bloodshadowsite-d35ce",storageBucket:"bloodshadowsite-d35ce.firebasestorage.app",messagingSenderId:"368188025874",appId:"1:368188025874:web:cfdd31f87651f1a3737ccb"});
     const auth=getAuth(app),db=getFirestore(app);
 
-    /* ── State ── */
-    let currentUser=null, viewedMembre=null, viewedDocId=null, isAdmin=false, isSelf=false;
+    let currentUser=null,viewedMembre=null,viewedDocId=null,isAdmin=false,isSelf=false;
     const params=new URLSearchParams(location.search);
     const targetUid=params.get('uid');
 
-    /* ── Toast ── */
-    function toast(msg,err=false){const el=document.getElementById('toast');el.textContent=(err?'❌ ':'✅ ')+msg;el.style.borderColor=err?'rgba(179,0,27,.5)':'rgba(201,146,42,.5)';el.style.color=err?'#ff8080':'var(--gold-light)';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2800);}
-
-    /* ── Icones classes ── */
+    /* ── Icônes classes ── */
     const FD="https://static.wikia.nocookie.net/lostark_gamepedia/images/";
-    const px=p=>"https://wsrv.nl/?url="+encodeURIComponent(FD+p)+"&w=64&h=64&output=webp&q=80";
-    const CI={"Berserker":px("b/b8/ClassIcon-Warrior-Berserker.png/revision/latest?cb=20220211161248"),"Paladin":px("6/66/ClassIcon-Warrior-Paladin.png/revision/latest?cb=20220211161249"),"Destructeur":px("3/3b/ClassIcon-Warrior-Destroyer.png/revision/latest?cb=20230901222333"),"Gunlancer":px("e/eb/ClassIcon-Warrior-Gunlancer.png/revision/latest?cb=20220211161248"),"Slayer":px("1/15/ClassIcon-Warrior-Slayer.png/revision/latest?cb=20230901222441"),"Paladine":"assets/class-icons/valkyrie.png","Valkyrie":"assets/class-icons/valkyrie.png","Guardian Knight":"assets/class-icons/guardian-knight.png","Sorcière":px("6/63/ClassIcon-Mage-Sorceress.png/revision/latest?cb=20220211161242"),"Arcaniste":px("d/d4/ClassIcon-Mage-Arcanist.png/revision/latest?cb=20230901213545"),"Barde":px("1/1b/ClassIcon-Mage-Bard.png/revision/latest?cb=20220211161241"),"Invocatrice":px("e/e3/ClassIcon-Mage-Summoner.png/revision/latest?cb=20230901214149"),"Elementiste":px("e/e8/ClassIcon-Martial_Artist-Wardancer.png/revision/latest?cb=20220211161246"),"Spirite":px("1/19/ClassIcon-Martial_Artist-Soulfist.png/revision/latest?cb=20220211161245"),"Lancière":px("5/5c/ClassIcon-Martial_Artist-Glaivier.png/revision/latest?cb=20230901215814"),"Pugiliste":px("6/64/ClassIcon-Martial_Artist-Scrapper.png/revision/latest?cb=20220211161244"),"Striker":px("b/b0/ClassIcon-Martial_Artist-Striker.png/revision/latest?cb=20220211161245"),"Breaker":"assets/class-icons/breaker.png","Sanguelame":px("0/0a/ClassIcon-Assassin-Deathblade.png/revision/latest?cb=20220211161236"),"Démoniste":px("7/74/ClassIcon-Assassin-Shadowhunter.png/revision/latest?cb=20220211161234"),"Faucheuse":px("4/40/ClassIcon-Assassin-Reaper.png/revision/latest?cb=20230901211242"),"Gunner":px("d/da/ClassIcon-Gunner-Deadeye.png/revision/latest?cb=20220211161238"),"Sagittaire":px("f/fd/ClassIcon-Gunner-Sharpshooter.png/revision/latest?cb=20220211161240"),"Artilleur":px("a/a8/ClassIcon-Gunner-Artillerist.png/revision/latest?cb=20220211161238"),"Machiniste":px("a/ad/ClassIcon-Gunner.png/revision/latest?cb=20220211161237"),"Fusilière":px("3/38/ClassIcon-Gunner-Gunslinger.png/revision/latest?cb=20220211161239"),"Artiste":px("d/da/ClassIcon-Specialist-Artist.png/revision/latest?cb=20230901210029"),"Helètempête":"assets/class-icons/heletempete.png","Ame sauvage":"assets/class-icons/ame-sauvage.png"};
+    const px=p=>`https://wsrv.nl/?url=${encodeURIComponent(FD+p)}&w=64&h=64&output=webp&q=80`;
+    const CI={
+      "Berserker":px("b/b8/ClassIcon-Warrior-Berserker.png/revision/latest?cb=20220211161248"),
+      "Paladin":px("6/66/ClassIcon-Warrior-Paladin.png/revision/latest?cb=20220211161249"),
+      "Destructeur":px("3/3b/ClassIcon-Warrior-Destroyer.png/revision/latest?cb=20230901222333"),
+      "Gunlancer":px("e/eb/ClassIcon-Warrior-Gunlancer.png/revision/latest?cb=20220211161248"),
+      "Slayer":px("1/15/ClassIcon-Warrior-Slayer.png/revision/latest?cb=20230901222441"),
+      "Sorcière":px("6/63/ClassIcon-Mage-Sorceress.png/revision/latest?cb=20220211161242"),
+      "Arcaniste":px("d/d4/ClassIcon-Mage-Arcanist.png/revision/latest?cb=20230901213545"),
+      "Barde":px("1/1b/ClassIcon-Mage-Bard.png/revision/latest?cb=20220211161241"),
+      "Invocatrice":px("e/e3/ClassIcon-Mage-Summoner.png/revision/latest?cb=20230901214149"),
+      "Elementiste":px("e/e8/ClassIcon-Martial_Artist-Wardancer.png/revision/latest?cb=20220211161246"),
+      "Spirite":px("1/19/ClassIcon-Martial_Artist-Soulfist.png/revision/latest?cb=20220211161245"),
+      "Lancière":px("5/5c/ClassIcon-Martial_Artist-Glaivier.png/revision/latest?cb=20230901215814"),
+      "Pugiliste":px("6/64/ClassIcon-Martial_Artist-Scrapper.png/revision/latest?cb=20220211161244"),
+      "Striker":px("b/b0/ClassIcon-Martial_Artist-Striker.png/revision/latest?cb=20220211161245"),
+      "Sanguelame":px("0/0a/ClassIcon-Assassin-Deathblade.png/revision/latest?cb=20220211161236"),
+      "Démoniste":px("7/74/ClassIcon-Assassin-Shadowhunter.png/revision/latest?cb=20220211161234"),
+      "Faucheuse":px("4/40/ClassIcon-Assassin-Reaper.png/revision/latest?cb=20230901211242"),
+      "Dévoreuse d'âme":px("c/c3/ClassIcon-Assassin-Souleater.png/revision/latest?cb=20231125011727"),
+      "Gunner":px("d/da/ClassIcon-Gunner-Deadeye.png/revision/latest?cb=20220211161238"),
+      "Sagittaire":px("f/fd/ClassIcon-Gunner-Sharpshooter.png/revision/latest?cb=20220211161240"),
+      "Artilleur":px("a/a8/ClassIcon-Gunner-Artillerist.png/revision/latest?cb=20220211161238"),
+      "Machiniste":px("a/ad/ClassIcon-Gunner.png/revision/latest?cb=20220211161237"),
+      "Fusilière":px("3/38/ClassIcon-Gunner-Gunslinger.png/revision/latest?cb=20220211161239"),
+      "Artiste":px("d/da/ClassIcon-Specialist-Artist.png/revision/latest?cb=20230901210029"),
+    };
     const getIcon=c=>{if(!c)return CI["Berserker"];const k=c.replace(/\*/g,'').trim();return CI[k]||CI[Object.keys(CI).find(i=>i&&i.toLowerCase()===k.toLowerCase())]||CI["Berserker"];};
 
-    /* ── Fetch API Lost Ark ── */
-    async function fetchLostArkProfile(charName) {
-      const res = await fetch('/api/lostark-profile?character='+encodeURIComponent(charName));
-      if (!res.ok) {
-        const err = await res.json().catch(()=>({error:'Erreur inconnue'}));
-        throw new Error(err.error||'Erreur API');
-      }
-      return res.json();
+    /* ── iLvl tier ── */
+    function ilvlTier(v){
+      const n=parseFloat(v)||0;
+      if(n>=1730) return 'ilvl-s';
+      if(n>=1710) return 'ilvl-a';
+      if(n>=1690) return 'ilvl-b';
+      if(n>=1660) return 'ilvl-c';
+      return 'ilvl-d';
     }
 
-    /* ── Render profil ── */
-    function renderProfile(membre, laData) {
-      const wrap = document.getElementById('profil-wrap');
-      const profile  = laData?.profile  || null;
-      const engravings = laData?.engravings || null;
-      const gems     = laData?.gems     || null;
+    /* ── Raid NM/HM badge ── */
+    function raidBadge(title){
+      const t=(title||'').toUpperCase();
+      if(t.includes('HM')) return '<span class="raid-badge hm">HM</span>';
+      if(t.includes('NM')) return '<span class="raid-badge nm">NM</span>';
+      return '';
+    }
 
-      const pseudo = membre.pseudoLostArk || membre.nom || '?';
-      const classe = profile?.CharacterClassName || membre.personnages?.[0]?.classe || '?';
-      const ilvl   = profile?.ItemAvgLevel?.replace(',','.') || membre.personnages?.[0]?.ilvl || '?';
-      const server = profile?.ServerName || 'EUC';
-      const title  = profile?.CharacterTitle || '';
-      const cp     = profile?.UsingSkillPoint || '';
+    /* ── Role badge class ── */
+    function roleBadgeClass(role){
+      if(role==='Administrateur') return 'badge-admin';
+      if(role==='Modérateur') return 'badge-mod';
+      return 'badge-member';
+    }
 
-      /* Stats combat */
-      const stats = profile?.Stats || [];
-      const statMap = {};
-      stats.forEach(s => { statMap[s.Type] = parseInt(s.Value)||0; });
-      const maxStat = Math.max(...Object.values(statMap), 1);
+    /* ── Toast ── */
+    function toast(msg,err=false){
+      const el=document.getElementById('toast');
+      el.textContent=(err?'❌ ':'✅ ')+msg;
+      el.style.borderColor=err?'rgba(179,0,27,.5)':'rgba(201,146,42,.5)';
+      el.style.color=err?'#ff8080':'var(--gold-light)';
+      el.classList.add('show');
+      setTimeout(()=>el.classList.remove('show'),2800);
+    }
 
-      /* Engravings */
-      const engList = engravings?.ArkPassiveEffects || engravings?.Effects || [];
+    /* ── Compression image ── */
+    function compressImage(file,maxW,maxH,quality=0.82){
+      return new Promise(resolve=>{
+        const reader=new FileReader();
+        reader.onload=e=>{
+          const img=new Image();
+          img.onload=()=>{
+            const canvas=document.createElement('canvas');
+            let w=img.width,h=img.height;
+            if(w>maxW){h=h*(maxW/w);w=maxW;}
+            if(h>maxH){w=w*(maxH/h);h=maxH;}
+            canvas.width=w;canvas.height=h;
+            canvas.getContext('2d').drawImage(img,0,0,w,h);
+            resolve(canvas.toDataURL('image/jpeg',quality));
+          };
+          img.src=e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
 
-      /* Gems */
-      const gemList = gems?.Gems || [];
-      const gemEffects = gems?.Effects || [];
+    /* ══════════════════════════════════════════
+       BRAISES ANIMÉES
+    ══════════════════════════════════════════ */
+    function spawnEmbers(container){
+      for(let i=0;i<18;i++){
+        const e=document.createElement('div');
+        e.className='ember';
+        e.style.setProperty('--x', Math.random()*100+'%');
+        e.style.setProperty('--dur', (3+Math.random()*4)+'s');
+        e.style.setProperty('--delay', (Math.random()*5)+'s');
+        e.style.width = e.style.height = (1.5+Math.random()*2.5)+'px';
+        const hue = Math.random()>0.5 ? '#f0c040' : '#ff4400';
+        e.style.background = hue;
+        container.appendChild(e);
+      }
+    }
 
-      wrap.innerHTML = `
-        <!-- Header -->
+    /* ══════════════════════════════════════════
+       RENDU PRINCIPAL
+    ══════════════════════════════════════════ */
+    async function renderProfile(membre){
+      const wrap=document.getElementById('profil-wrap');
+      const persos=[...(membre.personnages||[])].sort((a,b)=>(parseFloat(b.ilvl)||0)-(parseFloat(a.ilvl)||0));
+      const mainPerso=persos[0];
+      const classeMain=mainPerso?.classe||'?';
+      const ilvlMain=mainPerso?parseFloat(mainPerso.ilvl).toLocaleString('fr-FR'):'?';
+      const bannerUrl=membre.bannerUrl||'';
+      const avatarUrl=membre.avatarUrl||getIcon(classeMain);
+      const bio=membre.bio||'';
+      const canEdit=isSelf; // on peut modifier uniquement son propre profil
+      const role=(membre.role||'').trim();
+
+      /* Historique raids */
+      let raidHistory=[];
+      try{
+        const planSnap=await getDocs(collection(db,'planning'));
+        planSnap.forEach(d=>{
+          const ev=d.data();
+          const reg=(ev.registrations||[]).find(r=>r.uid===viewedMembre.uid);
+          if(reg&&ev.type==='raid') raidHistory.push({title:ev.title,date:ev.date,startTime:ev.startTime,persoNom:reg.persoNom,classe:reg.classe});
+        });
+        raidHistory.sort((a,b)=>b.date.localeCompare(a.date));
+      }catch(e){}
+
+      wrap.innerHTML=`
+        <!-- Bannière -->
+        <div style="position:relative;border-radius:20px;overflow:hidden;height:240px;box-shadow:0 20px 60px rgba(0,0,0,.7);">
+          ${bannerUrl
+            ? `<img src="${bannerUrl}" style="width:100%;height:100%;object-fit:cover;object-position:center 35%;display:block;" alt="Bannière" />`
+            : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#200830 0%,#0c0814 40%,#1a0010 70%,#0a0610 100%);"></div>`}
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,2,14,0) 0%,rgba(8,2,14,.15) 45%,rgba(8,2,14,.92) 100%);pointer-events:none;"></div>
+          <div class="banner-embers" id="banner-embers"></div>
+          ${canEdit?`<button id="btn-change-banner" title="Changer la bannière" style="position:absolute;bottom:12px;right:12px;z-index:10;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.6);color:#fff;font-size:.9rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;padding:0;backdrop-filter:blur(8px);box-shadow:0 2px 8px rgba(0,0,0,.5);" onmouseover="this.style.background='rgba(179,0,27,.75)';this.style.transform='scale(1.1)'" onmouseout="this.style.background='rgba(0,0,0,.6)';this.style.transform='scale(1)'">✏️</button>`:''}
+        </div>
+
+        <!-- Header card -->
         <div class="profil-header">
-          <button id="btn-edit-pseudo" style="${(isSelf||isAdmin)?'':'display:none;'}">✏️ Modifier le pseudo</button>
-          <div class="profil-avatar">
-            <img src="${getIcon(classe)}" alt="${classe}" onerror="this.src='';this.parentElement.innerHTML='⚔️';" />
+          <!-- Avatar -->
+          <div class="avatar-zone">
+            <div class="avatar-ring">
+              <div class="avatar-inner">
+                <img src="${avatarUrl}" class="avatar-img" id="profil-avatar-img" alt="Avatar"
+                  onerror="this.src='${getIcon(classeMain)}';" />
+              </div>
+            </div>
+            ${canEdit?`<button class="btn-avatar-edit" id="btn-change-avatar" style="display:flex;" title="Changer l'avatar">✏️</button>`:''}
           </div>
+
+          <!-- Infos -->
           <div class="profil-info">
-            <div class="profil-pseudo">${pseudo}</div>
-            ${title?`<div class="profil-title">${title}</div>`:''}
+            <div class="profil-pseudo">${membre.nom||'?'}</div>
+            <div class="profil-titre" id="profil-titre-display">${membre.titre||'&nbsp;'}</div>
             <div class="profil-badges">
-              <span class="profil-badge badge-class">${classe}</span>
-              <span class="profil-badge badge-server">EUC · ${server}</span>
-              ${membre.role?`<span class="profil-badge badge-role">${membre.role}</span>`:''}
+              ${role?`<span class="badge ${roleBadgeClass(role)}">${role}</span>`:''}
+              ${classeMain!=='?'?`<span class="badge badge-class">⚔️ ${classeMain}</span>`:''}
+              ${ilvlMain!=='?'?`<span class="badge badge-ilvl">✦ ${ilvlMain} iLvl</span>`:''}
             </div>
           </div>
-          <div class="profil-stats-row">
-            <div class="profil-stat">
-              <span class="profil-stat-val">${ilvl}</span>
-              <span class="profil-stat-label">iLvl</span>
+
+          <!-- Stats + actions -->
+          <div class="profil-stats">
+            <div class="stat-chips">
+              <div class="stat-chip">
+                <span class="stat-val">${persos.length}</span>
+                <span class="stat-label">Persos</span>
+              </div>
+              <div class="stat-chip">
+                <span class="stat-val gold">${raidHistory.length}</span>
+                <span class="stat-label">Raids</span>
+              </div>
+              ${mainPerso?`
+              <div class="stat-chip">
+                <span class="stat-val ${ilvlTier(mainPerso.ilvl)}">${parseFloat(mainPerso.ilvl).toLocaleString('fr-FR')}</span>
+                <span class="stat-label">iLvl max</span>
+              </div>`:''}
             </div>
-            ${cp?`<div class="profil-stat"><span class="profil-stat-val gold">${parseInt(cp).toLocaleString('fr-FR')}</span><span class="profil-stat-label">Skill Pts</span></div>`:''}
+            ${canEdit?`<button class="btn-edit-header" id="btn-edit-general">✏️ Modifier le profil</button>`:''}
           </div>
         </div>
 
-        <!-- Pseudo non lié -->
-        ${!membre.pseudoLostArk ? `
-        <div class="profil-card">
-          <div class="pseudo-link-box">
-            <label>🔗 Lier ton pseudo Lost Ark</label>
-            <div class="pseudo-input-row">
-              <input type="text" id="pseudo-input" placeholder="Ex: Kisytloa" />
-              <button class="btn-fetch" id="btn-save-pseudo">Enregistrer &amp; Charger</button>
-            </div>
-            <div style="font-size:.72rem;color:var(--text-muted);margin-top:8px;">Entre ton pseudo principal (celui affiché dans le jeu). Les données seront chargées depuis l'API Lost Ark.</div>
-          </div>
-        </div>` : ''}
+        <!-- Bio -->
+        <div class="bio-card">
+          <div class="section-label">✦ À propos</div>
+          <div class="bio-text ${bio?'':'bio-empty'}" id="bio-display">${bio||'Aucune description — clique sur Modifier pour te présenter.'}</div>
+          ${canEdit?`<button class="btn-small" id="btn-edit-bio">✏️ Modifier la bio</button>`:''}
+        </div>
 
-        <!-- Grid -->
+        <!-- Grille -->
         <div class="profil-grid">
 
-          <!-- Stats Combat -->
-          <div class="profil-card">
-            <div class="card-title">⚡ Stats de Combat</div>
-            ${stats.length === 0 ? `<div style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:20px;">Aucune donnée disponible</div>` : `
-            <div class="combat-stats">
-              ${renderStatBar('Crit', statMap['치명']||statMap['Crit']||0, maxStat, 'crit')}
-              ${renderStatBar('Spécialisation', statMap['특화']||statMap['Specialization']||0, maxStat, 'spec')}
-              ${renderStatBar('Agilité', statMap['신속']||statMap['Swiftness']||0, maxStat, 'swift')}
-              ${renderStatBar('Domination', statMap['제압']||statMap['Domination']||0, maxStat, 'dom')}
-              ${renderStatBar('Endurance', statMap['인내']||statMap['Endurance']||0, maxStat, 'end')}
-              ${renderStatBar('Expertise', statMap['숙련']||statMap['Expertise']||0, maxStat, 'exp')}
-            </div>`}
-          </div>
-
-          <!-- Engravings -->
-          <div class="profil-card">
-            <div class="card-title">📜 Gravures</div>
-            ${engList.length === 0 ? `<div style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:20px;">Aucune gravure disponible</div>` : `
-            <div class="engraving-list">
-              ${engList.slice(0,8).map(e => renderEngraving(e)).join('')}
-            </div>`}
-          </div>
-
-          <!-- Gems -->
-          <div class="profil-card" style="grid-column:span 2;">
-            <div class="card-title">💎 Gemmes</div>
-            ${gemList.length === 0 ? `<div style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:20px;">Aucune gemme disponible</div>` : `
-            <div class="gems-grid">
-              ${gemList.map(g => renderGem(g, gemEffects)).join('')}
-            </div>`}
-          </div>
-
-          <!-- Personnages Firebase -->
-          ${membre.personnages?.length ? `
-          <div class="profil-card" style="grid-column:span 2;">
-            <div class="card-title">👤 Personnages enregistrés</div>
-            <div class="perso-list">
-              ${[...(membre.personnages||[])].sort((a,b)=>(parseFloat(b.ilvl)||0)-(parseFloat(a.ilvl)||0)).map((p,i)=>`
-                <div class="perso-item ${i===0?'main':''}">
-                  <img src="${getIcon(p.classe)}" class="perso-icon" alt="${p.classe}" onerror="this.src='';" />
+          <!-- Personnages -->
+          <div class="pcard span-full">
+            <div class="section-label">⚔️ Personnages <span style="font-size:.6rem;color:var(--text-dim);font-style:italic;font-family:'Nunito',sans-serif;letter-spacing:0;text-transform:none;">(${persos.length})</span></div>
+            ${persos.length===0
+              ? `<div class="empty-state" data-icon="⚔️">Aucun personnage enregistré.</div>`
+              : `<div class="perso-list">${persos.map((p,i)=>`
+                <div class="perso-row${i===0?' is-main':''}">
+                  <div class="perso-icon-wrap">
+                    <img src="${getIcon(p.classe)}" class="perso-icon" alt="${p.classe}" onerror="this.style.opacity='.3'" />
+                    ${i===0?'<div class="main-glow"></div>':''}
+                  </div>
                   <div class="perso-info">
                     <div class="perso-name">${p.nom}</div>
                     <div class="perso-class">${p.classe}</div>
                   </div>
-                  <span class="perso-ilvl">${parseFloat(p.ilvl).toLocaleString('fr-FR')}</span>
-                  ${i===0?'<span class="perso-main-badge">Principal</span>':''}
+                  <div class="perso-ilvl-wrap">
+                    <div class="perso-ilvl ${ilvlTier(p.ilvl)}">${parseFloat(p.ilvl).toLocaleString('fr-FR')}</div>
+                    ${i===0?'<div class="tag-main">✦ Principal</div>':''}
+                  </div>
                 </div>`).join('')}
-            </div>
-          </div>` : ''}
+              </div>`}
+          </div>
+
+          <!-- Historique -->
+          <div class="pcard span-full">
+            <div class="section-label">📅 Historique des raids <span style="font-size:.6rem;color:var(--text-dim);font-style:italic;font-family:'Nunito',sans-serif;letter-spacing:0;text-transform:none;">(${raidHistory.length})</span></div>
+            ${raidHistory.length===0
+              ? `<div class="empty-state" data-icon="📅">Aucun raid trouvé.</div>`
+              : `<div class="raid-list">${raidHistory.slice(0,12).map(r=>`
+                <div class="raid-row">
+                  <span class="raid-date">${r.date}</span>
+                  <div class="raid-name-wrap">
+                    ${raidBadge(r.title)}
+                    <span class="raid-title">${r.title.replace(/ [HN]M$/i,'').trim()}</span>
+                  </div>
+                  <span class="raid-perso"><strong>${r.persoNom}</strong> · ${r.classe}</span>
+                </div>`).join('')}
+              </div>`}
+          </div>
 
         </div>
       `;
 
-      /* Bouton edit pseudo */
-      document.getElementById('btn-edit-pseudo')?.addEventListener('click', showEditPseudo);
+      /* Braises */
+      const embersEl=document.getElementById('banner-embers');
+      if(embersEl) spawnEmbers(embersEl);
 
-      /* Bouton save pseudo si pas lié */
-      document.getElementById('btn-save-pseudo')?.addEventListener('click', async () => {
-        const input = document.getElementById('pseudo-input');
-        const val = input.value.trim();
-        if (!val) { toast('Entre ton pseudo !', true); return; }
-        await savePseudoAndRefresh(val);
-      });
+      /* Events */
+      document.getElementById('btn-change-banner')?.addEventListener('click',()=>openEditImage('banner'));
+      document.getElementById('btn-change-avatar')?.addEventListener('click',()=>openEditImage('avatar'));
+      document.getElementById('btn-edit-bio')?.addEventListener('click',openEditBio);
+      document.getElementById('btn-edit-general')?.addEventListener('click',openEditGeneral);
     }
 
-    function renderStatBar(name, val, max, cls) {
-      if (!val) return '';
-      const pct = Math.min(Math.round((val/max)*100), 100);
-      return `<div class="combat-stat-row">
-        <span class="combat-stat-name">${name}</span>
-        <div class="combat-stat-bar-wrap"><div class="combat-stat-bar bar-${cls}" style="width:${pct}%"></div></div>
-        <span class="combat-stat-val">${val.toLocaleString('fr-FR')}</span>
-      </div>`;
+    /* ══════════════════════════════════════════
+       POPUPS
+    ══════════════════════════════════════════ */
+    function makeOverlay(){
+      const el=document.createElement('div');
+      el.className='edit-overlay';
+      el.addEventListener('click',e=>{ if(e.target===el) el.remove(); });
+      document.body.appendChild(el);
+      return el;
     }
 
-    function renderEngraving(e) {
-      const name  = e.Name || e.SkillName || '?';
-      const pts   = e.Point || 0;
-      const lv    = e.Level || Math.floor(pts/5) || 1;
-      const icon  = e.Icon || '';
-      const lvClass = lv>=3?'lv3':lv>=2?'lv2':'lv1';
-      return `<div class="engraving-item">
-        ${icon
-          ? `<img src="${icon}" class="engraving-icon" alt="${name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" /><div class="engraving-icon-fallback" style="display:none;">📜</div>`
-          : `<div class="engraving-icon-fallback">📜</div>`}
-        <div class="engraving-info">
-          <div class="engraving-name">${name}</div>
-          ${pts?`<div class="engraving-pts">${pts} / 20 pts</div>`:''}
-        </div>
-        <span class="engraving-lv ${lvClass}">Lv.${lv}</span>
-      </div>`;
-    }
-
-    function renderGem(g, effects) {
-      const lv   = g.Level || 1;
-      const icon = g.Icon  || '';
-      const name = g.Name  || '?';
-      /* Retrouver l'effet lié à cette gemme */
-      const eff  = effects.find(e => e.GemSlot === g.Slot);
-      const type = eff?.Description?.includes('쿨다운')||eff?.Description?.includes('Cooldown') ? 'cd'
-                 : eff?.Description?.includes('피해')||eff?.Description?.includes('Damage') ? 'dmg' : '';
-      const typeLabel = type==='dmg'?'Dégâts':type==='cd'?'Cooldown':'';
-      const lvClass = lv>=7?'gem-lv-high':lv>=4?'gem-lv-mid':'gem-lv-low';
-      return `<div class="gem-item" title="${name}">
-        ${icon
-          ? `<img src="${icon}" class="gem-icon" alt="${name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" /><div class="gem-icon-fallback" style="display:none;">💎</div>`
-          : `<div class="gem-icon-fallback">💎</div>`}
-        <span class="gem-lv ${lvClass}">Lv.${lv}</span>
-        ${typeLabel?`<span class="gem-type ${type}">${typeLabel}</span>`:''}
-      </div>`;
-    }
-
-    function showEditPseudo() {
-      const current = viewedMembre?.pseudoLostArk || '';
-      const html = `
-        <div style="background:rgba(10,3,16,.95);border:1px solid rgba(179,0,27,.3);border-radius:12px;padding:20px;max-width:400px;margin:0 auto;">
-          <div style="font-family:var(--font-head);font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">Modifier le pseudo Lost Ark</div>
-          <div class="pseudo-input-row">
-            <input type="text" id="pseudo-edit-input" value="${current}" placeholder="Ex: Kisytloa" />
-            <button class="btn-fetch" id="btn-confirm-edit">OK</button>
+    function openEditImage(type){
+      const isBanner=type==='banner';
+      const overlay=makeOverlay();
+      overlay.innerHTML=`<div class="edit-popup">
+        <button class="close-btn">×</button>
+        <div class="edit-popup-title">${isBanner?'🖼 Changer la bannière':'👤 Changer l\'avatar'}</div>
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" id="file-input" accept="image/*" />
+          <div class="upload-hint">
+            <span class="hint-icon">${isBanner?'🖼':'👤'}</span>
+            Clique ou glisse une image<br>
+            <small style="color:var(--text-dim);font-size:.62rem;">${isBanner?'Recommandé : 1200×300px':'400×400px'}</small>
           </div>
-        </div>`;
-      const div = document.createElement('div');
-      div.id = 'pseudo-edit-overlay';
-      div.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
-      div.innerHTML = html;
-      div.addEventListener('click', e => { if(e.target===div) div.remove(); });
-      document.body.appendChild(div);
-      document.getElementById('btn-confirm-edit').addEventListener('click', async () => {
-        const val = document.getElementById('pseudo-edit-input').value.trim();
-        if (!val) return;
-        div.remove();
-        await savePseudoAndRefresh(val);
+        </div>
+        <img id="upload-preview" class="upload-preview${isBanner?'':' is-avatar'}" alt="Aperçu" />
+        <button class="btn-save" id="btn-save-img" disabled>💾 Enregistrer</button>
+      </div>`;
+      overlay.querySelector('.close-btn').addEventListener('click',()=>overlay.remove());
+      let b64=null;
+      overlay.querySelector('#file-input').addEventListener('change',async e=>{
+        const file=e.target.files[0]; if(!file)return;
+        b64=await compressImage(file,isBanner?1400:400,isBanner?400:400,0.82);
+        const preview=overlay.querySelector('#upload-preview');
+        preview.src=b64; preview.style.display='block';
+        overlay.querySelector('#btn-save-img').disabled=false;
+      });
+      overlay.querySelector('#btn-save-img').addEventListener('click',async()=>{
+        if(!b64)return;
+        const btn=overlay.querySelector('#btn-save-img');
+        btn.disabled=true; btn.textContent='⏳ Enregistrement…';
+        try{
+          const field=isBanner?'bannerUrl':'avatarUrl';
+          await updateDoc(doc(db,'joueurs',viewedDocId),{[field]:b64});
+          viewedMembre={...viewedMembre,[field]:b64};
+          toast(isBanner?'Bannière mise à jour !':'Avatar mis à jour !');
+          overlay.remove(); renderProfile(viewedMembre);
+        }catch(e){toast('Erreur : '+e.message,true);btn.disabled=false;btn.textContent='💾 Enregistrer';}
       });
     }
 
-    async function savePseudoAndRefresh(pseudo) {
-      try {
-        await updateDoc(doc(db,'joueurs',viewedDocId), { pseudoLostArk: pseudo });
-        viewedMembre = { ...viewedMembre, pseudoLostArk: pseudo };
-        toast('Pseudo enregistré ! Chargement…');
-        await loadAndRender();
-      } catch(e) { toast('Erreur : '+e.message, true); }
+    function openEditBio(){
+      const overlay=makeOverlay();
+      overlay.innerHTML=`<div class="edit-popup">
+        <button class="close-btn">×</button>
+        <div class="edit-popup-title">✏️ Modifier la bio</div>
+        <div class="edit-field">
+          <label>Description</label>
+          <textarea id="bio-input" rows="5" placeholder="Parle de toi, de ta classe, de tes objectifs…">${viewedMembre.bio||''}</textarea>
+        </div>
+        <button class="btn-save" id="btn-save-bio">💾 Enregistrer</button>
+      </div>`;
+      overlay.querySelector('.close-btn').addEventListener('click',()=>overlay.remove());
+      overlay.querySelector('#btn-save-bio').addEventListener('click',async()=>{
+        const val=overlay.querySelector('#bio-input').value.trim();
+        const btn=overlay.querySelector('#btn-save-bio');
+        btn.disabled=true; btn.textContent='⏳…';
+        try{
+          await updateDoc(doc(db,'joueurs',viewedDocId),{bio:val});
+          viewedMembre={...viewedMembre,bio:val};
+          toast('Bio mise à jour !'); overlay.remove();
+          const bioEl=document.getElementById('bio-display');
+          if(bioEl){bioEl.textContent=val||'Aucune description.';bioEl.className='bio-text'+(val?'':' bio-empty');}
+        }catch(e){toast('Erreur : '+e.message,true);btn.disabled=false;btn.textContent='💾 Enregistrer';}
+      });
     }
 
-    async function loadAndRender() {
-      const wrap = document.getElementById('profil-wrap');
-      wrap.innerHTML = '<div class="profil-loader"><div class="loader-ring"></div><span style="font-family:var(--font-head);letter-spacing:2px;font-size:.8rem;">Chargement depuis l\'API Lost Ark…</span></div>';
-
-      if (!viewedMembre.pseudoLostArk) {
-        renderProfile(viewedMembre, null);
-        return;
-      }
-
-      try {
-        const laData = await fetchLostArkProfile(viewedMembre.pseudoLostArk);
-        renderProfile(viewedMembre, laData);
-      } catch(e) {
-        wrap.innerHTML = `<div class="profil-error">
-          <div style="font-size:2rem;margin-bottom:12px;">⚠️</div>
-          <div>${e.message}</div>
-          <div style="font-size:.75rem;color:var(--text-muted);margin-top:8px;">Vérifie que le pseudo est correct et que l'API est configurée.</div>
-          <button onclick="renderProfile(viewedMembre,null)" style="margin-top:16px;padding:8px 20px;font-family:var(--font-head);font-size:.72rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:8px;border:1px solid rgba(179,0,27,.3);background:rgba(14,5,20,.7);color:var(--text-muted);">Afficher sans données</button>
-        </div>`;
-      }
+    function openEditGeneral(){
+      const overlay=makeOverlay();
+      overlay.innerHTML=`<div class="edit-popup">
+        <button class="close-btn">×</button>
+        <div class="edit-popup-title">✏️ Modifier le profil</div>
+        <div class="edit-field">
+          <label>Titre / Surnom</label>
+          <input type="text" id="titre-input" placeholder="Ex: Abyss Lord, Le Tank de service…" value="${viewedMembre.titre||''}" />
+        </div>
+        <button class="btn-save" id="btn-save-general">💾 Enregistrer</button>
+      </div>`;
+      overlay.querySelector('.close-btn').addEventListener('click',()=>overlay.remove());
+      overlay.querySelector('#btn-save-general').addEventListener('click',async()=>{
+        const titre=overlay.querySelector('#titre-input').value.trim();
+        const btn=overlay.querySelector('#btn-save-general');
+        btn.disabled=true; btn.textContent='⏳…';
+        try{
+          await updateDoc(doc(db,'joueurs',viewedDocId),{titre});
+          viewedMembre={...viewedMembre,titre};
+          toast('Profil mis à jour !'); overlay.remove();
+          const el=document.getElementById('profil-titre-display');
+          if(el) el.textContent=titre||'';
+        }catch(e){toast('Erreur : '+e.message,true);btn.disabled=false;btn.textContent='💾 Enregistrer';}
+      });
     }
 
-    /* ── Auth + chargement ── */
-    onAuthStateChanged(auth, async user => {
-      if (!user) { window.location.href='connexion.html'; return; }
-      currentUser = user;
-
-      /* Récupérer le membre courant */
-      const mySnap = await getDocs(query(collection(db,'joueurs'), where('uid','==',user.uid)));
-      if (!mySnap.empty) {
-        const myData = mySnap.docs[0].data();
-        const myRole = (myData.role||'').trim();
-        isAdmin = (myRole==='Administrateur');
-        document.getElementById('user-name').textContent = myData.nom||user.displayName||'Invité';
-        const navLi = document.querySelector('li.nav-annonce');
+    /* ══════════════════════════════════════════
+       AUTH
+    ══════════════════════════════════════════ */
+    onAuthStateChanged(auth,async user=>{
+      if(!user){window.location.href='connexion.html';return;}
+      currentUser=user;
+      const mySnap=await getDocs(query(collection(db,'joueurs'),where('uid','==',user.uid)));
+      if(!mySnap.empty){
+        const myData=mySnap.docs[0].data();
+        const myRole=(myData.role||'').trim();
+        isAdmin=(myRole==='Administrateur');
+        document.getElementById('user-name').textContent=myData.nom||user.displayName||'Invité';
+        localStorage.setItem('userRole',myRole);
+        const navLi=document.querySelector('li.nav-annonce');
         if(navLi) navLi.style.display=(myRole==='Administrateur'||myRole==='Modérateur')?'list-item':'none';
-        const al = document.querySelector('#nav-gear-menu a[data-role="admin"]');
+        const al=document.querySelector('#nav-gear-menu a[data-role="admin"]');
         if(al) al.style.display=isAdmin?'flex':'none';
       }
-
-      /* Charger le membre cible (uid dans l'URL ou soi-même) */
-      const uid = targetUid || user.uid;
-      isSelf = (uid === user.uid);
-      const snap = await getDocs(query(collection(db,'joueurs'), where('uid','==',uid)));
-
-      if (snap.empty) {
-        document.getElementById('profil-wrap').innerHTML = '<div class="profil-error">⚠️ Membre introuvable.</div>';
+      const uid=targetUid||user.uid;
+      isSelf=(uid===user.uid);
+      const snap=await getDocs(query(collection(db,'joueurs'),where('uid','==',uid)));
+      if(snap.empty){
+        document.getElementById('profil-wrap').innerHTML='<div style="text-align:center;padding:80px;color:#ff8080;font-family:var(--font-head);letter-spacing:2px;">⚠️ Membre introuvable.</div>';
         return;
       }
-
-      viewedDocId  = snap.docs[0].id;
-      viewedMembre = snap.docs[0].data();
-      await loadAndRender();
+      viewedDocId=snap.docs[0].id;
+      viewedMembre=snap.docs[0].data();
+      await renderProfile(viewedMembre);
     });
 
-    document.getElementById('logout-btn').addEventListener('click', async()=>{ await signOut(auth); window.location.href='connexion.html'; });
+    document.getElementById('logout-btn').addEventListener('click',async()=>{
+      await signOut(auth); window.location.href='connexion.html';
+    });
   </script>
 
   <script>
   document.addEventListener('DOMContentLoaded',function(){
-    function makeDropdown(t,m){const toggle=document.getElementById(t),menu=document.getElementById(m);if(!toggle||!menu)return;const close=()=>{menu.style.display='none';toggle.setAttribute('aria-expanded','false');};const open=()=>{menu.style.display='block';toggle.setAttribute('aria-expanded','true');};toggle.addEventListener('click',e=>{e.preventDefault();menu.style.display==='block'?close():open();});document.addEventListener('click',e=>{if(!menu.contains(e.target)&&e.target!==toggle&&!toggle.contains(e.target))close();});document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});}
+    function makeDropdown(t,m){
+      const toggle=document.getElementById(t),menu=document.getElementById(m);
+      if(!toggle||!menu)return;
+      const close=()=>{menu.style.display='none';toggle.setAttribute('aria-expanded','false');};
+      const open=()=>{menu.style.display='block';toggle.setAttribute('aria-expanded','true');};
+      toggle.addEventListener('click',e=>{e.preventDefault();menu.style.display==='block'?close():open();});
+      document.addEventListener('click',e=>{if(!menu.contains(e.target)&&e.target!==toggle&&!toggle.contains(e.target))close();});
+      document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+    }
     makeDropdown('nav-raid-toggle','nav-raid-menu');
     makeDropdown('nav-gestion-toggle','nav-gestion-menu');
     makeDropdown('nav-gear-toggle','nav-gear-menu');
     makeDropdown('nav-ressources-toggle','nav-ressources-menu');
+    const role=(localStorage.getItem('userRole')||'').trim();
+    const navLi=document.querySelector('li.nav-annonce');
+    if(navLi){
+      navLi.style.display=(role==='Administrateur'||role==='Modérateur')?'list-item':'none';
+      const al=document.querySelector('#nav-gear-menu a[data-role="admin"]');
+      if(al) al.style.display=(role==='Administrateur')?'flex':'none';
+    }
   });
   </script>
 </body>

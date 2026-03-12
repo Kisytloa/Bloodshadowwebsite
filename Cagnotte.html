@@ -4,6 +4,7 @@
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-auth.js";
+  import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.17.0/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyBfJubhqQFQNo8fxVLKh1DKlfisJhZYwGI",
     authDomain: "bloodshadowsite-d35ce.firebaseapp.com",
@@ -15,9 +16,28 @@
   };
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  onAuthStateChanged(auth, (user) => {
+  const db = getFirestore(app);
+  onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.href = 'connexion.html';
+    } else {
+      const q = query(collection(db, "membres"), where("uid", "==", user.uid));
+      const snap = await getDocs(q);
+      let displayName = user.displayName || 'Invité';
+      if (!snap.empty) {
+        const userData = snap.docs[0].data();
+        displayName = userData.nom || displayName;
+      }
+      document.getElementById('user-name').textContent = displayName;
+
+      if (!snap.empty) {
+        const _d = snap.docs[0].data();
+        const _p = (_d.personnages||[]).slice().sort((a,b)=>(parseFloat(b.ilvl)||0)-(parseFloat(a.ilvl)||0));
+        localStorage.setItem('cr_nom', displayName);
+        localStorage.setItem('cr_avatarUrl', _d.avatarUrl||'');
+        localStorage.setItem('cr_classeMain', _p[0]?.classe||'');
+        document.dispatchEvent(new CustomEvent('cr:profileLoaded'));
+      }
     }
   });
   </script>
@@ -470,5 +490,6 @@
       return color;
     }
   </script>
+  <script src="avatar-nav.js"></script>
 </body>
 </html>
